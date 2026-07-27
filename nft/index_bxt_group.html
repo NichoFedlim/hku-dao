@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <link rel="shortcut icon" type="image/x-icon" href="image/favicon.png">
+    
+    <!-- External Dependencies -->
+    <script src="js/qrcode.min.js"></script>
+    <script src="/wallet-auth.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/index_bxt_group.css" />
+    
+    <title data-i18n="group_title">Group Display - HKU DAO</title>
+</head>
+
+<body>
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="header-inner container">
+            <h1 class="logo" onclick="window.location.href='/'">Gang Da Dao</h1>
+            <nav class="nav">
+                <button class="nav-btn" data-i18n="nav_market" onclick="window.location.href='/NFT_market.html'">Market</button>
+                <button class="nav-btn" data-i18n="nav_categories" onclick="window.location.href='/categories.html'">Categories</button>
+                <button class="nav-btn" id="lang-switch" onclick="toggleLanguage()">中文</button>
+                <button class="nav-btn" onclick="window.location.href='/portfolio.html'" data-i18n="nav_portfolio">Portfolio</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ===== GROUP INFO ===== -->
+    <div class="group-info">
+        <div class="group-header">
+            <button class="nav-btn" id="prev-btn" onclick="loadPreviousGroup()" data-i18n="prev_group">Previous</button>
+            <h2 class="group-title" id="group-title" data-i18n="loading_data">Loading...</h2>
+            <button class="nav-btn" id="next-btn" onclick="loadNextGroup()" data-i18n="next_group">Next</button>
+        </div>
+    </div>
+
+    <!-- ===== NFT CARDS ===== -->
+    <div class="member-grid" id="nft-cards-container">
+        <div class="loading-container">
+            <div class="loader"></div>
+            <p style="margin-top:20px;color:#3498db;font-size:18px;" data-i18n="loading_data">Loading data...</p>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="footer">
+        <p>© 2026 Gang Da Dao · Built on RBAS Blockchain, DeepSeek</p>
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="js/qrcode.min.js"></script>
+    <script src="js/index_bxt_group.js"></script>
+</body>
+
+</html>

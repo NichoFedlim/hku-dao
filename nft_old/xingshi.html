@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="image/favicon.png">
+    <script src="js/qrcode.min.js"></script>
+    <!-- ========== 引入钱包道统一登录工具 ========== -->
+    <script src="/wallet-auth.js"></script>
+    <title>港大道</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+            color: #333;
+        }
+
+        .header {
+            background-color: #910209;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: white;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #4cb7db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #3a9bc0;
+        }
+
+        .controls {
+            margin-bottom: 15px;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            max-width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .search-results {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            background-color: #e9f7fe;
+            border-radius: 5px;
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto 20px;
+        }
+
+        .groups-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .group {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .group:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .surnames-container {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 8px;
+            justify-items: center;
+        }
+
+        .surname-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 50px;
+            text-align: center;
+            border-radius: 8px;
+            background-color: #4cb7db;
+            color: black;
+            font-weight: bold;
+            font-size: 1.8rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 4px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 20px;
+            background: #ffebee;
+            color: #c62828;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .retry-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #c62828;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .load-more-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .load-more-btn {
+            padding: 12px 30px;
+            background: #4cb7db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .load-more-btn:hover {
+            background: #3a9bc0;
+        }
+
+        /* 添加年级按钮样式 */
+        .add-grade-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .add-grade-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #28a745, #218838);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .add-grade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .add-grade-btn.disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .permission-hint {
+            text-align: center;
+            margin-top: 5px;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        /* 模态框样式 - 固定，点击外部无效 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #910209;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: #910209;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4cb7db;
+            box-shadow: 0 0 0 2px rgba(76, 183, 219, 0.2);
+        }
+
+        .name-input-error {
+            border-color: #f44336 !important;
+            background-color: #fff0f0 !important;
+        }
+
+        .name-input-hint {
+            color: #f44336;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .name-input-hint.show {
+            display: block;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .modal-buttons .confirm-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .modal-buttons .confirm-btn:hover {
+            background: #218838;
+        }
+
+        .modal-buttons .cancel-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .modal-buttons .cancel-btn:hover {
+            background: #5a6268;
+        }
+
+        .modal-buttons button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* 权限不足提示框 */
+        #noPermissionModal .modal-content h3 {
+            color: #f44336;
+        }
+
+        #noPermissionModal .modal-buttons {
+            justify-content: center;
+        }
+
+        #noPermissionModal .modal-buttons .confirm-btn {
+            background: #f44336;
+            width: auto;
+            padding: 10px 30px;
+        }
+
+        #noPermissionModal .modal-buttons .confirm-btn:hover {
+            background: #d32f2f;
+        }
+
+        /* 自定义提示框 */
+        .custom-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+            padding: 20px 25px;
+            max-width: 320px;
+            text-align: center;
+            z-index: 3000;
+            display: none;
+        }
+
+        .custom-toast .toast-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #d32f2f;
+        }
+
+        .custom-toast .toast-msg {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .custom-toast .toast-close {
+            background: #1e88e5;
+            color: white;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: .95rem;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+                padding: 12px 15px;
+            }
+            .header h1 {
+                font-size: 1.3rem;
+            }
+            .nav-buttons {
+                flex-direction: row;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .surnames-container {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            .surname-item {
+                font-size: 1.4rem;
+                min-height: 35px;
+            }
+            .modal-content {
+                margin: 20% auto;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .surnames-container {
+                gap: 3px;
+            }
+            .surname-item {
+                font-size: 1.0rem;
+                min-height: 40px;
+            }
+            .modal-content {
+                margin: 15% auto;
+                padding: 15px;
+                width: 95%;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .surname-item {
+                font-size: 1.5rem;
+                min-height: 80px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ===== Header ===== -->
+    <div class="header">
+        <h1>培正道</h1>
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="window.location.href = '/NFT_market.html'">NFT交易市场</button>
+            <button class="nav-btn" onclick="goBack()">返回首页</button>
+        </div>
+    </div>
+
+    <!-- ===== 搜索框 ===== -->
+    <div class="controls">
+        <input type="text" class="search-box" placeholder="搜索姓氏..." id="search-input">
+    </div>
+
+    <div class="search-results" id="search-results">
+        搜索到 <span id="search-count">0</span> 个姓氏
+    </div>
+
+    <!-- ===== 添加年级按钮 ===== -->
+    <div class="add-grade-container">
+        <button class="add-grade-btn" id="add-grade-btn">➕ 添加年级</button>
+    </div>
+    <div class="permission-hint" id="permissionHint"></div>
+
+    <!-- ===== 姓氏列表 ===== -->
+    <div class="groups-container" id="groups-container">
+        <div class="loading">正在加载姓氏数据...</div>
+    </div>
+
+    <div class="load-more-container" id="load-more-container" style="display: none;">
+        <button class="load-more-btn" id="load-more-btn">加载更多姓氏</button>
+    </div>
+
+    <div class="footer">
+        <p>数据来源于多种AI模型，包括Kimi、豆包、DeepSeek</p>
+    </div>
+
+    <!-- ===== 添加年级模态框 ===== -->
+    <div class="modal" id="addGradeModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddGradeModal()">&times;</span>
+            <h3>添加新年级</h3>
+            <form id="addGradeForm">
+                <div class="form-group">
+                    <label>年级名称：</label>
+                    <input type="text" id="gradeName" required placeholder="例如：1973勤社、1974诚社...">
+                    <div class="name-input-hint" id="gradeNameHint">⚠️ 第一个字符不能是数字</div>
+                </div>
+                <div class="form-group">
+                    <label>购买价格（根币）：</label>
+                    <input type="number" id="gradePrice" value="10000" readonly disabled style="background-color: #f5f5f5; cursor: not-allowed;">
+                    <small style="color: #666; margin-top: 5px; display: block;">价格固定为 10000 根币</small>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="cancel-btn" onclick="closeAddGradeModal()">取消</button>
+                    <button type="button" class="confirm-btn" onclick="confirmAddGrade()">确认添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== 权限不足提示框 ===== -->
+    <div class="modal" id="noPermissionModal">
+        <div class="modal-content">
+            <h3>⚠️ 权限不足</h3>
+            <p style="margin: 20px 0; text-align: center; font-size: 16px;">您没有权限添加年级</p>
+            <div class="modal-buttons">
+                <button type="button" class="confirm-btn" onclick="closeNoPermissionModal()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 自定义提示 ===== -->
+    <div id="customToast" class="custom-toast">
+        <div class="toast-title">提示</div>
+        <div class="toast-msg"></div>
+        <button class="toast-close" onclick="hideCustomToast()">确定</button>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ======================== JavaScript =========================== -->
+    <!-- ============================================================ -->
+    <script>
+        // ==================== 全局变量 ====================
+        let allSurnames = [];
+        let filteredSurnames = null;
+        let currentBatch = 0;
+        const BATCH_SIZE = 9;
+        let isLoading = false;
+        let isDetailedDataLoaded = false;
+
+        // 培正道相关变量
+        let peizhengData = null;
+        let hasPeizhengOwnership = false;
+        let pendingAddGradeAction = false;
+
+        // ========== 使用 wallet-auth.js 的登录状态 ==========
+        function checkLoginStatus() {
+            return checkWalletLoginStatus();
+        }
+
+        function clearUserSession() {
+            clearWalletLogin();
+            hasPeizhengOwnership = false;
+        }
+
+        function logoutAndRefresh() {
+            clearUserSession();
+            location.reload();
+        }
+
+        // ==================== 工具函数 ====================
+        function goBack() {
+            window.location.href = 'index_main.html';
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g,
+                '&#39;');
+        }
+
+        // ==================== 培正道相关函数 ====================
+        async function loadPeizhengData() {
+            try {
+                const response = await fetch('/nft/data/peizheng.json');
+                if (response.ok) {
+                    peizhengData = await response.json();
+                    console.log('培正道数据加载成功:', peizhengData);
+                    return peizhengData;
+                } else {
+                    console.error('加载培正道数据失败');
+                    return null;
+                }
+            } catch (error) {
+                console.error('加载培正道数据异常:', error);
+                return null;
+            }
+        }
+
+        async function checkPeizhengOwnership() {
+            const info = checkLoginStatus();
+            if (!info) {
+                hasPeizhengOwnership = false;
+                return false;
+            }
+
+            if (!peizhengData) {
+                await loadPeizhengData();
+            }
+
+            if (peizhengData && peizhengData.nft_holder && peizhengData.nft_holder.wallet) {
+                hasPeizhengOwnership = (info.walletid.toUpperCase() === peizhengData.nft_holder.wallet.toUpperCase());
+            } else {
+                hasPeizhengOwnership = false;
+            }
+
+            updatePermissionUI();
+            return hasPeizhengOwnership;
+        }
+
+        function updatePermissionUI() {
+            const info = checkLoginStatus();
+            const hintDiv = document.getElementById('permissionHint');
+            const addBtn = document.getElementById('add-grade-btn');
+
+            if (info && hasPeizhengOwnership) {
+                hintDiv.innerHTML = '✅ ' + info.name + ' 是培正道的当前持有人，可以添加年级';
+                hintDiv.style.color = '#28a745';
+                addBtn.classList.remove('disabled');
+            } else if (info && !hasPeizhengOwnership) {
+                hintDiv.innerHTML = '⚠️ ' + info.name + ' 不是培正道的当前持有人，无法添加年级';
+                hintDiv.style.color = '#f44336';
+                addBtn.classList.add('disabled');
+            } else {
+                hintDiv.innerHTML = '🔒 请登录后，培正道持有人可以添加年级';
+                hintDiv.style.color = '#666';
+                addBtn.classList.remove('disabled');
+            }
+        }
+
+        // ========== 核心修改：打开添加年级 - 使用钱包道弹窗 ==========
+        function openAddGradeModal() {
+            var info = checkLoginStatus();
+
+            if (!info) {
+                // 未登录，直接弹窗钱包道
+                pendingAddGradeAction = true;
+                openWalletLogin().then(function(result) {
+                    if (result && result.walletid) {
+                        console.log('[xingshi.html] 登录成功，walletid:', result.walletid.substring(0, 16) + '...');
+
+                        // 重新检查所有权
+                        loadPeizhengData().then(function() {
+                            checkPeizhengOwnership().then(function(owns) {
+                                if (owns) {
+                                    showAddGradeForm();
+                                } else {
+                                    showNoPermissionModal();
+                                }
+                            });
+                        });
+                    }
+                }).catch(function(error) {
+            if (error.message === '用户取消登录') {
+                // 用户取消登录，静默处理，不弹窗
+                console.log('[xingshi.html] 用户取消登录');
+            } else {
+                console.error('登录失败:', error);
+                showCustomToast('登录失败：' + error.message, 'error');
+            }
+        });
+        return;
+            }
+
+            // 已登录，检查权限
+            if (!hasPeizhengOwnership) {
+                showNoPermissionModal();
+                return;
+            }
+
+            showAddGradeForm();
+        }
+
+        function showAddGradeForm() {
+            var gradeNameInput = document.getElementById('gradeName');
+            var gradePriceInput = document.getElementById('gradePrice');
+            var hint = document.getElementById('gradeNameHint');
+
+            if (gradeNameInput) {
+                gradeNameInput.value = '';
+                gradeNameInput.classList.remove('name-input-error');
+            }
+            if (gradePriceInput) {
+                gradePriceInput.value = '10000';
+            }
+            if (hint) hint.classList.remove('show');
+
+            var addModal = document.getElementById('addGradeModal');
+            addModal.style.display = 'block';
+        }
+
+        function closeAddGradeModal() {
+            document.getElementById('addGradeModal').style.display = 'none';
+            // 关闭添加年级界面后退出登录
+            logoutAndRefresh();
+        }
+
+        // ========== 确认添加年级 ==========
+        async function confirmAddGrade() {
+            var info = checkLoginStatus();
+            if (!info) {
+                showCustomToast('请先登录', '您需要先登录才能添加年级', function() {
+                    pendingAddGradeAction = true;
+                    openWalletLogin();
+                });
+                return;
+            }
+
+            if (!hasPeizhengOwnership) {
+                showNoPermissionModal();
+                return;
+            }
+
+            var gradeName = document.getElementById('gradeName').value.trim();
+            var price = 10000; // 固定价格
+
+            if (!gradeName) {
+                alert('请输入年级名称');
+                return;
+            }
+
+            if (/^\d/.test(gradeName)) {
+                alert('年级名称的第一个字符不能是数字，请修改后重试！');
+                return;
+            }
+
+            var confirmBtn = document.querySelector('#addGradeModal .confirm-btn');
+            var originalText = confirmBtn ? confirmBtn.textContent : '确认添加';
+            if (confirmBtn) {
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = '处理中...';
+            }
+
+            try {
+                showCustomToast('处理中', '正在创建年级并扣款，请稍候...');
+
+                var response = await fetch('/api/grade/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        grade_name: gradeName,
+                        price: price,
+                        buyer_wallet: info.walletid
+                    })
+                });
+
+                var result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || '添加年级失败');
+                }
+
+                hideCustomToast();
+                alert('年级添加成功！\n已扣除 ' + price + ' 根币\n年级名称：' + gradeName + '\n编号：' + result.grade_number +
+                    '\n验证码：' + (result.verification_code ? result.verification_code.substring(0, 16) + '...' :
+                        '已生成'));
+
+                closeAddGradeModal();
+
+            } catch (error) {
+                console.error('添加年级失败:', error);
+                hideCustomToast();
+                var errorMessage = error.message;
+                if (errorMessage.includes('余额不足')) {
+                    alert('添加年级失败：余额不足，需要 ' + price + ' 根币');
+                } else if (errorMessage.includes('钱包验证失败')) {
+                    alert('添加年级失败：钱包验证失败，请重新登录后再试。');
+                    logoutAndRefresh();
+                } else {
+                    alert('添加年级失败：' + (errorMessage || '未知错误'));
+                }
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = originalText;
+                }
+            }
+        }
+
+        // ========== 权限不足提示框 ==========
+        function showNoPermissionModal() {
+            document.getElementById('noPermissionModal').style.display = 'block';
+        }
+
+        function closeNoPermissionModal() {
+            document.getElementById('noPermissionModal').style.display = 'none';
+            logoutAndRefresh();
+        }
+
+        // ========== 自定义提示 ==========
+        function showCustomToast(title, msg, callback) {
+            callback = callback || null;
+            var toast = document.getElementById('customToast');
+            if (!toast) {
+                console.log(title + ': ' + msg);
+                if (callback) callback();
+                return;
+            }
+            var titleEl = toast.querySelector('.toast-title');
+            var msgEl = toast.querySelector('.toast-msg');
+            if (titleEl) titleEl.textContent = title;
+            if (msgEl) msgEl.textContent = msg;
+            toast.style.display = 'block';
+            var closeBtn = toast.querySelector('.toast-close');
+            if (closeBtn) {
+                var newCloseBtn = closeBtn.cloneNode(true);
+                closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+                newCloseBtn.onclick = function() {
+                    toast.style.display = 'none';
+                    if (callback && typeof callback === 'function') callback();
+                };
+            }
+        }
+
+        function hideCustomToast() {
+            var toast = document.getElementById('customToast');
+            if (toast) toast.style.display = 'none';
+        }
+
+        // ==================== 姓氏列表加载 ====================
+        async function loadSurnamesFromAPI() {
+            var response = await fetch('/api/surnames/list');
+            if (!response.ok) {
+                throw new Error('API 返回错误: ' + response.status);
+            }
+            var result = await response.json();
+            if (!result.success) {
+                throw new Error(result.error || '获取姓氏列表失败');
+            }
+            return result.data;
+        }
+
+        async function loadBasicSurnamesData() {
+            try {
+                var surnamesData = await loadSurnamesFromAPI();
+
+                if (!surnamesData || surnamesData.length === 0) {
+                    throw new Error('未找到任何姓氏数据');
+                }
+
+                allSurnames = surnamesData;
+                currentBatch = 0;
+                renderGroups();
+
+                isDetailedDataLoaded = true;
+
+                document.getElementById('search-input').addEventListener('input', searchSurnames);
+
+                await loadPeizhengData();
+                await checkPeizhengOwnership();
+
+            } catch (error) {
+                console.error('加载基本数据失败:', error);
+                document.getElementById('groups-container').innerHTML =
+                    '<div class="error-message">' +
+                    '<h3>数据加载失败</h3>' +
+                    '<p>' + error.message + '</p>' +
+                    '<button class="retry-btn" onclick="loadBasicSurnamesData()">重新加载</button>' +
+                    '</div>';
+            }
+        }
+
+        var searchSurnames = debounce(async function() {
+            var query = document.getElementById('search-input').value.trim().toLowerCase();
+            if (!query) {
+                filteredSurnames = null;
+                document.getElementById('search-results').style.display = 'none';
+                document.getElementById('load-more-container').style.display = 'none';
+                currentBatch = 0;
+                renderGroups();
+                return;
+            }
+
+            var hits = allSurnames.filter(function(s) {
+                return s.name.toLowerCase().includes(query) ||
+                    s.card_number.toString().includes(query);
+            });
+
+            filteredSurnames = hits;
+            document.getElementById('search-count').textContent = hits.length;
+            document.getElementById('search-results').style.display = 'block';
+            document.getElementById('load-more-container').style.display = 'none';
+            currentBatch = 0;
+            renderGroups();
+        });
+
+        function debounce(fn, wait) {
+            wait = wait || 300;
+            var t;
+            return function() {
+                var args = arguments;
+                clearTimeout(t);
+                t = setTimeout(function() {
+                    fn.apply(null, args);
+                }, wait);
+            };
+        }
+
+        function renderBatch(start, end) {
+            var dataToRender = filteredSurnames || allSurnames;
+            var slice = dataToRender.slice(start, end);
+            if (slice.length === 0) return;
+
+            var container = document.getElementById('groups-container');
+
+            if (filteredSurnames) {
+                renderSearchResultView(container, slice);
+            } else {
+                renderGroupView(container, slice);
+            }
+        }
+
+        function renderGroupView(container, data) {
+            var totalGroups = Math.ceil(data.length / 9);
+
+            for (var i = 0; i < totalGroups; i++) {
+                var startIndex = i * 9;
+                var groupSurnames = data.slice(startIndex, startIndex + 9);
+                var startNo = groupSurnames[0] ? groupSurnames[0].card_number : (startIndex + 1);
+
+                var groupElement = document.createElement('div');
+                groupElement.className = 'group';
+                groupElement.setAttribute('data-start-index', startNo);
+
+                var html = '<div class="surnames-container">';
+                for (var j = 0; j < groupSurnames.length; j++) {
+                    html += '<div class="surname-item">' + groupSurnames[j].name + '</div>';
+                }
+                html += '</div>';
+                groupElement.innerHTML = html;
+
+                groupElement.addEventListener('click', function() {
+                    var startIdx = parseInt(this.getAttribute('data-start-index'));
+                    window.location.href = 'index_bxt_group.html?start=' + startIdx;
+                });
+
+                container.appendChild(groupElement);
+            }
+        }
+
+        function renderSearchResultView(container, data) {
+            var totalGroups = Math.ceil(data.length / 9);
+
+            for (var i = 0; i < totalGroups; i++) {
+                var startIndex = i * 9;
+                var groupSurnames = data.slice(startIndex, startIndex + 9);
+                var startNo = groupSurnames[0] ? groupSurnames[0].card_number : (startIndex + 1);
+
+                var groupElement = document.createElement('div');
+                groupElement.className = 'group';
+                groupElement.setAttribute('data-start-index', startNo);
+
+                var html = '<div class="surnames-container">';
+                for (var j = 0; j < groupSurnames.length; j++) {
+                    html += '<div class="surname-item">' + groupSurnames[j].name + '</div>';
+                }
+                html += '</div>';
+                groupElement.innerHTML = html;
+
+                groupElement.addEventListener('click', function() {
+                    var startIdx = parseInt(this.getAttribute('data-start-index'));
+                    window.location.href = 'index_bxt_group.html?start=' + startIdx;
+                });
+
+                container.appendChild(groupElement);
+            }
+        }
+
+        var isRendering = false;
+
+        function renderGroups() {
+            if (isRendering) return;
+            isRendering = true;
+
+            var container = document.getElementById('groups-container');
+            if (currentBatch === 0) container.innerHTML = '';
+
+            var dataToRender = filteredSurnames || allSurnames;
+            var start = currentBatch * BATCH_SIZE;
+            var end = Math.min(start + BATCH_SIZE, dataToRender.length);
+
+            if (start >= end) {
+                isRendering = false;
+                return;
+            }
+
+            requestAnimationFrame(function() {
+                renderBatch(start, end);
+                currentBatch++;
+                isRendering = false;
+                if (end < dataToRender.length) {
+                    setTimeout(function() { renderGroups(); }, 100);
+                }
+            });
+        }
+
+        // ==================== 监听登录成功事件 ====================
+        document.addEventListener('wallet-login-success', function(event) {
+            var detail = event.detail;
+            if (detail && detail.walletid) {
+                console.log('[xingshi.html] 登录成功，walletid:', detail.walletid.substring(0, 16) + '...');
+
+                // 重新检查权限
+                loadPeizhengData().then(function() {
+                    checkPeizhengOwnership().then(function(owns) {
+                        if (owns && pendingAddGradeAction) {
+                            pendingAddGradeAction = false;
+                            showAddGradeForm();
+                        }
+                    });
+                });
+            }
+        });
+
+        // ==================== 初始化 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBasicSurnamesData();
+
+            // 添加年级按钮事件
+            var addGradeBtn = document.getElementById('add-grade-btn');
+            if (addGradeBtn) {
+                addGradeBtn.addEventListener('click', openAddGradeModal);
+            }
+
+            // 防止点击模态框外部关闭
+            var modals = ['addGradeModal', 'noPermissionModal'];
+            for (var i = 0; i < modals.length; i++) {
+                (function(modalId) {
+                    var modal = document.getElementById(modalId);
+                    if (modal) {
+                        modal.addEventListener('click', function(e) {
+                            if (e.target === modal) {
+                                e.stopPropagation();
+                            }
+                        });
+                    }
+                })(modals[i]);
+            }
+
+            // 年级名称输入验证
+            var gradeNameInput = document.getElementById('gradeName');
+            if (gradeNameInput) {
+                gradeNameInput.addEventListener('input', function(e) {
+                    var value = e.target.value;
+                    var hint = document.getElementById('gradeNameHint');
+                    if (value.length > 0 && /^\d/.test(value)) {
+                        e.target.classList.add('name-input-error');
+                        if (hint) hint.classList.add('show');
+                    } else {
+                        e.target.classList.remove('name-input-error');
+                        if (hint) hint.classList.remove('show');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

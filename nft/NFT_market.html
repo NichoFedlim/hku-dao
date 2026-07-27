@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes, viewport-fit=cover" />
+    <title>NFT交易市场 - 百姓道</title>
+    <link rel="shortcut icon" href="image/favicon.png" />
+    <script src="js/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ============ 重置 & 基础 ============ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Microsoft YaHei', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            /* color: #121212; */
+            padding-top: 70px;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        /* ============ 头部 (固定不动) ============ */
+        .header {
+            background: linear-gradient(135deg, #c00, #8b0000);
+            padding: 10px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            flex: 1;
+            text-align: left;
+            margin-bottom: 0;
+            color: #FFF;
+            font-size: 1.6rem;
+            letter-spacing: 1px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex: 0 0 auto;
+            justify-content: flex-end;
+        }
+
+        .nav-btn {
+            background: #4cb7db;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 32px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.96);
+        }
+
+        .nav-btn:hover {
+            background: #2c7da0;
+        }
+
+
+        /* ============ 固定上方控制栏 (排序栏 + 标题区) 滚动时固定 ============ */
+        .sticky-controls {
+            position: sticky;
+            top: 55px;
+            z-index: 999;
+            background-color: #f5f7fb;
+            padding-top: 0;
+            padding-bottom: 0px;
+            margin-top: 0;
+        }
+
+        /* 排序栏样式 */
+        .sort-bar {
+            max-width: 1400px;
+            margin: 0 auto 0px auto;
+            padding: 0 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .sort-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 60px;
+            width: auto;
+        }
+
+        .sort-btn {
+            background: #f1f5f9;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #1e293b;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sort-btn i {
+            font-size: 0.95rem;
+        }
+
+        .sort-btn.active {
+            background: #4cb7db;
+            color: white;
+            box-shadow: 0 4px 10px rgba(76, 183, 219, 0.3);
+        }
+
+        /* 手机端适配 */
+        @media (max-width: 768px) {
+            .sort-bar {
+                padding: 10 12px;
+                justify-content: center;
+            }
+            
+            .sort-group {
+                gap: 8px;
+                padding: 12px 12px;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .sort-btn {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+                gap: 4px;
+            }
+            
+            .sort-btn i {
+                font-size: 0.7rem;
+            }
+        }
+
+        /* 手机端5个按钮自动换行成2行，顶部留出更多空间 */
+        @media (max-width: 560px) {
+           .sticky-controls {
+                position: sticky;
+                top: 80px;
+            }
+            
+            .sort-group {
+                gap: 8px;
+                padding: 12px 10px 8px 10px;
+                max-width: 320px;
+                margin: 10px auto;
+            }
+            
+            .sort-btn {
+                padding: 6px 12px;
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .sticky-controls {
+                padding-top: 15px;
+            }
+            
+            .sort-group {
+                gap: 6px;
+                padding: 14px 8px 8px 8px;
+                max-width: 280px;
+            }
+            
+            .sort-btn {
+                padding: 5px 10px;
+                font-size: 0.65rem;
+            }
+        }
+
+        /* 固定标题 */
+        .section-title {
+            margin-top: 8px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: #8b0000;
+            border-left: 5px solid #c00;
+            padding-left: 12px;
+            background: linear-gradient(135deg, #c00, #8b0000);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: #8b0000;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .section-title {
+                padding-left: 18px;
+                font-size: 1rem;
+                margin-top: 4px;
+            }
+        }
+
+        /* 市场容器 - 滚动卡片区域 */
+        .market-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px 20px 24px;
+        }
+
+        @media (max-width: 768px) {
+            .market-container {
+                padding: 0 12px 20px 12px;
+            }
+        }
+
+        /* 老版本网格布局 + 卡片样式 */
+        .market-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: flex-start;
+        }
+
+        .nft-name-card {
+            width: auto;
+            min-width: 100px;
+            max-width: 220px;
+            background: linear-gradient(135deg, #4cb7db, #2c7da0);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 20px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .nft-name-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+            border-color: #ffd700;
+        }
+
+        .nft-name-card .name-line {
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .nft-name-card .surname-line {
+            font-size: 1.3rem;
+            margin-bottom: 2px;
+        }
+
+        .nft-name-card .citang-line {
+            font-size: 1.5rem;
+            margin-bottom: 2px;
+        }
+
+        .nft-name-card .member-line {
+            font-size: 1.7rem;
+        }
+
+        .nft-name-card.surname-only .surname-line {
+            font-size: 2rem;
+        }
+
+        .nft-name-card .price-line {
+            color: #ffd700;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .market-grid {
+                gap: 10px;
+            }
+
+            .nft-name-card {
+                padding: 8px 12px;
+                min-width: 70px;
+                max-width: 150px;
+            }
+
+            .nft-name-card .surname-line {
+                font-size: 0.9rem;
+            }
+
+            .nft-name-card .citang-line {
+                font-size: 1rem;
+            }
+
+            .nft-name-card .member-line {
+                font-size: 1.1rem;
+            }
+
+            .nft-name-card.surname-only .surname-line {
+                font-size: 1.3rem;
+            }
+
+            .nft-name-card .price-line {
+                font-size: 0.7rem;
+                margin-top: 5px;
+                padding-top: 4px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .market-grid {
+                gap: 8px;
+            }
+
+            .nft-name-card {
+                padding: 6px 10px;
+                min-width: 60px;
+                max-width: 120px;
+            }
+
+            .nft-name-card .surname-line {
+                font-size: 0.8rem;
+            }
+
+            .nft-name-card .citang-line {
+                font-size: 0.85rem;
+            }
+
+            .nft-name-card .member-line {
+                font-size: 0.9rem;
+            }
+
+            .nft-name-card.surname-only .surname-line {
+                font-size: 1.1rem;
+            }
+
+            .nft-name-card .price-line {
+                font-size: 0.6rem;
+                margin-top: 4px;
+                padding-top: 3px;
+            }
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: transparent;
+            margin: 5% auto;
+            padding: 0;
+            width: auto;
+            max-width: 380px;
+            position: relative;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close {
+            color: #fff;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: -15px;
+            top: -15px;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+
+        .close:hover {
+            background: #c00;
+            transform: rotate(90deg);
+        }
+
+        /* 登录模态框内容 */
+        .login-modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: 20px;
+            width: 95%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4cb7db;
+            box-shadow: 0 0 0 3px rgba(76, 183, 219, 0.2);
+        }
+
+        /* 手机号输入组样式 */
+        .phone-group-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .country-code-select {
+            width: 170px;
+            flex-shrink: 0;
+        }
+
+        .country-code-select select {
+            width: 100%;
+            padding: 12px 10px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.95em;
+            background: #f9fafb;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-weight: 500;
+            height: 48px;
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
+        .country-code-select select:focus {
+            outline: none;
+            border-color: #4cb7db;
+            box-shadow: 0 0 0 3px rgba(76, 183, 219, 0.2);
+        }
+
+        .phone-number-input {
+            flex: 1;
+        }
+
+        .phone-number-input .form-input {
+            height: 48px;
+            padding: 12px 14px;
+        }
+
+        .code-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .code-input-group .form-input {
+            flex: 1;
+        }
+
+        .send-code-btn {
+            background: #10b981 !important;
+            white-space: nowrap;
+            padding: 12px 20px;
+            height: 48px;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        .confirm-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .confirm-btn:hover {
+            background: #218838;
+        }
+
+        .wallet-info {
+            background: #e8f5e8;
+            padding: 12px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: monospace;
+        }
+
+        .nft-preview {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .price-section {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .cancel-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+
+        .nft-table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+
+        .nft-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .nft-table th,
+        .nft-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .sell-btn {
+            background: #ff9800;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .sell-btn.prepared {
+            background: #28a745 !important;
+        }
+
+        .cancel-prepared-btn {
+            background: #28a745 !important;
+        }
+
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            top: 50%;
+            left: 50%;
+            margin-left: -9px;
+            margin-top: -9px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #fff;
+            border-radius: 50%;
+            animation: btn-spin 0.8s linear infinite;
+        }
+
+        .btn-loading span {
+            visibility: hidden;
+        }
+
+        @keyframes btn-spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #4cb7db;
+            font-size: 1.2rem;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4cb7db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .custom-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 24px;
+            min-width: 260px;
+            text-align: center;
+            z-index: 10000;
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .toast-icon {
+            font-size: 44px;
+            margin: 16px 0 8px;
+        }
+
+        .toast-message {
+            padding: 0 20px 20px;
+            font-size: 1rem;
+        }
+
+        .toast-close {
+            background: #f0f0f0;
+            padding: 10px;
+            cursor: pointer;
+            border-top: 1px solid #ddd;
+            border-radius: 0 0 24px 24px;
+        }
+
+        .status-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .status-modal {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        /* NFT表格响应式样式 */
+        .nft-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .nft-table th,
+        .nft-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .nft-table th {
+            background: #f5f7fb;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .nft-name-cell {
+            min-width: 100px;
+            max-width: 150px;
+            word-break: break-word;
+            white-space: normal;
+        }
+
+        .price-cell {
+            min-width: 80px;
+            white-space: nowrap;
+            color: #e67e22;
+            font-weight: 500;
+        }
+
+        .action-cell {
+            min-width: 180px;
+            white-space: nowrap;
+        }
+
+        .action-cell input {
+            width: 70px !important;
+            padding: 6px 8px !important;
+            font-size: 0.75rem !important;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .action-cell .sell-btn {
+            padding: 6px 12px;
+            font-size: 0.7rem;
+            margin-left: 5px;
+        }
+
+        /* 手机端适配 */
+        @media (max-width: 600px) {
+            .nft-table {
+                font-size: 0.75rem;
+            }
+            
+            .nft-table th,
+            .nft-table td {
+                padding: 8px 5px;
+            }
+            
+            .nft-name-cell {
+                min-width: 80px;
+                max-width: 110px;
+            }
+            
+            .price-cell {
+                min-width: 65px;
+                font-size: 0.7rem;
+            }
+            
+            .action-cell {
+                min-width: 150px;
+            }
+            
+            .action-cell input {
+                width: 60px !important;
+                padding: 4px 6px !important;
+                font-size: 0.65rem !important;
+            }
+            
+            .action-cell .sell-btn {
+                padding: 4px 8px;
+                font-size: 0.65rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nft-table th,
+            .nft-table td {
+                padding: 6px 3px;
+            }
+            
+            .nft-name-cell {
+                min-width: 65px;
+                max-width: 90px;
+                font-size: 0.7rem;
+            }
+            
+            .price-cell {
+                min-width: 55px;
+                font-size: 0.65rem;
+            }
+            
+            .action-cell {
+                min-width: 135px;
+            }
+            
+            .action-cell input {
+                width: 50px !important;
+                padding: 3px 4px !important;
+                font-size: 0.6rem !important;
+            }
+            
+            .action-cell .sell-btn {
+                padding: 3px 6px;
+                font-size: 0.6rem;
+                margin-left: 3px;
+            }
+        }
+
+        /* 移动端手机号区域适配 */
+        @media (max-width: 480px) {
+            .phone-group-wrapper {
+                flex-direction: row;
+                gap: 8px;
+            }
+            
+            .country-code-select {
+                width: 150px;
+            }
+            
+            .country-code-select select {
+                padding: 12px 8px;
+                font-size: 0.9em;
+                height: 48px;
+            }
+            
+            .phone-number-input .form-input {
+                height: 48px;
+                padding: 12px 14px;
+            }
+            
+            .code-input-group {
+                flex-direction: row;
+                gap: 8px;
+            }
+            
+            .send-code-btn {
+                padding: 12px 16px;
+                font-size: 0.9em;
+                white-space: nowrap;
+                height: 48px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .country-code-select {
+                width: 140px;
+            }
+            
+            .country-code-select select {
+                font-size: 0.85em;
+                padding: 12px 6px;
+                height: 48px;
+            }
+            
+            .send-code-btn {
+                padding: 12px 12px;
+                font-size: 0.85em;
+                height: 48px;
+            }
+        }
+
+        .card-surname,
+        .card-citang,
+        .card-member {
+            width: 340px;
+            background-color: #4cb7db;
+            border: 2px solid #333;
+            border-radius: 10px;
+            transition: transform .2s ease;
+            margin: 0 auto;
+            padding: 15px;
+            position: relative;
+        }
+
+        .card-inner {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            padding: 5px;
+        }
+
+        .member-name {
+            font-size: 2.2rem;
+            margin: 0;
+            margin-top: 8px;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, .3);
+        }
+
+        .member-details {
+            font-size: .75rem;
+            color: #fff;
+            margin-top: 15px;
+        }
+
+        .qr-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .qr-wrapper {
+            background: #fff;
+            padding: 6px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+            display: inline-block;
+            margin-bottom: 2px;
+        }
+
+        .qrcode {
+            width: 100%;
+            max-width: 130px;
+            height: auto;
+            aspect-ratio: 1/1;
+            margin: 0;
+            border-radius: 6px;
+        }
+
+        .nft-background {
+            background: #fff;
+            padding: 8px 4px;
+            border-radius: 5px;
+            width: 100%;
+            text-align: center;
+            font-family: monospace;
+            font-size: 11px;
+            line-height: 1.3;
+            color: #333;
+            word-break: break-all;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            line-clamp: 4;
+            -webkit-box-orient: vertical;
+            white-space: normal;
+        }
+
+        .button-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 5px 0 5px;
+        }
+
+        .nft-transaction-btn {
+            background: linear-gradient(to bottom, #7fb9e2, #5a9ccc);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            font-size: .9rem;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
+            transition: all .3s;
+        }
+
+        .price-display {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .card-number-tag {
+            margin-left: 10px;
+            color: #ecf1f5;
+            font-size: .9rem;
+        }
+
+        .modal-action-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .buy-now-btn {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>NFT交易市场</h1>
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="window.history.back()">返回上一页</button>
+            <a href="index_main.html" class="nav-btn">返回首页</a>
+            <button id="loginBtn" class="nav-btn" onclick="showLoginModal()">登录出售</button>
+            <button id="logoutBtn" class="nav-btn" onclick="logoutDirect()" style="display: none;">退出</button>
+        </div>
+    </div>
+
+    <!-- 固定控制区域 -->
+    <div class="sticky-controls">
+        <div class="sort-bar">
+            <div class="sort-group">
+                <button class="sort-btn" data-sort="price-desc"><i class="fas fa-arrow-down"></i> 价格高→低</button>
+                <button class="sort-btn" data-sort="price-asc"><i class="fas fa-arrow-up"></i> 价格低→高</button>
+                <button class="sort-btn" data-sort="pinyin"><i class="fas fa-sort-alpha-down"></i> 拼音A→Z</button>
+                <button class="sort-btn" data-sort="level"><i class="fas fa-layer-group"></i> 姓氏→会堂→成员</button>
+                <button class="sort-btn" data-sort="level-reverse"><i class="fas fa-layer-group"></i> 成员→会堂→姓氏</button>
+            </div>
+        </div>
+        <div class="section-title"><i class="fas fa-store"></i> 在售NFT · 点击卡片查看详情</div>
+    </div>
+
+    <div class="market-container">
+        <div id="market-content">
+            <div class="loading">
+                <div class="loading-spinner"></div>加载市场数据...
+            </div>
+        </div>
+    </div>
+
+    <!-- NFT详情模态框 -->
+    <div id="nftDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDetailModalAndLogout()">&times;</span>
+            <div id="detailCardContainer"></div>
+            <div class="modal-action-buttons"><button class="buy-now-btn" id="buyFromDetailBtn"
+                    onclick="buyFromDetail()"><i class="fas fa-shopping-cart"></i> 立即购买</button></div>
+        </div>
+    </div>
+
+    <!-- 购买模态框 -->
+    <div class="modal" id="buyModal">
+        <div class="login-modal-content">
+            <span class="modal-header-close"
+                style="position:absolute;right:20px;top:16px;font-size:28px;cursor:pointer;"
+                onclick="closeBuyModalAndLogout()">&times;</span>
+            <div id="buyLoginSection">
+                <h3 style="color:#910209;">🔐 登录购买NFT</h3>
+                <div id="buyLoginMessage" class="message"></div>
+                <div class="form-group"><label>👤 姓名</label><input type="text" id="buyLoginAccount" class="form-input"
+                        placeholder="请输入姓名"></div>
+                <div class="form-group"><label>📱 手机号</label>
+                    <div class="phone-group-wrapper">
+                        <div class="country-code-select">
+                            <select id="buyCountryCode">
+                                <option value="+86">🇨🇳 中国 +86</option>
+                                <option value="+852">🇭🇰 香港 +852</option>
+                                <option value="+853">🇲🇴 澳门 +853</option>
+                                <option value="+886">🇨🇳 台湾 +886</option>
+                                <option value="+1">🇺🇸 美国/加拿大 +1</option>
+                                <option value="+44">🇬🇧 英国 +44</option>
+                                <option value="+81">🇯🇵 日本 +81</option>
+                                <option value="+82">🇰🇷 韩国 +82</option>
+                                <option value="+65">🇸🇬 新加坡 +65</option>
+                                <option value="+60">🇲🇾 马来西亚 +60</option>
+                                <option value="+66">🇹🇭 泰国 +66</option>
+                                <option value="+84">🇻🇳 越南 +84</option>
+                                <option value="+63">🇵🇭 菲律宾 +63</option>
+                                <option value="+62">🇮🇩 印度尼西亚 +62</option>
+                                <option value="+91">🇮🇳 印度 +91</option>
+                                <option value="+61">🇦🇺 澳大利亚 +61</option>
+                                <option value="+49">🇩🇪 德国 +49</option>
+                                <option value="+33">🇫🇷 法国 +33</option>
+                                <option value="+39">🇮🇹 意大利 +39</option>
+                                <option value="+7">🇷🇺 俄罗斯 +7</option>
+                                <option value="+55">🇧🇷 巴西 +55</option>
+                                <option value="+52">🇲🇽 墨西哥 +52</option>
+                            </select>
+                        </div>
+                        <div class="phone-number-input">
+                            <input type="tel" id="buyLoginPhone" class="form-input" placeholder="请输入手机号">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="code-input-group"><button type="button" id="buySendCodeBtn"
+                            class="nav-btn send-code-btn" onclick="sendCode('buy')">发送验证码</button><input type="text"
+                            id="buyLoginCode" class="form-input" placeholder="验证码" disabled></div>
+                </div>
+                <button class="confirm-btn" id="buyLoginSubmitBtn" onclick="buyLogin()">登录并购买</button>
+            </div>
+            <div id="buyConfirmSection" style="display:none;">
+                <h3>✅ 确认购买</h3>
+                <div class="wallet-info"><strong>💰 钱包：</strong><span id="buyWalletAddress"></span></div>
+                <div id="nftPreview"></div>
+                <div class="price-section">
+                    <h4>购买价格: <span id="buyPriceDisplay" class="price-display"></span> 根币</h4>
+                </div>
+                <div class="action-buttons"><button onclick="showBuyLoginSection()"
+                        class="cancel-btn">返回登录</button><button class="confirm-btn" id="confirmBuyBtn"
+                        onclick="confirmPurchase()">确认购买</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录出售模态框 -->
+    <div class="modal" id="loginModal">
+        <div class="login-modal-content"><span class="modal-header-close"
+                style="position:absolute;right:20px;top:16px;font-size:28px;cursor:pointer;"
+                onclick="closeLoginModalAndLogout()">&times;</span>
+            <div id="loginSection">
+                <h3 style="color:#910209;">🔐 用户登录</h3>
+                <div id="loginMessage" class="message"></div>
+                <div class="form-group"><label>👤 姓名</label><input type="text" id="loginAccount" class="form-input"
+                        placeholder="请输入姓名"></div>
+                <div class="form-group"><label>📱 手机号</label>
+                    <div class="phone-group-wrapper">
+                        <div class="country-code-select">
+                            <select id="loginCountryCode">
+                                <option value="+86">🇨🇳 中国 +86</option>
+                                <option value="+852">🇭🇰 香港 +852</option>
+                                <option value="+853">🇲🇴 澳门 +853</option>
+                                <option value="+886">🇨🇳 台湾 +886</option>
+                                <option value="+1">🇺🇸 美国/加拿大 +1</option>
+                                <option value="+44">🇬🇧 英国 +44</option>
+                                <option value="+81">🇯🇵 日本 +81</option>
+                                <option value="+82">🇰🇷 韩国 +82</option>
+                                <option value="+65">🇸🇬 新加坡 +65</option>
+                                <option value="+60">🇲🇾 马来西亚 +60</option>
+                                <option value="+66">🇹🇭 泰国 +66</option>
+                                <option value="+84">🇻🇳 越南 +84</option>
+                                <option value="+63">🇵🇭 菲律宾 +63</option>
+                                <option value="+62">🇮🇩 印度尼西亚 +62</option>
+                                <option value="+91">🇮🇳 印度 +91</option>
+                                <option value="+61">🇦🇺 澳大利亚 +61</option>
+                                <option value="+49">🇩🇪 德国 +49</option>
+                                <option value="+33">🇫🇷 法国 +33</option>
+                                <option value="+39">🇮🇹 意大利 +39</option>
+                                <option value="+7">🇷🇺 俄罗斯 +7</option>
+                                <option value="+55">🇧🇷 巴西 +55</option>
+                                <option value="+52">🇲🇽 墨西哥 +52</option>
+                            </select>
+                        </div>
+                        <div class="phone-number-input">
+                            <input type="tel" id="loginPhone" class="form-input" placeholder="请输入手机号">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="code-input-group"><button type="button" id="sendCodeBtn" class="nav-btn send-code-btn"
+                            onclick="sendCode('login')">发送验证码</button><input type="text" id="loginCode"
+                            class="form-input" placeholder="验证码" disabled></div>
+                </div><button class="confirm-btn" id="loginSubmitBtn" onclick="login()">确认登录</button>
+            </div>
+            <div id="nftSelectionSection" style="display:none;">
+                <h3>📦 我的NFT</h3>
+                <div class="wallet-info"><strong>👛 钱包：</strong><span id="walletAddress"></span><br><strong>👤
+                        用户：</strong><span id="displayName"></span></div>
+                <div class="nft-table-container">
+                    <table class="nft-table">
+                        <thead>
+                            <tr>
+                                <th>NFT名称</th>
+                                <th>购买价格</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="nftTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="action-buttons"><button onclick="cancelAllActions()" class="cancel-btn" style="padding: 10px 25px; font-size: 1rem;">取消操作</button><button
+                        onclick="confirmAllActions()" class="confirm-btn">确认操作</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="statusOverlay" class="status-overlay" style="display:none;">
+        <div class="status-modal">
+            <h3>⏳ 处理中</h3>
+            <div id="statusMessage">正在处理...</div><button onclick="hideStatusOverlay()" class="cancel-btn">取消</button>
+        </div>
+    </div>
+
+    <script src="js/qrcode.min.js"></script>
+    <script>
+        // 完全保留原有业务逻辑，仅调整界面滚动结构，无逻辑变更
+        let rawNFTs = [], currentSortedNFTs = [], currentDetailNFT = null, currentBuyNFT = null, userNFTs = [], pendingSellActions = [], pendingCancelActions = [];
+        let nftDataCache = {}, citangDetailsCache = {}, memberDetailsCache = {};
+
+        // 辅助函数：获取完整手机号（带国际区号）
+        function getFullPhone(type) {
+            let countryCode, phoneNumber;
+            if (type === 'login') {
+                countryCode = document.getElementById('loginCountryCode').value;
+                phoneNumber = document.getElementById('loginPhone').value.trim();
+            } else {
+                countryCode = document.getElementById('buyCountryCode').value;
+                phoneNumber = document.getElementById('buyLoginPhone').value.trim();
+            }
+            if (!phoneNumber) return '';
+            const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
+            return countryCode + cleanPhone;
+        }
+
+        function setButtonLoading(btn, isLoading, originalText = '') {
+            if (!btn) return;
+            if (isLoading) { btn.disabled = true; btn.classList.add('btn-loading'); if (originalText) btn.dataset.originalText = originalText; else if (!btn.dataset.originalText) btn.dataset.originalText = btn.textContent; btn.innerHTML = '<span>' + btn.dataset.originalText + '</span>'; }
+            else { btn.disabled = false; btn.classList.remove('btn-loading'); if (btn.dataset.originalText) btn.innerHTML = btn.dataset.originalText; }
+        }
+        function showCustomToast(msg, type) { const t = document.createElement('div'); t.className = 'custom-toast'; t.innerHTML = `<div class="toast-icon">${type === 'error' ? '❌' : '✅'}</div><div class="toast-message">${msg}</div><div class="toast-close">确定</div>`; document.body.appendChild(t); t.querySelector('.toast-close').onclick = () => t.remove(); setTimeout(() => t.remove(), 3000); }
+        function setBodyScrollLock(lock) { if (lock) document.body.classList.add('modal-open'); else document.body.classList.remove('modal-open'); }
+        function getDisplayLines(nft) { if (nft.level === 'surname') return { surname: nft.surname, citang: null, member: null, isSurnameOnly: true }; if (nft.level === 'citang') return { surname: nft.surname + '.', citang: nft.citang_name, member: null, isSurnameOnly: false }; return { surname: nft.surname + '.', citang: nft.citang_name + '.', member: nft.member_name, isSurnameOnly: false }; }
+        function getFullDisplayName(nft) { if (nft.level === 'surname') return nft.surname; if (nft.level === 'citang') return `${nft.surname}.${nft.citang_name}`; return `${nft.surname}.${nft.citang_name}.${nft.member_name}`; }
+        function getLevelWeightForward(nft) { if (nft.level === 'surname') return 1; if (nft.level === 'citang') return 2; return 3; }
+        function getLevelWeightReverse(nft) { if (nft.level === 'member') return 1; if (nft.level === 'citang') return 2; return 3; }
+        function sortNFTs(type, list) { let sorted = [...list]; if (type === 'price-desc') sorted.sort((a, b) => (b.price || 0) - (a.price || 0)); else if (type === 'price-asc') sorted.sort((a, b) => (a.price || 0) - (b.price || 0)); else if (type === 'pinyin') sorted.sort((a, b) => getFullDisplayName(a).localeCompare(getFullDisplayName(b), 'zh-CN')); else if (type === 'level') sorted.sort((a, b) => { let w = getLevelWeightForward(a) - getLevelWeightForward(b); if (w !== 0) return w; return getFullDisplayName(a).localeCompare(getFullDisplayName(b), 'zh-CN'); }); else if (type === 'level-reverse') sorted.sort((a, b) => { let w = getLevelWeightReverse(a) - getLevelWeightReverse(b); if (w !== 0) return w; return getFullDisplayName(a).localeCompare(getFullDisplayName(b), 'zh-CN'); }); return sorted; }
+
+        function renderMarketCards(nfts) {
+            const container = document.getElementById('market-content');
+            if (!nfts || !nfts.length) { container.innerHTML = '<div class="loading">✨ 暂无在售NFT</div>'; return; }
+            let html = '<div class="market-grid">';
+            nfts.forEach(nft => {
+                const lines = getDisplayLines(nft); const isSurnameOnly = lines.isSurnameOnly; const surnameClass = isSurnameOnly ? 'surname-only' : ''; const price = nft.price || 0;
+                let inner = '';
+                if (isSurnameOnly) inner = `<div class="name-line surname-line">${escapeHtml(lines.surname)}</div>`;
+                else { inner = `<div class="name-line surname-line">${escapeHtml(lines.surname)}</div><div class="name-line citang-line">${escapeHtml(lines.citang)}</div>`; if (lines.member) inner += `<div class="name-line member-line">${escapeHtml(lines.member)}</div>`; }
+                inner += `<div class="price-line"><i class="fas fa-coins" style="font-size: 0.8rem;"></i>rc:${price}</div>`;
+                html += `<div class="nft-name-card ${surnameClass}" onclick="showNFTDetailByIndex(${rawNFTs.findIndex(n => n.card_number === nft.card_number && n.level === nft.level && n.surname === nft.surname && (n.citang_number || '') === (nft.citang_number || '') && (n.member_number || '') === (nft.member_number || ''))})">${inner}</div>`;
+            });
+            html += '</div>'; container.innerHTML = html;
+        }
+
+        function escapeHtml(s) { if (!s) return ''; return s.replace(/[&<>]/g, function (m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+        function applySortAndRender(type) { if (!rawNFTs.length) return; currentSortedNFTs = sortNFTs(type, rawNFTs); renderMarketCards(currentSortedNFTs); document.querySelectorAll('.sort-btn').forEach(btn => { if (btn.dataset.sort === type) btn.classList.add('active'); else btn.classList.remove('active'); }); }
+
+        async function loadOnSaleNFTs() { try { const res = await fetch('/api/nfts/onsale'); const nfts = await res.json(); const sorted = nfts.sort((a, b) => a.price - b.price); const enriched = await Promise.all(sorted.map(async nft => { let nftValue = nft.nft_hash; if (!nftValue) nftValue = await getNFTData(nft); let add = {}; if (nft.level === 'citang') add = await getCitangDetails(nft); if (nft.level === 'member') add = await getMemberDetails(nft); return { ...nft, nftValue, ...add }; })); rawNFTs = enriched; applySortAndRender('price-desc'); } catch (e) { document.getElementById('market-content').innerHTML = '<div class="loading">❌ 加载失败</div>'; } }
+        async function getNFTData(nft) { const key = `${nft.level}_${nft.card_number}_${nft.citang_number || ''}_${nft.member_number || ''}`; if (nftDataCache[key]) return nftDataCache[key]; let url = ''; if (nft.level === 'surname') url = `/citang-data/${nft.card_number}${nft.surname}/content.json`; else if (nft.level === 'citang') url = `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/citang.json`; else url = `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/${nft.member_number}${nft.member_name}/${nft.member_number}${nft.member_name}.json`; try { const r = await fetch(url); if (!r.ok) throw new Error(); const d = await r.json(); const val = nft.level === 'surname' ? (d.nft || d.hash) : (d.hash || d.nft); nftDataCache[key] = val || ''; return val || ''; } catch (e) { return nft.hash || ''; } }
+        async function getCitangDetails(nft) { const key = `citang_${nft.card_number}_${nft.citang_number}`; if (citangDetailsCache[key]) return citangDetailsCache[key]; const url = `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/citang.json`; try { const r = await fetch(url); if (!r.ok) return {}; const d = await r.json(); const details = { province: d.province || '', district: d.district || '' }; citangDetailsCache[key] = details; return details; } catch (e) { return {}; } }
+        async function getMemberDetails(nft) { const key = `member_${nft.card_number}_${nft.citang_number}_${nft.member_number}`; if (memberDetailsCache[key]) return memberDetailsCache[key]; const url = `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/${nft.member_number}${nft.member_name}/${nft.member_number}${nft.member_name}.json`; try { const r = await fetch(url); if (!r.ok) return {}; const d = await r.json(); const details = { gender: d.gender || '未知', birth: d.birth || '未知' }; memberDetailsCache[key] = details; return details; } catch (e) { return {}; } }
+        function showNFTDetailByIndex(idx) { if (idx >= 0 && rawNFTs[idx]) showNFTDetail(rawNFTs[idx]); else showCustomToast('NFT不存在', 'error'); }
+        function showNFTDetail(nft) { currentDetailNFT = nft; document.getElementById('detailCardContainer').innerHTML = renderFullCard(nft); document.getElementById('nftDetailModal').style.display = 'block'; setBodyScrollLock(true); setTimeout(() => generateQRCodeForDetail(nft), 100); }
+        function renderFullCard(nft) { let qrId = ''; if (nft.level === 'surname') qrId = `qr-detail-${nft.card_number}`; else if (nft.level === 'citang') qrId = `qr-detail-${nft.card_number}-${nft.citang_number}`; else qrId = `qr-detail-${nft.card_number}-${nft.citang_number}-${nft.member_number}`; const hashFmt = (nft.nftValue || '').match(/.{1,16}/g)?.join('<br>') || '无'; if (nft.level === 'surname') return `<div class="card-surname"><div class="card-inner"><div><h1 class="member-name" style="font-size:3.2rem;">${nft.surname}</h1></div><div class="qr-section"><div class="qr-wrapper"><div class="qrcode" id="${qrId}"></div></div><div class="nft-background">${hashFmt}</div></div></div><div class="button-section"><button class="nft-transaction-btn" onclick="viewTransactionHistory('${nft.level}','${nft.card_number}','${nft.surname}')">NFT成交记录</button><div><span class="price-display">根币: ${nft.price}</span><span class="card-number-tag">#${nft.card_number}</span></div></div></div>`; if (nft.level === 'citang') return `<div class="card-citang"><div class="card-inner"><div><span class="card-number-tag">#${nft.card_number}.${nft.citang_number}</span><h1 class="member-name" style="font-size:1.5rem;">${nft.surname}.</h1><h1 class="member-name" style="font-size:2rem;">${nft.citang_name}</h1><div class="member-details">省/市：${nft.province || '未知'}</div><div class="member-details">区/县：${nft.district || '未知'}</div></div><div class="qr-section"><div class="qr-wrapper"><div class="qrcode" id="${qrId}"></div></div><div class="nft-background">${hashFmt}</div></div></div><div class="button-section"><button class="nft-transaction-btn" onclick="viewTransactionHistory('${nft.level}','${nft.card_number}','${nft.surname}','${nft.citang_number}','${nft.citang_name}')">NFT历史交易</button><div><span class="price-display">根币: ${nft.price}</span></div></div></div>`; return `<div class="card-member"><div class="card-inner"><div><span class="card-number-tag">#${nft.card_number}.${nft.citang_number}.${nft.member_number}</span><h1 class="member-name" style="font-size:1.3rem;">${nft.surname}.</h1><h1 class="member-name" style="font-size:1.3rem;">${nft.citang_name}.</h1><div class="member-name">${nft.member_name}</div><div class="member-details">性别：${nft.gender || '未知'}</div><div class="member-details">出生：${nft.birth || '未知'}</div></div><div class="qr-section"><div class="qr-wrapper"><div class="qrcode" id="${qrId}"></div></div><div class="nft-background">${hashFmt}</div></div></div><div class="button-section"><button class="nft-transaction-btn" onclick="viewTransactionHistory('${nft.level}','${nft.card_number}','${nft.surname}','${nft.citang_number}','${nft.citang_name}','${nft.member_number}','${nft.member_name}')">NFT历史交易</button><div><span class="price-display">根币: ${nft.price}</span></div></div></div>`; }
+        function generateQRCodeForDetail(nft) { let qrId = ''; if (nft.level === 'surname') qrId = `qr-detail-${nft.card_number}`; else if (nft.level === 'citang') qrId = `qr-detail-${nft.card_number}-${nft.citang_number}`; else qrId = `qr-detail-${nft.card_number}-${nft.citang_number}-${nft.member_number}`; const el = document.getElementById(qrId); if (el && nft.nftValue && el.innerHTML.trim() === '') new QRCode(el, { text: nft.nftValue, width: 130, height: 130, correctLevel: QRCode.CorrectLevel.L }); }
+        function viewTransactionHistory(level, card_number, surname, citang_number = '', citang_name = '', member_number = '', member_name = '') { let url = ''; if (level === 'surname') url = `/ti_log.html?name=${encodeURIComponent(surname)}&card_number=${card_number}`; else if (level === 'citang') url = `/citang_ti_log.html?surname=${encodeURIComponent(surname)}&name=${encodeURIComponent(citang_name)}&card_number=${card_number}&citang_number=${citang_number}`; else url = `/member_ti_log.html?surname=${encodeURIComponent(surname)}&citang_number=${citang_number}&member_number=${member_number}&card_number=${card_number}&citangname=${encodeURIComponent(citang_name)}&membername=${encodeURIComponent(member_name)}`; if (url) window.location.href = url; }
+        function buyFromDetail() { if (currentDetailNFT) showBuyModal(currentDetailNFT); else showCustomToast('请选择NFT', 'warning'); }
+        function showBuyModal(nft) { const info = checkLoginStatus(); if (!info) { currentBuyNFT = nft; document.getElementById('buyModal').style.display = 'block'; setBodyScrollLock(true); showBuyLoginSection(); return; } if (nft.seller === info.wallet) { showCustomToast('⚠️ 这是您自己的NFT，无法购买', 'warning'); return; } currentBuyNFT = nft; document.getElementById('buyModal').style.display = 'block'; setBodyScrollLock(true); showBuyConfirmSection(); }
+        function showBuyLoginSection() { document.getElementById('buyLoginSection').style.display = 'block'; document.getElementById('buyConfirmSection').style.display = 'none'; }
+        function showBuyConfirmSection() { document.getElementById('buyLoginSection').style.display = 'none'; document.getElementById('buyConfirmSection').style.display = 'block'; const info = checkLoginStatus(); if (info) document.getElementById('buyWalletAddress').innerText = formatWalletShort(info.wallet); document.getElementById('buyPriceDisplay').innerText = currentBuyNFT.price; document.getElementById('nftPreview').innerHTML = `<h4>📄 NFT信息</h4><p><strong>名称：</strong> ${getNFTName(currentBuyNFT)}</p><p><strong>卖家：</strong> ${formatWalletShort(currentBuyNFT.seller)}</p><p><strong>价格：</strong> ${currentBuyNFT.price} 根币</p>`; }
+        function resetBuyLoginForm() { document.getElementById('buyLoginAccount').value = ''; document.getElementById('buyLoginPhone').value = ''; document.getElementById('buyLoginCode').value = ''; document.getElementById('buyLoginCode').disabled = true; const btn = document.getElementById('buySendCodeBtn'); if (btn) { btn.disabled = false; btn.textContent = '发送验证码'; } }
+        function checkLoginStatus() { const w = localStorage.getItem('wallet'), n = localStorage.getItem('name'); return (w && n) ? { wallet: w, name: n, account: localStorage.getItem('account') } : null; }
+        function formatWalletShort(w) { if (!w) return '未知'; return w.length <= 12 ? w : w.slice(0, 6) + '...' + w.slice(-6); }
+        function getNFTName(nft) { if (nft.level === 'surname') return nft.surname; if (nft.level === 'citang') return `${nft.surname}.${nft.citang_name}`; return `${nft.surname}.${nft.citang_name}.${nft.member_name}`; }
+        function clearUserSession() { localStorage.removeItem('wallet'); localStorage.removeItem('name'); localStorage.removeItem('account'); userNFTs = []; pendingSellActions = []; pendingCancelActions = []; updateLoginUI(); }
+        function updateLoginUI() { const info = checkLoginStatus(); document.getElementById('loginBtn').style.display = info ? 'none' : 'inline-block'; document.getElementById('logoutBtn').style.display = info ? 'inline-block' : 'none'; }
+        function logoutDirect() { if (pendingSellActions.length || pendingCancelActions.length) { confirmAllActions(); return; } clearUserSession(); }
+        function closeDetailModalAndLogout() { document.getElementById('nftDetailModal').style.display = 'none'; setBodyScrollLock(false); currentDetailNFT = null; clearUserSession(); }
+        function closeBuyModalAndLogout() { document.getElementById('buyModal').style.display = 'none'; setBodyScrollLock(false); resetBuyLoginForm(); currentBuyNFT = null; clearUserSession(); }
+        function closeLoginModalAndLogout() { cancelAllActions(); document.getElementById('loginModal').style.display = 'none'; setBodyScrollLock(false); clearUserSession(); }
+        
+        async function sendCode(type) {
+            let name, phone, btn, codeInput, msgDiv;
+            if (type === 'login') {
+                name = document.getElementById('loginAccount').value.trim();
+                phone = getFullPhone('login');
+                btn = document.getElementById('sendCodeBtn');
+                codeInput = document.getElementById('loginCode');
+                msgDiv = document.getElementById('loginMessage');
+            } else {
+                name = document.getElementById('buyLoginAccount').value.trim();
+                phone = getFullPhone('buy');
+                btn = document.getElementById('buySendCodeBtn');
+                codeInput = document.getElementById('buyLoginCode');
+                msgDiv = document.getElementById('buyLoginMessage');
+            }
+            if (!name || !phone) {
+                if (msgDiv) {
+                    msgDiv.textContent = '请填写姓名和手机号';
+                    msgDiv.className = 'message error';
+                    msgDiv.style.display = 'block';
+                    setTimeout(() => msgDiv.style.display = 'none', 3000);
+                }
+                return;
+            }
+            setButtonLoading(btn, true, '发送验证码');
+            try {
+                const res = await fetch('/api/send-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'login', name, phone: phone })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    if (msgDiv) {
+                        msgDiv.textContent = result.message || '验证码已发送';
+                        msgDiv.className = 'message success';
+                        msgDiv.style.display = 'block';
+                        setTimeout(() => msgDiv.style.display = 'none', 3000);
+                    }
+                    codeInput.disabled = false;
+                    btn.disabled = false;
+                    btn.classList.remove('btn-loading');
+                    btn.textContent = '重新发送';
+                } else {
+                    if (msgDiv) {
+                        msgDiv.textContent = result.message || '发送失败';
+                        msgDiv.className = 'message error';
+                        msgDiv.style.display = 'block';
+                        setTimeout(() => msgDiv.style.display = 'none', 3000);
+                    }
+                    setButtonLoading(btn, false);
+                    btn.textContent = '发送验证码';
+                }
+            } catch (e) {
+                if (msgDiv) {
+                    msgDiv.textContent = '网络错误，请重试';
+                    msgDiv.className = 'message error';
+                    msgDiv.style.display = 'block';
+                    setTimeout(() => msgDiv.style.display = 'none', 3000);
+                }
+                setButtonLoading(btn, false);
+                btn.textContent = '发送验证码';
+            }
+        }
+        
+        async function login() {
+            const name = document.getElementById('loginAccount').value.trim();
+            const phone = getFullPhone('login');
+            const code = document.getElementById('loginCode').value.trim();
+            const btn = document.getElementById('loginSubmitBtn');
+            if (!name || !phone || !code) {
+                showLoginMessage('请填写所有信息', 'error');
+                return;
+            }
+            setButtonLoading(btn, true, '确认登录');
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, phone: phone, code })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    localStorage.setItem('wallet', result.wallet);
+                    localStorage.setItem('name', result.name);
+                    localStorage.setItem('account', name);
+                    showLoginMessage('登录成功！', 'success');
+                    setTimeout(() => { showNFTSelectionSection(); updateLoginUI(); }, 1000);
+                } else {
+                    showLoginMessage('登录失败：' + (result.error || '未知错误'), 'error');
+                }
+            } catch (e) {
+                showLoginMessage('网络错误，请重试', 'error');
+            } finally {
+                setButtonLoading(btn, false);
+            }
+        }
+        
+        function showLoginMessage(txt, type) { const d = document.getElementById('loginMessage'); d.textContent = txt; d.className = 'message ' + type; d.style.display = 'block'; setTimeout(() => d.style.display = 'none', 3000); }
+        function showLoginModal() { document.getElementById('loginModal').style.display = 'block'; setBodyScrollLock(true); document.getElementById('loginSection').style.display = 'block'; document.getElementById('nftSelectionSection').style.display = 'none'; }
+        function showNFTSelectionSection() { document.getElementById('loginSection').style.display = 'none'; document.getElementById('nftSelectionSection').style.display = 'block'; const w = localStorage.getItem('wallet'); const n = localStorage.getItem('name'); document.getElementById('walletAddress').textContent = formatWalletShort(w); document.getElementById('displayName').textContent = n || '未知用户'; loadUserNFTs(); }
+        
+        async function loadUserNFTs() {
+            const info = checkLoginStatus();
+            if (!info) return;
+            try {
+                const res = await fetch(`/api/user/nfts?wallet=${info.wallet}`);
+                userNFTs = await res.json();
+                const onsaleRes = await fetch('/api/nfts/onsale');
+                const onsaleList = await onsaleRes.json();
+                const tbody = document.getElementById('nftTableBody');
+                if (!userNFTs.length) {
+                    tbody.innerHTML = '<tr><td colspan="3">暂无NFT</td></tr>';
+                    return;
+                }
+                let html = '';
+                userNFTs.forEach((nft, idx) => {
+                    const name = getNFTName(nft);
+                    const onsaleItem = onsaleList.find(i => 
+                        i.level === nft.level && 
+                        i.card_number === nft.card_number && 
+                        i.surname === nft.surname && 
+                        (i.citang_number || '') === (nft.citang_number || '') && 
+                        (i.citang_name || '') === (nft.citang_name || '') && 
+                        (i.member_number || '') === (nft.member_number || '') && 
+                        (i.member_name || '') === (nft.member_name || '')
+                    );
+                    const isOnSale = !!onsaleItem;
+                    const onSalePrice = onsaleItem ? onsaleItem.price : null;
+                    const isPreparingCancel = pendingCancelActions.some(a => a.nftIndex === idx);
+                    const isPreparingSell = pendingSellActions.some(a => a.nftIndex === idx);
+                    
+                    // 获取购买价格（从用户的购买记录中获取purchase_price）
+                    const purchasePrice = nft.purchase_price || '未知';
+                    const priceDisplay = purchasePrice !== '未知' ? `💰 ${purchasePrice} rc` : '未知';
+                    
+                    if (isOnSale) {
+                        const cancelBtnClass = isPreparingCancel ? 'sell-btn cancel-prepared-btn' : 'sell-btn';
+                        const cancelBtnText = isPreparingCancel ? '取消已准备' : '取消上架';
+                        html += `<tr>
+                            <td class="nft-name-cell">${escapeHtml(name)}</td>
+                            <td class="price-cell">${priceDisplay}</td>
+                            <td class="action-cell">
+                                <span style="color:#28a745;">✓ 已上架</span>
+                                ${onSalePrice !== null ? `<span style="color:#ff9800; margin-left:8px;">💰rc:${onSalePrice}</span>` : ''}
+                                <button class="${cancelBtnClass}" onclick="prepareCancelSale(${idx})" style="margin-left:8px;">${cancelBtnText}</button>
+                            </td>
+                        </tr>`;
+                    } else {
+                        const sellBtnClass = isPreparingSell ? 'sell-btn prepared' : 'sell-btn';
+                        const sellBtnText = isPreparingSell ? '已准备' : '上架';
+                        const priceVal = isPreparingSell ? (pendingSellActions.find(a => a.nftIndex === idx)?.price || '') : '';
+                        html += `<tr>
+                            <td class="nft-name-cell">${escapeHtml(name)}</td>
+                            <td class="price-cell">${priceDisplay}</td>
+                            <td class="action-cell">
+                                <input type="text" id="priceInput_${idx}" placeholder="价格(rc)" style="width:80px;padding:5px;font-size:0.8rem;" ${isPreparingSell ? 'disabled' : ''} value="${priceVal}">
+                                <button class="${sellBtnClass}" id="sellBtn_${idx}" onclick="prepareSellNFT(${idx})" ${(!isPreparingSell && (!document.getElementById('priceInput_' + idx) || !parseInt(document.getElementById('priceInput_' + idx)?.value) >= 1)) ? 'disabled' : ''}>${sellBtnText}</button>
+                            </td>
+                        </tr>`;
+                    }
+                });
+                tbody.innerHTML = html;
+                
+                // 为所有价格输入框添加事件监听
+                userNFTs.forEach((_, idx) => {
+                    const pi = document.getElementById(`priceInput_${idx}`);
+                    if (pi && !pendingSellActions.some(a => a.nftIndex === idx)) {
+                        pi.oninput = function () {
+                            const btn = document.getElementById(`sellBtn_${idx}`);
+                            if (btn && parseInt(this.value) >= 1) btn.disabled = false;
+                            else if (btn) btn.disabled = true;
+                        };
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        
+        function prepareSellNFT(idx) {
+            const nft = userNFTs[idx];
+            const priceInput = document.getElementById(`priceInput_${idx}`);
+            const price = parseInt(priceInput.value);
+            if (isNaN(price) || price < 1) { showCustomToast('请输入有效价格（至少1根币）', 'warning'); return; }
+            const existing = pendingSellActions.find(a => a.nftIndex === idx);
+            const btn = document.getElementById(`sellBtn_${idx}`);
+            if (!existing) {
+                pendingSellActions.push({ nftIndex: idx, nft, price });
+                if (btn) { btn.textContent = '已准备'; btn.classList.add('prepared'); btn.style.background = '#28a745'; }
+                if (priceInput) priceInput.disabled = true;
+            } else {
+                pendingSellActions = pendingSellActions.filter(a => a.nftIndex !== idx);
+                if (btn) { btn.textContent = '上架'; btn.classList.remove('prepared'); btn.style.background = '#ff9800'; btn.disabled = true; }
+                if (priceInput) { priceInput.disabled = false; priceInput.value = ''; }
+            }
+        }
+        function prepareCancelSale(idx) {
+            const nft = userNFTs[idx];
+            const existing = pendingCancelActions.find(a => a.nftIndex === idx);
+            const row = document.getElementById('nftTableBody').children[idx];
+            if (!row) return;
+            const btn = row.querySelector('.sell-btn');
+            if (!existing) {
+                pendingCancelActions.push({ nftIndex: idx, nft });
+                if (btn) { btn.textContent = '取消已准备'; btn.classList.add('cancel-prepared-btn'); btn.style.background = '#28a745'; }
+            } else {
+                pendingCancelActions = pendingCancelActions.filter(a => a.nftIndex !== idx);
+                if (btn) { btn.textContent = '取消上架'; btn.classList.remove('cancel-prepared-btn'); btn.style.background = '#ff9800'; }
+            }
+        }
+        function cancelAllActions() { pendingSellActions = []; pendingCancelActions = []; loadUserNFTs(); }
+        async function confirmAllActions() {
+            if (!pendingSellActions.length && !pendingCancelActions.length) { showCustomToast('您没有操作', 'warning'); return; }
+            const info = checkLoginStatus();
+            if (!info) return;
+            for (const act of pendingSellActions) {
+                try {
+                    const h = await getNFTData(act.nft);
+                    await fetch('/api/nft/list', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ level: act.nft.level, card_number: act.nft.card_number, surname: act.nft.surname, citang_number: act.nft.citang_number || '', citang_name: act.nft.citang_name || '', member_number: act.nft.member_number || '', member_name: act.nft.member_name || '', price: act.price, seller_wallet: info.wallet, hash: h }) });
+                } catch (e) { }
+            }
+            for (const act of pendingCancelActions) {
+                try {
+                    await fetch('/api/nft/cancel-sale', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ level: act.nft.level, card_number: act.nft.card_number, surname: act.nft.surname, citang_number: act.nft.citang_number || '', citang_name: act.nft.citang_name || '', member_number: act.nft.member_number || '', member_name: act.nft.member_name || '' }) });
+                } catch (e) { }
+            }
+            pendingSellActions = [];
+            pendingCancelActions = [];
+            await loadUserNFTs();
+            await loadOnSaleNFTs();
+            clearUserSession();
+            document.getElementById('loginModal').style.display = 'none';
+            setBodyScrollLock(false);
+        }
+        
+        async function buyLogin() {
+            const name = document.getElementById('buyLoginAccount').value.trim();
+            const phone = getFullPhone('buy');
+            const code = document.getElementById('buyLoginCode').value.trim();
+            const btn = document.getElementById('buyLoginSubmitBtn');
+            if (!name || !phone || !code) {
+                showBuyLoginMessage('请填写所有信息', 'error');
+                return;
+            }
+            setButtonLoading(btn, true, '登录并购买');
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, phone: phone, code })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    localStorage.setItem('wallet', result.wallet);
+                    localStorage.setItem('name', result.name);
+                    localStorage.setItem('account', name);
+                    showBuyLoginMessage('登录成功！', 'success');
+                    setTimeout(() => { showBuyConfirmSection(); updateLoginUI(); }, 1000);
+                } else {
+                    showBuyLoginMessage('登录失败：' + (result.error || '未知错误'), 'error');
+                }
+            } catch (e) {
+                showBuyLoginMessage('网络错误，请重试', 'error');
+            } finally {
+                setButtonLoading(btn, false);
+            }
+        }
+        
+        function showBuyLoginMessage(txt, type) { const d = document.getElementById('buyLoginMessage'); d.textContent = txt; d.className = 'message ' + type; d.style.display = 'block'; setTimeout(() => d.style.display = 'none', 3000); }
+        async function confirmPurchase() {
+            if (!currentBuyNFT) { showCustomToast('没有选择要购买的NFT', 'warning'); return; }
+            const info = checkLoginStatus();
+            if (!info) { showCustomToast('请先登录', 'warning'); return; }
+            if (currentBuyNFT.seller === info.wallet) { showCustomToast('不能购买自己的NFT', 'warning'); return; }
+            const btn = document.getElementById('confirmBuyBtn');
+            setButtonLoading(btn, true, '确认购买');
+            try {
+                const res = await fetch('/api/nft/buy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ level: currentBuyNFT.level, card_number: currentBuyNFT.card_number, surname: currentBuyNFT.surname, citang_number: currentBuyNFT.citang_number || '', citang_name: currentBuyNFT.citang_name || '', member_number: currentBuyNFT.member_number || '', member_name: currentBuyNFT.member_name || '', buyer_wallet: info.wallet, buyer_account: info.account }) });
+                const result = await res.json();
+                if (result.success) {
+                    hideBuyModal();
+                    const detailModal = document.getElementById('nftDetailModal');
+                    if (detailModal && detailModal.style.display === 'block') { detailModal.style.display = 'none'; setBodyScrollLock(false); currentDetailNFT = null; }
+                    showCustomToast('🎉 购买成功！', 'success');
+                    await loadOnSaleNFTs();
+                    clearUserSession();
+                    updateLoginUI();
+                } else {
+                    showCustomToast('购买失败：' + (result.error || '未知错误'), 'error');
+                }
+            } catch (e) {
+                showCustomToast('网络错误，请重试', 'error');
+            } finally {
+                setButtonLoading(btn, false);
+                if (btn) { btn.disabled = false; btn.classList.remove('btn-loading'); btn.innerHTML = '确认购买'; }
+            }
+        }
+        function hideBuyModal() { document.getElementById('buyModal').style.display = 'none'; setBodyScrollLock(false); resetBuyLoginForm(); currentBuyNFT = null; }
+        function hideStatusOverlay() { document.getElementById('statusOverlay').style.display = 'none'; }
+        
+        document.addEventListener('DOMContentLoaded', () => { loadOnSaleNFTs(); updateLoginUI(); document.querySelectorAll('.sort-btn').forEach(btn => btn.addEventListener('click', () => { const st = btn.dataset.sort; if (st) applySortAndRender(st); })); });
+        window.showNFTDetailByIndex = showNFTDetailByIndex; window.viewTransactionHistory = viewTransactionHistory; window.closeDetailModalAndLogout = closeDetailModalAndLogout; window.buyFromDetail = buyFromDetail; window.closeBuyModalAndLogout = closeBuyModalAndLogout; window.closeLoginModalAndLogout = closeLoginModalAndLogout; window.sendCode = sendCode; window.login = login; window.buyLogin = buyLogin; window.confirmPurchase = confirmPurchase; window.showLoginModal = showLoginModal; window.logoutDirect = logoutDirect; window.cancelAllActions = cancelAllActions; window.confirmAllActions = confirmAllActions; window.showBuyLoginSection = showBuyLoginSection; window.hideStatusOverlay = hideStatusOverlay; window.prepareSellNFT = prepareSellNFT; window.prepareCancelSale = prepareCancelSale;
+    </script>
+</body>
+
+</html>

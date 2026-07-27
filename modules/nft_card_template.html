@@ -1,0 +1,23 @@
+<!-- nft-card-template.html -->
+<template id="nft-card-template">
+    <div class="nft-card">
+        <a href="">
+            <div class="grid">
+                <div style="display:flex; align-items:center; justify-content:center;">
+                    <h1 class="nft-name"></h1>
+                </div>
+                <div class="qrcode-container">
+                    <div class="qrcode"></div>
+                </div>
+                <div class="nft-code"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                <button class="nft-transaction-btn">NFT成交记录</button>
+                <div>
+                    <span class="price-display">根币: <span class="price-value"></span></span><br>
+                    <span style="color:#ecf1f5; font-size:0.9rem;">#<span class="card-number"></span></span>
+                </div>
+            </div>
+        </a>
+    </div>
+</template>

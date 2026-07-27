@@ -1,0 +1,22 @@
+{
+  "number": "1",
+  "name": "张金城",
+  "birth": "_",
+  "birthplace": "_",
+  "gender": "男",
+  "telephone": "_",
+  "mail": "_",
+  "hash": "4D7E89CFEC146F3A37B864D6E369F21A1309EBA79A2BB73A289B3BA31F49F952",
+  "family": {
+    "spouse": "_",
+    "child": [
+      "_"
+    ]
+  },
+  "death_date": "_",
+  "death_place": "_",
+  "source": "user",
+  "shortlink": "https://people.rbas.top/s/r",
+  "short_code": "c0",
+  "purchase_price": 100
+}

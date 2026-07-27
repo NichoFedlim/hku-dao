@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="image/favicon.png">
+    <title>百姓道</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="introduce/baijx/js/qrcode.min.js"></script>
+    <style>
+        /* ============  公共重置  ============ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        /* ============  头部  ============ */
+        .header {
+            background-color: #910209;
+            padding: 10px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .header h6 {
+            color: #FFF;
+            font-size: 1.2em;
+        }
+
+        /* ============  卡片样式（与citang_member.html一致）  ============ */
+        .member-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            padding: 0 15px 15px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 300px;
+            background-color: #4cb7db;
+            border: 2px solid #333;
+            border-radius: 10px;
+            transition: transform .2s ease;
+            will-change: transform;
+            margin: 0 auto;
+            padding: 10px;
+            position: relative;
+            height: 290px;   /* ← 新增这一行 */
+        }
+
+        @media(hover:hover) {
+            .card:hover {
+                transform: scale(1.02);
+            }
+        }
+
+        .card-inner {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            padding: 5px;
+        }
+
+        .member-number {
+            font-size: 1.8rem;
+            margin: 5px 0;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, .3);
+        }
+
+        .member-name {
+            font-size: 2.2rem;
+            margin: 0;
+            margin-top: 8px;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, .3);
+        }
+
+        .member-details {
+            font-size: .75rem;
+            color: #fff;
+            margin-top: 15px;
+        }
+
+        .qr-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .qrcode-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 新增：二维码背景层 */
+        .qr-wrapper {
+            background: #fff;
+            padding: 6px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+            display: inline-block;
+            margin-bottom: 2px
+            
+        }
+
+        .qrcode {
+            width: 100%;
+            max-width: 130px;
+            height: auto;
+            aspect-ratio: 1/1;
+            margin: 0;
+            border-radius: 6px;
+        }
+
+        /* 修改：NFT背景样式，确保在不同缩放比例下都能正确显示 */
+        .nft-background {
+            background: #fff;
+            padding: 10px 4px;
+            border-radius: 5px;
+            width: 100%;
+            min-height: 70px;
+            max-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.2;
+            color: #333;
+            word-break: break-all;
+            overflow: hidden;
+            margin-top: 0px;
+            box-sizing: border-box;
+        }
+
+        /* ============  按钮区  ============ */
+        .button-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 5px 0 5px;
+        }
+
+        .nft-transaction-btn {
+            background: linear-gradient(to bottom, #7fb9e2, #5a9ccc);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            font-size: .9rem;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
+            transition: all .3s;
+        }
+
+        .nft-transaction-btn:hover {
+            background: linear-gradient(to bottom, #5a9ccc, #4a85b5);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, .3);
+        }
+
+        .price-display {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .card-number-tag {
+            margin-left: 10px;
+            color: #ecf1f5;
+            font-size: .9rem;
+        }
+
+        /* ============  搜索框  ============ */
+        #search-input {
+            width: 300px;
+            height: 40px;
+            font-size: 18px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        /* ============  按钮容器  ============ */
+        .button-container,
+        .button-container-top {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        .back-btn,
+        .back-btn-top,
+        .back-btn-bottom {
+            padding: 10px 20px;
+            background-color: #4cb7db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        /* ============  扫码按钮  ============ */
+        #scan-btn {
+            background: #0099CC;
+            color: #FFF;
+            border: none;
+            border-radius: 4px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all .3s;
+            padding: 10px 15px;
+        }
+
+        .button-tran {
+            padding: 8px 16px;
+            background: #0099CC;
+            color: #FFF;
+            border: none;
+            border-radius: 10px;
+            margin-left: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all .3s;
+        }
+
+        /* ============  扫码模态框  ============ */
+        .scan-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, .8);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scan-container {
+            width: 90%;
+            max-width: 500px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #scan-video {
+            width: 100%;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .close-scan {
+            background: #910209;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        #scan-result {
+            margin-top: 10px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        /* ============  页脚  ============ */
+        .footer {
+            background: #0099cc;
+            color: #fff;
+            text-align: center;
+            padding: 15px;
+            margin-top: 30px;
+        }
+
+        #back-to-top {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #0099cc;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: opacity .3s;
+        }
+
+        /* ============  搜索状态  ============ */
+        #search-status {
+            padding: 0 15px;
+            background: #f0f0f0;
+            color: #333;
+            font-size: .9rem;
+            text-align: center;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        /* ============  加载动画  ============ */
+        .loading-container {
+            text-align: center;
+            padding: 40px;
+            color: #3498db;
+            font-size: 18px;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media(max-width:768px) {
+            .nft-background {
+                font-size: 12px;
+                padding: 8px 4px;
+                min-height: 65px;
+                max-height: 65px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            #search-input {
+                width: 100%;
+            }
+            
+            .button-tran {
+                margin: 10px 0;
+            }
+        }
+
+        @media(max-width:480px) {
+            .nft-background {
+                font-size: 11px;
+                padding: 6px 3px;
+                min-height: 60px;
+                max-height: 60px;
+            }
+            
+            .button-tran {
+                font-size: 1rem;
+                padding: 6px 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 头部 -->
+    <div class="header">
+        <h6 style="color:#FFF;">百家姓</h6>
+        <button class="button-tran">NFT交易市场</button>
+        <div class="search-container">
+            <form id="search-form">
+                <input type="text" placeholder="搜索姓氏" id="search-input">
+                <button type="button" id="scan-btn">扫码</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="search-status" style="padding:0 15px;background:#f0f0f0;color:#333;font-size:.9rem;text-align:center;">
+    </div>
+
+    <!-- 扫码模态框 -->
+    <div class="scan-modal" id="scan-modal">
+        <div class="scan-container">
+            <h3>扫描姓氏NFT二维码</h3>
+            <video id="scan-video" playsinline></video>
+            <div id="scan-result"></div>
+            <button class="close-scan" id="close-scan">关闭</button>
+        </div>
+    </div>
+
+    <!-- 卡片容器 - 使用与citang_member.html相同的类名 -->
+    <div class="member-grid" id="nft-cards-container">
+        <div class="loading-container">
+            <div class="loader"></div>
+            <p style="margin-top:20px;color:#3498db;font-size:18px;">正在加载 NFT 数据...</p>
+        </div>
+    </div>
+
+    <div class="button-container-bottom">
+        <button class="back-btn-bottom" onclick="goBack()">返回</button>
+    </div>
+
+    <div class="footer">
+        <h3>数据来源于多种AI模型，包括Kimi、豆包、DeepSeek.</h3>
+    </div>
+
+    <button id="back-to-top">回到顶部</button>
+
+    <script>
+        /* ===== 工具 ===== */
+        let nftCardsData = [];
+        let allNftCards = [];
+        let batchSize = 10;
+        let currentBatch = 0;
+        let isLoading = false;
+
+        function debounce(fn, wait = 100) {
+            let t;
+            return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(this, args), wait); };
+        }
+        
+        function formatNft(nft) {
+            return nft.match(/.{1,16}/g).join('<br>');
+        }
+
+        /* ===== 1. 分批渲染 ===== */
+        function renderBatch(start, end) {
+            const slice = allNftCards.slice(start, end);
+            const container = document.getElementById('nft-cards-container');
+            container.insertAdjacentHTML('beforeend', slice.map((card, idx) => {
+                const index = start + idx;
+                return `
+                <div class="card" id="card-${index}">
+                    <a href="/introduce/baijx/name.html?name=${encodeURIComponent(card.name)}&card_number=${card.card_number}"
+                       style="display:block;text-decoration:none;color:inherit;">
+                        <div class="card-inner" style="box-shadow:0 2px 0 0 #FFD700;">
+                            <div style="
+                                display: flex;
+                                flex-direction: column;
+                                align-items: flex-start;
+                                height: 100%;
+                                padding: 10px 0;
+                                line-height: 1.2;
+                            ">
+                                <h1 class="member-name" style="font-size:3.2rem;margin:0;margin-top:8px">${card.name}</h1>
+                                <!-- <div class="member-details">编号：${card.card_number}</div> -->
+                            </div>
+                            <div class="qr-section">
+                                <div class="qrcode-container">
+                                    <div class="qr-wrapper">
+                                        <div class="qrcode" id="qr-${index}"></div>
+                                    </div>
+                                </div>
+                                <div class="nft-background">
+                                    ${formatNft(card.nft)}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="button-section">
+                            <button class="nft-transaction-btn"
+                                onclick="handleTransactionClick(event,'${encodeURIComponent(card.name)}',${card.card_number})">
+                                NFT成交记录
+                            </button>
+                            <div>
+                                <span class="price-display" style="font-weight:bold;color:#000;">根币: ${card.price}</span>
+                                <span class="card-number-tag">#${card.card_number}</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>`;
+            }).join(''));
+
+            slice.forEach((card, idx) => {
+                const index = start + idx;
+                setTimeout(() => {
+                    const qrDom = document.getElementById(`qr-${index}`);
+                    if (qrDom) {
+                        // 清空容器
+                        qrDom.innerHTML = '';
+
+                        // 创建新的二维码
+                        new QRCode(qrDom, {
+                            text: card.nft,
+                            width: 130,
+                            height: 130,
+                            colorDark: '#000000',
+                            colorLight: '#ffffff',
+                            correctLevel: QRCode.CorrectLevel.L
+                        });
+                    }
+                }, idx * 20);
+            });
+        }
+
+        function loadNextBatch() {
+            if (isLoading) return;
+            isLoading = true;
+
+            const start = currentBatch * batchSize;
+            const end = Math.min(start + batchSize, allNftCards.length);
+            if (start >= end) { isLoading = false; return; }
+
+            renderBatch(start, end);
+            currentBatch++;
+
+            setTimeout(() => { isLoading = false; loadNextBatch(); }, 300);
+        }
+
+        /* ===== 2. 原 fetchNftCards 改为分批 ===== */
+        async function fetchNftCards() {
+            try {
+                const res = await fetch('/nft-cards');
+                nftCardsData = await res.json();
+                allNftCards = nftCardsData;
+                currentBatch = 0;
+                document.getElementById('nft-cards-container').innerHTML = '';
+                loadNextBatch();
+
+                // 处理 URL 参数
+                const urlParams = new URLSearchParams(window.location.search);
+                const nameParam = urlParams.get('name');
+                const cardNum = urlParams.get('card_number');
+                const nftParam = urlParams.get('nft');
+                if (nameParam || cardNum || nftParam) {
+                    const q = nameParam || cardNum || nftParam;
+                    document.getElementById('search-input').value = q;
+                    searchNftCards(q);
+                }
+            } catch (e) {
+                console.error('Error loading NFT cards:', e);
+                document.getElementById('nft-cards-container').innerHTML = `
+                    <div style="text-align:center;padding:40px;color:#d9534f;">
+                        <h3>数据加载失败</h3>
+                        <p>${e.message}</p>
+                        <button onclick="fetchNftCards()" style="margin-top:20px;padding:10px 20px;background:#5bc0de;color:#fff;border:none;border-radius:5px;cursor:pointer;">重新加载</button>
+                    </div>`;
+            }
+        }
+
+        /* ===== 3. 其余逻辑（扫码 / 搜索 / 回退）保持原样 ===== */
+        function handleTransactionClick(e, name, cardNumber) {
+            e.preventDefault(); e.stopPropagation();
+            window.location.href = `/introduce/baijx/ti_log.html?name=${name}&card_number=${cardNumber}`;
+        }
+
+        const searchNftCards = debounce(q => {
+            const status = document.getElementById('search-status');
+            if (!q) { status.textContent = '显示全部姓氏NFT'; allNftCards = nftCardsData; currentBatch = 0; document.getElementById('nft-cards-container').innerHTML = ''; loadNextBatch(); return; }
+            status.textContent = `搜索: "${q}"`;
+            const filtered = nftCardsData.filter(c => c.name.toLowerCase().includes(q.toLowerCase()) || c.card_number.toString() === q || c.nft.replace(/\s+/g, '').includes(q.replace(/\s+/g, '')));
+            allNftCards = filtered;
+            currentBatch = 0;
+            document.getElementById('nft-cards-container').innerHTML = '';
+            loadNextBatch();
+
+            if (filtered.length === 1) {
+                status.innerHTML = `找到1个匹配结果，自动跳转到 <strong>${filtered[0].name}</strong>...`;
+                setTimeout(() => window.location.href = `/introduce/baijx/name.html?name=${encodeURIComponent(filtered[0].name)}&card_number=${filtered[0].card_number}`, 500);
+            }
+        }, 300);
+
+        /* ===== 4. 扫码功能 ===== */
+        let scanning = false, stream = null, notEnoughDataCount = 0, MAX_NOT_ENOUGH_DATA_COUNT = 10, scanCanvas = null;
+        document.getElementById('scan-btn').addEventListener('click', () => { document.getElementById('scan-modal').style.display = 'flex'; startScanning(); });
+        document.getElementById('close-scan').addEventListener('click', stopScanning);
+
+        async function startScanning() {
+            try {
+                scanning = true;
+                document.getElementById('scan-result').textContent = '正在准备高清摄像头...';
+                const constraints = { video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } };
+                stream = await navig.mediaDevices.getUserMedia(constraints);
+                const video = document.getElementById('scan-video');
+                video.srcObject = stream; await video.play();
+                requestAnimationFrame(scanQRCode);
+            } catch (e) { document.getElementById('scan-result').textContent = '摄像头错误: ' + e.message; scanning = false; }
+        }
+        
+        function stopScanning() {
+            scanning = false;
+            if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+            document.getElementById('scan-modal').style.display = 'none';
+        }
+        
+        function scanQRCode() {
+            if (!scanning) return;
+            const v = document.getElementById('scan-video');
+            if (v.readyState !== v.HAVE_ENOUGH_DATA) { requestAnimationFrame(scanQRCode); return; }
+            if (!scanCanvas) { scanCanvas = document.createElement('canvas'); }
+            const scale = 0.5; scanCanvas.width = v.videoWidth * scale; scanCanvas.height = v.videoHeight * scale;
+            const ctx = scanCanvas.getContext('2d'); ctx.drawImage(v, 0, 0, scanCanvas.width, scanCanvas.height);
+            const code = jsQR(ctx.getImageData(0, 0, scanCanvas.width, scanCanvas.height).data, scanCanvas.width, scanCanvas.height);
+            if (code) {
+                const txt = code.data.replace(/\s+/g, '');
+                document.getElementById('search-input').value = txt;
+                searchNftCards(txt);
+                stopScanning();
+            } else { requestAnimationFrame(scanQRCode); }
+        }
+
+        /* ===== 5. 其余小工具 ===== */
+        document.getElementById('search-input').addEventListener('input', e => searchNftCards(e.target.value.trim()));
+        const backBtn = document.getElementById('back-to-top');
+        window.addEventListener('scroll', debounce(() => backBtn.style.display = window.scrollY > 200 ? 'block' : 'none'));
+        backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        function goBack() { window.history.back(); }
+
+        /* ===== 6. 启动 ===== */
+        fetchNftCards();
+    </script>
+</body>
+
+</html>

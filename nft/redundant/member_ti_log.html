@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成员交易日志</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png">
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            color: #fff;
+        }
+
+        .top-header {
+            background-color: red;
+            text-align: center;
+            width: 100vw;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 1000px;
+            min-width: 360px;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #0096C7;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto 0;
+            border-radius: 8px;
+        }
+
+        h1 h2,
+        h4,
+        p {
+            margin: 10px 0;
+            font-size: 1.5em;
+        }
+
+        .p_color {
+            color: #fff;
+            font-size: 1.2em;
+            text-align: left;
+            font-weight: 300;
+            margin: 8px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            color: #000;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 300;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .footer {
+            background-color: #0099cc;
+            color: #ffffff;
+            text-align: center;
+            font-size: 12px;
+            padding: 15px;
+            margin-top: 30px;
+        }
+
+        .table-container {
+            margin-top: 1px;
+            overflow-x: auto;
+            font-size: 16px;
+            color: #000;
+        }
+
+        .scrollable-table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 10px 5px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 20px;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #0096C7;
+        }
+
+        .button-home {
+            background-color: #0096C7;
+        }
+
+        .button-home:hover {
+            background-color: #218838;
+        }
+
+        .button-previous {
+            background-color: #0096C7;
+            color: #000;
+        }
+
+        .button-previous:hover {
+            background-color: #e0a800;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 20px;
+        }
+
+        .project {
+            background-color: #ff9500;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+            font-size: 19px;
+        }
+
+        .query-button {
+            background-color: #ff9500;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .query-button:hover {
+            background-color: #e08900;
+        }
+
+        .loading {
+            font-size: 1.2em;
+            color: #ff9500;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .info-line {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 10px;
+        }
+
+        #nft-holder-chain {
+            line-height: 1.1;
+            margin: 2px 0;
+            font-family: monospace;
+            white-space: nowrap;
+            background-color: #ffffff;
+            display: inline-block;
+            padding: 4px 12px;
+            color: #000;
+            border-radius: 4px;
+        }
+
+        .chain-line {
+            display: block;
+            text-indent: 0em;
+            margin: px;
+        }
+
+        .auth-code-clickable {
+            cursor: pointer;
+            color: black;
+            text-decoration: underline;
+            font-family: monospace;
+        }
+
+        .auth-code-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-code-modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-code-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .auth-code-close:hover {
+            color: #000;
+        }
+
+        .auth-code-text {
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            word-break: break-all;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            color: #000;
+        }
+
+        .copy-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .copy-button:hover {
+            background: #45a049;
+        }
+
+        .info-section {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .transaction-count {
+            font-size: 1em;
+            color: white;
+            font-weight: bold;
+        }
+
+        .error-message {
+            background-color: rgba(255, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-header">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+            <h1 id="page-title" style="margin: 0; padding: 20px 0;">成员交易日志</h1>
+            <div style="display: flex; gap: 10px; padding: 20px 0;">
+                <button class="button button-previous" onclick="goToPreviousPage()">上一页</button>
+                <button class="button button-home" onclick="goToHomePage()">返回主页</button>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="info-section" style="display: none;">
+            <h2 class="project" style="margin-bottom: 0px;">成员信息：</h2><br><br>
+            <p class="p_color">持有证码: </p>
+            <p id="nft-holder-chain" style="font-size: 1.2em;"></p>
+            <p class="p_color">持有者钱包: <span id="citang-wallet"></span></p>
+            <p class="p_color">联系人: <span id="citang-contacts"></span></p>
+            <p class="p_color">电话号码: <span id="citang-telephone"></span></p>
+            <p class="p_color">邮箱: <span id="citang-email"></span></p>
+        </div>
+
+        <div class="transaction-header">
+            <h2 class="project" style="margin-bottom: 0px;">交易信息：</h2>
+            <div class="transaction-count" id="transaction-count">共 0 条记录</div>
+        </div>
+        <div class="scrollable-table-container">
+            <div class="table-container">
+                <table id="transaction-table">
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>时间</th>
+                            <th>价格</th>
+                            <th>卖出方</th>
+                            <th>买入方</th>
+                            <th>上链</th>
+                            <th>下链/认证码</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button class="button" onclick="goBack()">返回</button>
+        </div>
+    </div>
+
+    <div id="authCodeModal" class="auth-code-modal">
+        <div class="auth-code-modal-content">
+            <span class="auth-code-close" onclick="closeAuthCodeModal()">&times;</span>
+            <h3>交易认证码（64位大写）</h3>
+            <div class="auth-code-text" id="authCodeFullText"></div>
+            <button class="copy-button" onclick="copyAuthCode()">复制到剪贴板</button>
+        </div>
+    </div>
+
+    <script src="js/qrcode.min.js"></script>
+    <script>
+        function jsSHA256(input) {
+            function rightRotate(value, amount) {
+                return (value >>> amount) | (value << (32 - amount));
+            }
+
+            const K = [
+                0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+                0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+                0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+                0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+                0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+                0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+                0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+                0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+                0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+                0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+                0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+                0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+                0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+                0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+                0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+                0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+            ];
+
+            let h0 = 0x6a09e667,
+                h1 = 0xbb67ae85,
+                h2 = 0x3c6ef372,
+                h3 = 0xa54ff53a,
+                h4 = 0x510e527f,
+                h5 = 0x9b05688c,
+                h6 = 0x1f83d9ab,
+                h7 = 0x5be0cd19;
+
+            const utf8Bytes = new TextEncoder().encode(input);
+            const bitLength = utf8Bytes.length * 8;
+
+            const paddedByteLength = Math.ceil((bitLength + 65) / 512) * 512 / 8;
+            const message = new Uint8Array(paddedByteLength);
+
+            message.set(utf8Bytes);
+            message[utf8Bytes.length] = 0x80;
+
+            const dataView = new DataView(message.buffer);
+            const lengthHigh = Math.floor(bitLength / 0x100000000);
+            const lengthLow = bitLength;
+
+            dataView.setUint32(paddedByteLength - 8, lengthHigh, false);
+            dataView.setUint32(paddedByteLength - 4, lengthLow, false);
+
+            for (let i = 0; i < message.length; i += 64) {
+                const w = new Uint32Array(64);
+
+                for (let j = 0; j < 16; j++) {
+                    w[j] = dataView.getUint32(i + j * 4, false);
+                }
+
+                for (let j = 16; j < 64; j++) {
+                    const s0 = rightRotate(w[j - 15], 7) ^ rightRotate(w[j - 15], 18) ^ (w[j - 15] >>> 3);
+                    const s1 = rightRotate(w[j - 2], 17) ^ rightRotate(w[j - 2], 19) ^ (w[j - 2] >>> 10);
+                    w[j] = (w[j - 16] + s0 + w[j - 7] + s1) >>> 0;
+                }
+
+                let a = h0, b = h1, c = h2, d = h3,
+                    e = h4, f = h5, g = h6, h = h7;
+
+                for (let j = 0; j < 64; j++) {
+                    const S1 = rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25);
+                    const ch = (e & f) ^ ((~e) & g);
+                    const temp1 = (h + S1 + ch + K[j] + w[j]) >>> 0;
+                    const S0 = rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22);
+                    const maj = (a & b) ^ (a & c) ^ (b & c);
+                    const temp2 = (S0 + maj) >>> 0;
+
+                    h = g;
+                    g = f;
+                    f = e;
+                    e = (d + temp1) >>> 0;
+                    d = c;
+                    c = b;
+                    b = a;
+                    a = (temp1 + temp2) >>> 0;
+                }
+
+                h0 = (h0 + a) >>> 0;
+                h1 = (h1 + b) >>> 0;
+                h2 = (h2 + c) >>> 0;
+                h3 = (h3 + d) >>> 0;
+                h4 = (h4 + e) >>> 0;
+                h5 = (h5 + f) >>> 0;
+                h6 = (h6 + g) >>> 0;
+                h7 = (h7 + h) >>> 0;
+            }
+
+            const hashArray = [
+                (h0 >>> 24) & 0xFF, (h0 >>> 16) & 0xFF, (h0 >>> 8) & 0xFF, h0 & 0xFF,
+                (h1 >>> 24) & 0xFF, (h1 >>> 16) & 0xFF, (h1 >>> 8) & 0xFF, h1 & 0xFF,
+                (h2 >>> 24) & 0xFF, (h2 >>> 16) & 0xFF, (h2 >>> 8) & 0xFF, h2 & 0xFF,
+                (h3 >>> 24) & 0xFF, (h3 >>> 16) & 0xFF, (h3 >>> 8) & 0xFF, h3 & 0xFF,
+                (h4 >>> 24) & 0xFF, (h4 >>> 16) & 0xFF, (h4 >>> 8) & 0xFF, h4 & 0xFF,
+                (h5 >>> 24) & 0xFF, (h5 >>> 16) & 0xFF, (h5 >>> 8) & 0xFF, h5 & 0xFF,
+                (h6 >>> 24) & 0xFF, (h6 >>> 16) & 0xFF, (h6 >>> 8) & 0xFF, h6 & 0xFF,
+                (h7 >>> 24) & 0xFF, (h7 >>> 16) & 0xFF, (h7 >>> 8) & 0xFF, h7 & 0xFF
+            ];
+
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+        }
+
+        function formatChainLong(chain) {
+            if (!chain) return '未知';
+            const partLength = 16;
+            let result = '';
+            for (let i = 0; i < 4; i++) {
+                const start = i * partLength;
+                const end = start + partLength;
+                result += `<span class="chain-line">${chain.slice(start, end)}</span>`;
+            }
+            return result;
+        }
+
+        function formatChainShort(chain) {
+            const displayLength = 4;
+            if (!chain) return '未知';
+            if (chain.length <= 8) return chain;
+            return chain.slice(0, displayLength) + '...';
+        }
+
+        function formatWalletShort(wallet) {
+            if (!wallet) return '未知';
+            if (wallet.length <= 8) return wallet;
+            return wallet.slice(0, 4) + '***' + wallet.slice(-4);
+        }
+
+        function calculateAuthCode(log) {
+            const displayData = 
+                `${log.thread}\t` +
+                `${log.time}\t` +
+                `￥${log.price}\t` +
+                `${formatWalletShort(log.seller)}\t` +
+                `${formatWalletShort(log.buyer)}\t` +
+                `${formatChainShort(log.chain)}`;
+
+            return jsSHA256(displayData);
+        }
+
+        function showFullAuthCode(fullCode) {
+            document.getElementById('authCodeFullText').textContent = fullCode;
+            document.getElementById('authCodeModal').style.display = 'block';
+        }
+
+        function closeAuthCodeModal() {
+            document.getElementById('authCodeModal').style.display = 'none';
+        }
+
+        function copyAuthCode() {
+            const authCodeText = document.getElementById('authCodeFullText').textContent;
+            navigator.clipboard.writeText(authCodeText).then(() => {
+                alert('认证码已复制到剪贴板！');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                alert('复制失败，请手动复制');
+            });
+        }
+
+        function goToPreviousPage() {
+            window.history.back();
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        function goToHomePage() {
+            window.location.href = 'index_main.html';
+        }
+
+        // 【关键修复】构建正确的URL路径（使用下划线分隔格式）
+        function buildMemberDataUrl(card_number, surname, citang_number, citangname, member_number, membername) {
+            // 格式: /citang-data/{card_number}_{surname}/{citang_number}_{citangname}/{member_number}_{membername}/{member_number}_{membername}.json
+            return `/citang-data/${card_number}_${surname}/` +
+                   `${citang_number}_${citangname}/` +
+                   `${member_number}_${membername}/` +
+                   `${member_number}_${membername}.json`;
+        }
+
+        function buildMemberLogUrl(card_number, surname, citang_number, citangname, member_number, membername) {
+            // 格式: /citang-data/{card_number}_{surname}/{citang_number}_{citangname}/{member_number}_{membername}/{member_number}_{membername}_log.json
+            return `/citang-data/${card_number}_${surname}/` +
+                   `${citang_number}_${citangname}/` +
+                   `${member_number}_${membername}/` +
+                   `${member_number}_${membername}_log.json`;
+        }
+
+        async function fetchData() {
+            const urlParams = new URLSearchParams(location.search);
+            const surname = decodeURIComponent(urlParams.get('surname') || '');
+            const citang_number = urlParams.get('citang_number');
+            const member_number = urlParams.get('member_number');
+            const card_number = urlParams.get('card_number');
+            const citangname = decodeURIComponent(urlParams.get('citangname') || '');
+            const membername = decodeURIComponent(urlParams.get('membername') || '');
+
+            console.log('参数:', { surname, citang_number, member_number, card_number, citangname, membername });
+
+            if (!surname || !citang_number || !member_number || !card_number || !citangname || !membername) {
+                console.error('缺少必要参数');
+                document.getElementById('page-title').innerText = '参数错误';
+                const tbody = document.querySelector('#transaction-table tbody');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="7">缺少必要参数，请返回重试</td></tr>';
+                return;
+            }
+
+            try {
+                // 1. 构建正确的URL路径
+                const memberUrl = buildMemberDataUrl(card_number, surname, citang_number, citangname, member_number, membername);
+                const logUrl = buildMemberLogUrl(card_number, surname, citang_number, citangname, member_number, membername);
+                
+                console.log('成员数据URL:', memberUrl);
+                console.log('日志数据URL:', logUrl);
+
+                // 2. 获取成员静态信息
+                const memberRes = await fetch(memberUrl);
+                if (!memberRes.ok) {
+                    console.error(`成员数据获取失败: ${memberRes.status}`);
+                    throw new Error(`成员数据获取失败: ${memberRes.status}`);
+                }
+                const memberData = await memberRes.json();
+
+                // 3. 获取日志与持有者信息
+                let logData = { log: [], nft_holder: {} };
+                const logRes = await fetch(logUrl);
+                if (logRes.ok) {
+                    logData = await logRes.json();
+                    console.log(`成功加载 ${logData.log?.length || 0} 条交易记录`);
+                } else {
+                    console.warn(`日志文件不存在或无法读取: ${logRes.status}`);
+                }
+
+                // 4. 合并数据
+                memberData.log = logData.log || [];
+                memberData.nft_holder = logData.nft_holder || {};
+
+                // 5. 设置页面标题
+                document.getElementById('page-title').innerHTML = 
+                    `${surname}.${citangname}.${membername}<span style="font-size: 0.6em; margin-left: 10px;">交易记录</span>`;
+
+                // 6. 加载交易表格
+                if (Array.isArray(memberData.log) && memberData.log.length > 0) {
+                    loadTransactions(memberData.log);
+                } else {
+                    const tbody = document.querySelector('#transaction-table tbody');
+                    if (tbody) {
+                        tbody.innerHTML = '<tr><td colspan="7">暂无交易记录</td></tr>';
+                    }
+                    document.getElementById('transaction-count').textContent = '共 0 条记录';
+                }
+
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                const tbody = document.querySelector('#transaction-table tbody');
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="7">加载失败: ${error.message}</td></tr>`;
+                }
+                document.getElementById('transaction-count').textContent = '加载失败';
+            }
+        }
+
+        function loadTransactions(logs) {
+            const tableBody = document.getElementById('transaction-table').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            document.getElementById('transaction-count').textContent = `共 ${logs.length} 条记录`;
+            
+            const sortedLogs = [...logs].sort((a, b) => parseInt(a.thread) - parseInt(b.thread));
+            
+            sortedLogs.forEach(log => {
+                const authCode = calculateAuthCode(log);
+                
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td>${log.thread}</td>
+                    <td>${log.time}</td>
+                    <td>￥${log.price}</td>
+                    <td>${formatWalletShort(log.seller)}</td>
+                    <td>${formatWalletShort(log.buyer)}</td>
+                    <td>${formatChainShort(log.chain)}</td>
+                    <td>
+                        <a href="javascript:void(0);" 
+                           class="auth-code-clickable"
+                           onclick="showFullAuthCode('${authCode}')">
+                            ${formatChainShort(authCode)}
+                        </a>
+                        <button onclick="showFullAuthCode('${authCode}')" style="margin-left: 8px; padding: 2px 6px; cursor: pointer;">查看</button>
+                    </td>
+                `;
+            });
+        }
+
+        // 页面加载时获取数据
+        fetchData();
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('authCodeModal');
+            if (event.target === modal) {
+                closeAuthCodeModal();
+            }
+        }
+    </script>
+</body>
+
+</html>

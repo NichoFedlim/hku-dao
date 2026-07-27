@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>姓氏介绍 - 培正道</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../../image/favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- ========== 引入钱包道统一登录工具 ========== -->
+    <script src="/wallet-auth.js"></script>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #121212;
+            font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+            color: #121212;
+            padding-top: 80px;
+        }
+
+        /* ============ header样式 ============ */
+        .header {
+            background: linear-gradient(135deg, #c00, #8b0000);
+            padding: 5px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 2px solid #d90007;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            flex: 1 1 100%;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #FFF;
+            font-size: 1.5em;
+            letter-spacing: 1px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex: 1 1 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #4cb7db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #3a9bc7;
+        }
+
+        .nav-btn.disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        @media (min-width: 768px) {
+            .header {
+                flex-wrap: nowrap;
+                padding: 15px 20px;
+            }
+            .header h1 {
+                flex: 1;
+                margin-bottom: 0;
+                text-align: left;
+                padding-left: 20px;
+            }
+            .nav-buttons {
+                flex: 0 0 auto;
+                justify-content: flex-end;
+                margin-bottom: 0;
+            }
+        }
+
+        /* ============ 容器样式 ============ */
+        .container {
+            background: #FFF;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+            width: 1100px;
+            max-width: 95%;
+            margin: 20px auto;
+            padding: 30px;
+            border: 1px solid #444;
+        }
+
+        .button-column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .custom-button {
+            background: linear-gradient(to bottom, #3498db, #1a6ca0);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 8px;
+            width: 120px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+        }
+
+        .custom-button:hover {
+            background: linear-gradient(to bottom, #2980b9, #14547a);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                width: 100%;
+                padding: 15px;
+            }
+            h1#name-element {
+                font-size: 2.5em !important;
+                text-align: center;
+            }
+        }
+
+        h1,
+        h2,
+        h4 {
+            color: #2c3e50;
+        }
+
+        p {
+            color: #4a4a4a;
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+
+        .project {
+            background-color: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin: 15px 0 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .project-title {
+            display: flex;
+            align-items: center;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .edit-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .edit-btn:hover {
+            background: #388e3c;
+        }
+
+        .edit-btn.disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .button {
+            background-color: #3498db;
+            font-size: 1.5em;
+            color: white;
+            padding: 5px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #name-element {
+            color: #e67e22;
+        }
+
+        #nft-element {
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        #nft-element:hover {
+            opacity: 0.8;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* 编辑模式样式 */
+        .edit-section {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .edit-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #4cb7db;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            min-height: 120px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        .edit-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .save-button {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .save-button:hover {
+            background: #388e3c;
+        }
+
+        .cancel-edit-button {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .cancel-edit-button:hover {
+            background: #d32f2f;
+        }
+
+        .edit-instructions {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        /* 名人编辑表单样式 */
+        .celebrity-form {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 6px;
+            border: 1px solid #cce7ff;
+        }
+
+        .celebrity-form h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        .celebrity-form .form-group {
+            margin-bottom: 12px;
+        }
+
+        .celebrity-form label {
+            display: block;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .celebrity-form input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #4cb7db;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .celebrity-form textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #4cb7db;
+            border-radius: 4px;
+            font-size: 1rem;
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .add-celebrity-btn {
+            background: #4cb7db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .add-celebrity-btn:hover {
+            background: #3a9bc7;
+        }
+
+        .remove-celebrity-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            float: right;
+        }
+
+        .remove-celebrity-btn:hover {
+            background: #d32f2f;
+        }
+
+        .preview-section {
+            margin: 15px 0;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            border: 1px solid #a5d6a7;
+        }
+
+        .preview-label {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        /* 隐藏不需要的字段 */
+        #source-section,
+        #source-element,
+        #edit-source-section,
+        #preview-source-section,
+        #distribution-section,
+        #distribution-element,
+        #edit-distribution-section,
+        #preview-distribution-section,
+        #history-section,
+        #history-element,
+        #edit-history-section,
+        #preview-history-section,
+        #modern-section,
+        #modern-element,
+        #edit-modern-section,
+        #preview-modern-section {
+            display: none !important;
+        }
+
+        /* 补充内容确定/取消按钮组样式 */
+        .content-action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .content-action-buttons .btn-confirm {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .content-action-buttons .btn-confirm:hover {
+            background: #388e3c;
+        }
+
+        .content-action-buttons .btn-cancel {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .content-action-buttons .btn-cancel:hover {
+            background: #d32f2f;
+        }
+
+        /* ===== 模态框样式 ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 25px;
+            border: 1px solid #888;
+            width: 95%;
+            max-width: 800px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4cb7db;
+            box-shadow: 0 0 0 2px rgba(76, 183, 219, 0.2);
+        }
+
+        /* 上传选项样式 */
+        .upload-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .upload-option {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all .3s;
+            min-width: 100px;
+        }
+
+        .upload-option.active {
+            background: #bbdefb;
+            border-color: #1e88e5;
+        }
+
+        .upload-option h4 {
+            color: #000;
+        }
+        .upload-option p {
+            color: #000;
+            font-size: 0.9rem;
+        }
+
+        .upload-content {
+            margin-bottom: 15px;
+        }
+
+        .file-input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #4caf50;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all .3s;
+        }
+
+        .file-input-label:hover {
+            background: #388e3c;
+        }
+
+        .preview {
+            margin-top: 10px;
+        }
+
+        .pending-content-item,
+        .existing-content-item {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* 操作状态提示样式 */
+        .operation-status {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 100;
+            animation: fadeIn 0.3s ease;
+            pointer-events: none;
+        }
+
+        .processing-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 状态覆盖层 */
+        .status-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .status-modal {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .status-modal h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .status-modal .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .status-modal .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4cb7db, #28a745);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* 自定义提示 */
+        .custom-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+            padding: 20px 25px;
+            max-width: 320px;
+            text-align: center;
+            z-index: 3000;
+            display: none;
+        }
+
+        .custom-toast .toast-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #d32f2f;
+        }
+
+        .custom-toast .toast-msg {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .custom-toast .toast-close {
+            background: #1e88e5;
+            color: white;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: .95rem;
+        }
+
+        /* 确认弹窗 */
+        .confirm-toast {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+            padding: 20px 25px;
+            max-width: 320px;
+            text-align: center;
+            z-index: 3000;
+        }
+
+        .confirm-toast .confirm-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #d32f2f;
+        }
+
+        .confirm-toast .confirm-msg {
+            font-size: 1rem;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .confirm-toast .confirm-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .confirm-toast .confirm-buttons button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: .95rem;
+            min-width: 80px;
+        }
+
+        .confirm-toast .confirm-yes {
+            background: #4caf50;
+            color: white;
+        }
+
+        .confirm-toast .confirm-no {
+            background: #f44336;
+            color: white;
+        }
+
+        /* 权限不足模态框 */
+        #noPermissionModal .modal-content h3 {
+            color: #f44336;
+        }
+
+        #noPermissionModal .modal-buttons {
+            justify-content: center;
+        }
+
+        #noPermissionModal .modal-buttons .confirm-btn {
+            background: #f44336;
+            width: auto;
+            padding: 10px 30px;
+        }
+
+        /* ===== 姓氏补充信息展示区域 ===== */
+        #surnameUploadedContent {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .uploaded-item {
+            background: #f9f9f9;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .uploaded-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .uploaded-text {
+            padding: 15px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .container {
+                width: 100%;
+                padding: 15px;
+            }
+            .modal-content {
+                margin: 10% auto;
+                padding: 15px;
+                width: 95%;
+            }
+            .upload-options {
+                flex-direction: column;
+            }
+            .upload-option {
+                min-width: auto;
+            }
+            .button-column {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .custom-button {
+                width: auto;
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding-top: 100px;
+            }
+            .header h1 {
+                font-size: 1.2em;
+            }
+            .nav-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            .container {
+                padding: 10px;
+            }
+            .project {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .edit-buttons {
+                flex-direction: column;
+            }
+            .edit-buttons button {
+                width: 100%;
+            }
+            .content-action-buttons {
+                flex-direction: column;
+            }
+            .content-action-buttons button {
+                width: 100%;
+            }
+            .pending-content-item,
+            .existing-content-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .pending-content-item button,
+            .existing-content-item button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ===== Header ===== -->
+    <div class="header">
+        <h1 id="introduce">姓氏详细介绍</h1>
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="goBackToIndex()">返回上一页</button>
+            <a href="index_main.html" class="nav-btn">返回首页</a>
+            <button class="nav-btn" onclick="window.location.href = '/NFT_market.html'">NFT交易市场</button>
+        </div>
+    </div>
+
+    <!-- ===== 主容器 ===== -->
+    <div class="container" id="main-container">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h1 id="name-element" style="font-size: 4em; color: #2980b9; margin: 0 0 10px 0;"></h1>
+                <h2 class="project" style="margin: 0;">区块证：</h2>
+                <p id="nft-element" style="font-size: 1.2em;"></p>
+            </div>
+            <div class="button-column">
+                <button class="custom-button" id="citang-button" onclick="customFunction1()">班级/社团</button>
+                <button class="custom-button" id="edit-mode-button" onclick="openEditMode()">修改</button>
+                <button class="custom-button" id="save-all-button" style="display: none; background: linear-gradient(to bottom, #4caf50, #388e3c);" onclick="saveAllChanges()">保存修改</button>
+            </div>
+        </div>
+
+        <h2 class="project" id="population-section">
+            <div class="project-title">人数：</div>
+            <div class="project-actions"></div>
+        </h2>
+        <p id="card-number-element"></p>
+        <p id="populator-element"></p>
+        <p id="percent-element"></p>
+
+        <!-- 隐藏的编辑字段（保留用于兼容） -->
+        <h2 class="project" id="source-section">
+            <div class="project-title">姓氏起源：</div>
+            <div class="project-actions">
+                <button class="edit-btn" id="edit-source-btn" onclick="editField('source')" disabled>编辑</button>
+            </div>
+        </h2>
+        <p id="source-element"></p>
+        <div id="edit-source-section" class="edit-section" style="display: none;">
+            <div class="edit-instructions">每段起源请单独一行，点击确定后仅预览，点击保存修改后才保存</div>
+            <textarea id="edit-source-input" class="edit-textarea" placeholder="请输入姓氏起源，每段一行..."></textarea>
+            <div class="edit-buttons">
+                <button class="save-button" onclick="previewSource()">确定</button>
+                <button class="cancel-edit-button" onclick="cancelEditField('source')">取消</button>
+            </div>
+        </div>
+        <div id="preview-source-section" class="preview-section" style="display: none;">
+            <div class="preview-label">姓氏起源预览（未保存）：</div>
+            <p id="preview-source-element"></p>
+        </div>
+
+        <h2 class="project" id="distribution-section">
+            <div class="project-title">迁徙分布：</div>
+            <div class="project-actions">
+                <button class="edit-btn" id="edit-distribution-btn" onclick="editField('distribution')" disabled>编辑</button>
+            </div>
+        </h2>
+        <p id="distribution-element"></p>
+        <div id="edit-distribution-section" class="edit-section" style="display: none;">
+            <div class="edit-instructions">每段迁徙分布信息请单独一行，点击确定后仅预览，点击保存修改后才保存</div>
+            <textarea id="edit-distribution-input" class="edit-textarea" placeholder="请输入迁徙分布信息，每段一行..."></textarea>
+            <div class="edit-buttons">
+                <button class="save-button" onclick="previewDistribution()">确定</button>
+                <button class="cancel-edit-button" onclick="cancelEditField('distribution')">取消</button>
+            </div>
+        </div>
+        <div id="preview-distribution-section" class="preview-section" style="display: none;">
+            <div class="preview-label">迁徙分布预览（未保存）：</div>
+            <p id="preview-distribution-element"></p>
+        </div>
+
+        <h2 class="project" id="history-section">
+            <div class="project-title">历史名人：</div>
+            <div class="project-actions">
+                <button class="edit-btn" id="edit-history-btn" onclick="editField('history')" disabled>编辑</button>
+            </div>
+        </h2>
+        <p id="history-element"></p>
+        <div id="edit-history-section" class="edit-section" style="display: none;">
+            <div class="edit-instructions">编辑历史名人信息，每个名人包含姓名和描述，点击确定后仅预览，点击保存修改后才保存</div>
+            <div id="history-celebrity-forms"></div>
+            <button class="add-celebrity-btn" id="add-history-celebrity-btn" onclick="addHistoryCelebrityForm()">+ 添加历史名人</button>
+            <div class="edit-buttons">
+                <button class="save-button" onclick="previewHistory()">确定</button>
+                <button class="cancel-edit-button" onclick="cancelEditField('history')">取消</button>
+            </div>
+        </div>
+        <div id="preview-history-section" class="preview-section" style="display: none;">
+            <div class="preview-label">历史名人预览（未保存）：</div>
+            <div id="preview-history-element"></div>
+        </div>
+
+        <h2 class="project" id="modern-section">
+            <div class="project-title">现代名人：</div>
+            <div class="project-actions">
+                <button class="edit-btn" id="edit-modern-btn" onclick="editField('modern')" disabled>编辑</button>
+            </div>
+        </h2>
+        <p id="modern-element"></p>
+        <div id="edit-modern-section" class="edit-section" style="display: none;">
+            <div class="edit-instructions">编辑现代名人信息，每个名人包含姓名和描述，点击确定后仅预览，点击保存修改后才保存</div>
+            <div id="modern-celebrity-forms"></div>
+            <button class="add-celebrity-btn" id="add-modern-celebrity-btn" onclick="addModernCelebrityForm()">+ 添加现代名人</button>
+            <div class="edit-buttons">
+                <button class="save-button" onclick="previewModern()">确定</button>
+                <button class="cancel-edit-button" onclick="cancelEditField('modern')">取消</button>
+            </div>
+        </div>
+        <div id="preview-modern-section" class="preview-section" style="display: none;">
+            <div class="preview-label">现代名人预览（未保存）：</div>
+            <div id="preview-modern-element"></div>
+        </div>
+
+        <!-- ===== 姓氏补充信息区域 ===== -->
+        <h2 class="project" id="supplement-section">
+            <div class="project-title">补充信息</div>
+            <div class="project-actions">
+                <button class="edit-btn" id="edit-supplement-btn" onclick="openEditContentModal()" disabled>编辑补充信息</button>
+            </div>
+        </h2>
+        <div id="surname-content-container" style="margin-top: 15px;">
+            <div id="surnameUploadedContent" style="display: grid; grid-template-columns: 1fr; gap: 15px;"></div>
+        </div>
+
+        <div class="button-container">
+            <button class="button" onclick="more_information()">会堂</button>
+            <a href="javascript:history.back();" class="button">返回</a>
+        </div>
+
+        <div class="footer"></div>
+    </div>
+
+    <!-- ===== 权限不足提示框 ===== -->
+    <div class="modal" id="noPermissionModal">
+        <div class="modal-content">
+            <h3>⚠️ 权限不足</h3>
+            <p style="margin: 20px 0; text-align: center; font-size: 16px;">您没有权限编辑此姓氏</p>
+            <div class="modal-buttons">
+                <button type="button" class="confirm-btn" onclick="closeNoPermissionModal()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 编辑姓氏内容的模态框 ===== -->
+    <div class="modal" id="editContentModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditContentModal()">&times;</span>
+            <h3 style="color: #333; margin-bottom: 20px;">编辑姓氏补充信息</h3>
+
+            <!-- 上传选项 -->
+            <div class="upload-options">
+                <div class="upload-option" data-type="image" onclick="selectUploadTypeForName('image')"
+                    style="flex: 1; padding: 15px; text-align: center; border: 2px solid #4caf50; border-radius: 8px; cursor: pointer;">
+                    <h4 style="color: #000;">📷 图片</h4>
+                    <p style="color: #000;">上传照片或图片</p>
+                </div>
+                <div class="upload-option active" data-type="text" onclick="selectUploadTypeForName('text')"
+                    style="flex: 1; padding: 15px; text-align: center; border: 2px solid #4caf50; border-radius: 8px; cursor: pointer; background: #bbdefb;">
+                    <h4 style="color: #000;">📝 文本</h4>
+                    <p style="color: #000;">添加文字描述</p>
+                </div>
+            </div>
+
+            <!-- 文本上传区域 -->
+            <div class="upload-content" id="nameTextUpload" style="margin-bottom: 15px;">
+                <div class="form-group">
+                    <label>文本内容：</label>
+                    <textarea id="nameTextInput" placeholder="输入补充信息内容..."
+                        style="width: 100%; min-height: 100px; padding: 10px; border-radius: 4px; border: 1px solid #ccc;"></textarea>
+                </div>
+                <div class="content-action-buttons">
+                    <button type="button" class="btn-confirm" onclick="confirmTextContent()">确定</button>
+                    <button type="button" class="btn-cancel" onclick="cancelContentEdit()">取消</button>
+                </div>
+            </div>
+
+            <!-- 图片上传区域 -->
+            <div class="upload-content" id="nameImageUpload" style="display: none; margin-bottom: 15px;">
+                <div class="form-group">
+                    <input type="file" id="nameFileInput" accept="image/*" style="display:none" onchange="handleNameImageSelect(event)">
+                    <div class="file-input-container">
+                        <label for="nameFileInput" class="file-input-label"
+                            style="display: inline-block; padding: 10px 20px; background: #4caf50; color: white; border-radius: 4px; cursor: pointer;">选择图片</label>
+                        <div class="preview" id="nameImagePreview" style="display: none; margin-top: 10px;">
+                            <img id="namePreviewImage" src="" alt="图片预览" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="content-action-buttons">
+                    <button type="button" class="btn-confirm" onclick="confirmImageContent()">确定</button>
+                    <button type="button" class="btn-cancel" onclick="cancelContentEdit()">取消</button>
+                </div>
+            </div>
+
+            <!-- 待添加内容列表 -->
+            <div id="nameNewContentList" style="margin-top: 20px;">
+                <h4 style="margin-bottom: 10px; color: #333;">待添加的内容：</h4>
+                <div id="namePendingContentList" style="margin-bottom: 15px; max-height: 300px; overflow-y: auto;"></div>
+            </div>
+
+            <!-- 已上传内容列表 -->
+            <div id="nameExistingContentList" style="margin-top: 20px;">
+                <h4 style="margin-bottom: 10px; color: #333;">已上传的内容：</h4>
+                <div id="nameUploadedContentList" style="max-height: 300px; overflow-y: auto;"></div>
+            </div>
+
+            <!-- 按钮组 -->
+            <div class="edit-buttons" style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+                <button type="button" class="save-button" onclick="saveNameContentChanges()"
+                    style="padding: 10px 20px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;">保存修改</button>
+                <button type="button" class="cancel-edit-button" onclick="closeEditContentModal()"
+                    style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 全局状态覆盖层 ===== -->
+    <div id="statusOverlay" class="status-overlay" style="display: none;">
+        <div class="status-modal">
+            <h3 id="statusTitle">系统处理中</h3>
+            <div id="statusMessage">正在处理您的请求，请稍候...</div>
+            <div class="progress-bar">
+                <div class="progress" id="statusProgress"></div>
+            </div>
+            <div id="queueStatusDetails" style="font-size: 0.9rem; color: #666; margin-top: 15px;"></div>
+            <button onclick="hideStatusOverlayWithCleanup()" style="margin-top: 20px; padding: 8px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">取消操作</button>
+        </div>
+    </div>
+
+    <!-- ===== 自定义提示弹窗 ===== -->
+    <div id="customToast" class="custom-toast">
+        <div class="toast-title">提示</div>
+        <div class="toast-msg"></div>
+        <button class="toast-close" onclick="hideCustomToast()">确定</button>
+    </div>
+
+    <!-- ===== 确认弹窗 ===== -->
+    <div id="confirmToast" class="confirm-toast">
+        <div class="confirm-title">确认保存</div>
+        <div class="confirm-msg">确定要保存所有修改吗？保存后将立即退出登录。</div>
+        <div class="confirm-buttons">
+            <button class="confirm-yes" onclick="handleConfirmSave(true)">确定</button>
+            <button class="confirm-no" onclick="handleConfirmSave(false)">取消</button>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ======================== JavaScript =========================== -->
+    <!-- ============================================================ -->
+    <script>
+        // ==================== URL参数 ====================
+        var urlParams = new URLSearchParams(window.location.search);
+        var name = decodeURIComponent(urlParams.get('name'));
+        var card_number = urlParams.get('card_number');
+        var surname = decodeURIComponent(urlParams.get('surname'));
+
+        var titleElement = document.getElementById('introduce');
+        if (surname && card_number) {
+            titleElement.innerText = name;
+        }
+
+        // ==================== 全局变量 ====================
+        var currentUser = null;
+        var hasOwnership = false;
+        var isEditMode = false;
+        var currentlyEditingField = null;
+        var isSaving = false;
+        var saveConfirmCallback = null;
+        var idleTimer = null;
+        var IDLE_TIMEOUT = 60000; // 1分钟无操作自动退出
+
+        var surnameData = {};
+
+        var tempChanges = {
+            source: null,
+            distribution: null,
+            history: null,
+            modern: null
+        };
+
+        var namePendingContents = [];
+        var nameContentsToDelete = [];
+
+        // ==================== 登录状态管理（使用 wallet-auth.js） ====================
+        function checkLoginStatus() {
+            return checkWalletLoginStatus();
+        }
+
+        function clearUserSession() {
+            clearWalletLogin();
+            hasOwnership = false;
+        }
+
+        function logoutAndRefresh() {
+            clearUserSession();
+            location.reload();
+        }
+
+        // ==================== 空闲超时自动退出 ====================
+        function resetIdleTimer() {
+            if (idleTimer) {
+                clearTimeout(idleTimer);
+                idleTimer = null;
+            }
+            if (isEditMode) {
+                idleTimer = setTimeout(function() {
+                    console.log('[name.html] 1分钟无操作，自动退出编辑模式');
+                    if (isEditMode) {
+                        var hasChanges = Object.values(tempChanges).some(function(v) { return v !== null; });
+                        if (hasChanges) {
+                            showCustomToast('操作超时', '1分钟无操作，未保存的更改已丢失，将退出登录');
+                        }
+                        clearTempChanges();
+                        cancelEditAll();
+                        exitEditMode(true);
+                    }
+                }, IDLE_TIMEOUT);
+            }
+        }
+
+        function setupIdleReset() {
+            var events = ['click', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+            for (var i = 0; i < events.length; i++) {
+                (function(evt) {
+                    document.addEventListener(evt, resetIdleTimer, { passive: true });
+                })(events[i]);
+            }
+        }
+
+        // ==================== 自定义提示 ====================
+        function showCustomToast(title, msg, callback) {
+            callback = callback || null;
+            var toast = document.getElementById('customToast');
+            if (!toast) {
+                console.log(title + ': ' + msg);
+                if (callback) callback();
+                return;
+            }
+            var titleEl = toast.querySelector('.toast-title');
+            var msgEl = toast.querySelector('.toast-msg');
+            if (titleEl) titleEl.textContent = title;
+            if (msgEl) msgEl.textContent = msg;
+            toast.style.display = 'block';
+            var closeBtn = toast.querySelector('.toast-close');
+            if (closeBtn) {
+                var newCloseBtn = closeBtn.cloneNode(true);
+                closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+                newCloseBtn.onclick = function() {
+                    toast.style.display = 'none';
+                    if (callback && typeof callback === 'function') callback();
+                };
+            }
+        }
+
+        function hideCustomToast() {
+            var toast = document.getElementById('customToast');
+            if (toast) toast.style.display = 'none';
+        }
+
+        // ==================== 确认弹窗 ====================
+        function showConfirmToast(title, msg) {
+            return new Promise(function(resolve) {
+                var confirmToast = document.getElementById('confirmToast');
+                if (!confirmToast) {
+                    if (confirm(title + '\n' + msg)) {
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                    return;
+                }
+                confirmToast.querySelector('.confirm-title').textContent = title;
+                confirmToast.querySelector('.confirm-msg').textContent = msg;
+                confirmToast.style.display = 'block';
+                saveConfirmCallback = function(result) {
+                    confirmToast.style.display = 'none';
+                    resolve(result);
+                };
+            });
+        }
+
+        function handleConfirmSave(result) {
+            if (saveConfirmCallback) {
+                saveConfirmCallback(result);
+            }
+        }
+
+        // ==================== 状态覆盖层 ====================
+        function showStatusOverlay(message) {
+            var overlay = document.getElementById('statusOverlay');
+            if (!overlay) return;
+            overlay.querySelector('#statusMessage').textContent = message || '正在处理您的请求，请稍候...';
+            overlay.style.display = 'flex';
+        }
+
+        function hideStatusOverlayWithCleanup() {
+            var overlay = document.getElementById('statusOverlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        // ==================== 权限不足 ====================
+        function showNoPermissionModal() {
+            document.getElementById('noPermissionModal').style.display = 'block';
+        }
+
+        function closeNoPermissionModal() {
+            document.getElementById('noPermissionModal').style.display = 'none';
+            logoutAndRefresh();
+        }
+
+        // ==================== 工具函数 ====================
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g,
+                '&#39;');
+        }
+
+        function formatNft(nft) {
+            var partLength = Math.floor(nft.length / 4);
+            var result = '';
+            for (var i = 0; i < nft.length; i += partLength) {
+                result += nft.slice(i, i + partLength) + '<br>';
+            }
+            return result;
+        }
+
+        function formatModernarray(modernArray) {
+            if (!Array.isArray(modernArray)) return '';
+            var result = '';
+            for (var i = 0; i < modernArray.length; i++) {
+                var item = modernArray[i];
+                if (typeof item === 'object') {
+                    var boldName = '<strong style="font-size: 1.2em;">' + (item.name || '') + '</strong>';
+                    result += boldName + ': <span style="font-size: 1.1em;">' + (item.description || '') + '</span><br>';
+                } else if (typeof item === 'string') {
+                    var parts = item.split(':');
+                    var boldName = '<strong style="font-size: 1.2em;">' + (parts[0] ? parts[0].trim() : '') + '</strong>';
+                    result += boldName + ': <span style="font-size: 1.1em;">' + (parts[1] ? parts[1].trim() : '') +
+                    '</span><br>';
+                }
+            }
+            return result;
+        }
+
+        function goBackToIndex() {
+            window.location.href = 'index_bxt_group.html';
+        }
+
+        function more_information() {
+            var nameEl = document.getElementById('name-element');
+            var nameText = nameEl ? nameEl.textContent : '';
+            window.location.href = 'citang.html?name=' + encodeURIComponent(nameText) + '&card_number=' + card_number;
+        }
+
+        function customFunction1() {
+            more_information();
+        }
+
+        // ==================== 加载数据 ====================
+        async function fetchData() {
+            try {
+                var response = await fetch('/nft/data/' + card_number + '_' + name + '/content.json');
+                if (!response.ok) throw new Error('HTTP error! status: ' + response.status);
+                var data = await response.json();
+                surnameData = data;
+                document.getElementById('name-element').textContent = data.name;
+                document.getElementById('nft-element').innerHTML = formatNft(data.hash);
+
+                if (data.population === 0 || data.population === "0") {
+                    document.getElementById('populator-element').textContent = '班级人数:  ';
+                } else {
+                    document.getElementById('populator-element').textContent = '班级人数: ' + data.population + '人';
+                }
+                document.getElementById('source-element').textContent = Array.isArray(data.source) ? data.source.join('\n') :
+                    '暂无数据';
+                document.getElementById('distribution-element').textContent = Array.isArray(data.distribution) ? data
+                    .distribution.join('\n') : '暂无数据';
+                document.getElementById('history-element').innerHTML = Array.isArray(data.history) ? formatModernarray(data
+                    .history) : '暂无数据';
+                document.getElementById('modern-element').innerHTML = Array.isArray(data.modern) ? formatModernarray(data
+                    .modern) : '暂无数据';
+                document.getElementById('nft-element').addEventListener('click', function() {
+                    var nameEl = document.getElementById('name-element');
+                    var nameText = nameEl ? nameEl.textContent : '';
+                    window.location.href = 'ti_log.html?name=' + encodeURIComponent(nameText);
+                });
+            } catch (error) {
+                console.error('加载失败：', error);
+                document.getElementById('name-element').innerText = '数据加载失败';
+            }
+        }
+
+        // ==================== 检查NFT所有权 ====================
+        async function checkOwnership() {
+            if (!currentUser) {
+                hasOwnership = false;
+                return false;
+            }
+            try {
+                var response = await fetch('/api/user/nfts?wallet=' + currentUser.walletid);
+                var userNFTs = await response.json();
+                var currentSurnameNFT = surnameData.hash;
+                var ownsSurname = false;
+                for (var i = 0; i < userNFTs.length; i++) {
+                    var nft = userNFTs[i];
+                    if (nft.level === 'surname' &&
+                        nft.card_number === card_number &&
+                        nft.surname === name &&
+                        (nft.hash === currentSurnameNFT || nft.realHash === currentSurnameNFT)) {
+                        ownsSurname = true;
+                        break;
+                    }
+                }
+                hasOwnership = ownsSurname;
+                return ownsSurname;
+            } catch (error) {
+                console.error('检查所有权失败:', error);
+                hasOwnership = false;
+                return false;
+            }
+        }
+
+        // ==================== 编辑模式管理 ====================
+        function clearTempChanges() {
+            tempChanges = { source: null, distribution: null, history: null, modern: null };
+            var previewSections = document.querySelectorAll('.preview-section');
+            for (var i = 0; i < previewSections.length; i++) {
+                previewSections[i].style.display = 'none';
+            }
+            var fields = ['source', 'distribution', 'history', 'modern'];
+            for (var j = 0; j < fields.length; j++) {
+                var element = document.getElementById(fields[j] + '-element');
+                if (element) element.style.display = 'block';
+            }
+        }
+
+        function enableAllEditButtons() {
+            var editBtns = document.querySelectorAll('.edit-btn');
+            for (var i = 0; i < editBtns.length; i++) {
+                editBtns[i].disabled = false;
+                editBtns[i].classList.remove('disabled');
+            }
+            var supplementBtn = document.getElementById('edit-supplement-btn');
+            if (supplementBtn) {
+                supplementBtn.disabled = false;
+                supplementBtn.classList.remove('disabled');
+            }
+        }
+
+        function disableAllEditButtons() {
+            var editBtns = document.querySelectorAll('.edit-btn');
+            for (var i = 0; i < editBtns.length; i++) {
+                editBtns[i].disabled = true;
+                editBtns[i].classList.add('disabled');
+            }
+            var supplementBtn = document.getElementById('edit-supplement-btn');
+            if (supplementBtn) {
+                supplementBtn.disabled = true;
+                supplementBtn.classList.add('disabled');
+            }
+        }
+
+        function cancelEditAll() {
+            var editSections = document.querySelectorAll('.edit-section');
+            for (var i = 0; i < editSections.length; i++) {
+                editSections[i].style.display = 'none';
+            }
+            var elements = ['source-element', 'distribution-element', 'history-element', 'modern-element'];
+            for (var j = 0; j < elements.length; j++) {
+                var el = document.getElementById(elements[j]);
+                if (el) el.style.display = 'block';
+            }
+            var previewSections = document.querySelectorAll('.preview-section');
+            for (var k = 0; k < previewSections.length; k++) {
+                previewSections[k].style.display = 'none';
+            }
+            currentlyEditingField = null;
+            isSaving = false;
+            enableAllEditButtons();
+            resetIdleTimer();
+        }
+
+        function cancelEditField(field) {
+            document.getElementById('edit-' + field + '-section').style.display = 'none';
+            var originalElement = document.getElementById(field + '-element');
+            if (originalElement) originalElement.style.display = 'block';
+            var previewSection = document.getElementById('preview-' + field + '-section');
+            if (previewSection) previewSection.style.display = 'none';
+            currentlyEditingField = null;
+            isSaving = false;
+            enableAllEditButtons();
+            resetIdleTimer();
+        }
+
+        function editField(field) {
+            if (currentlyEditingField && currentlyEditingField !== field) {
+                showCustomToast('提示', '请先完成当前编辑或取消当前编辑');
+                return;
+            }
+            if (isSaving) {
+                showCustomToast('提示', '正在保存，请稍候');
+                return;
+            }
+            currentlyEditingField = field;
+            var originalElement = document.getElementById(field + '-element');
+            if (originalElement) originalElement.style.display = 'none';
+            var previewSection = document.getElementById('preview-' + field + '-section');
+            if (previewSection) previewSection.style.display = 'none';
+            var editSection = document.getElementById('edit-' + field + '-section');
+            editSection.style.display = 'block';
+
+            switch (field) {
+                case 'source':
+                    var sourceValue = tempChanges.source !== null ?
+                        (Array.isArray(tempChanges.source) ? tempChanges.source.join('\n') : tempChanges.source) :
+                        (Array.isArray(surnameData.source) ? surnameData.source.join('\n') : '');
+                    document.getElementById('edit-source-input').value = sourceValue;
+                    break;
+                case 'distribution':
+                    var distributionValue = tempChanges.distribution !== null ?
+                        (Array.isArray(tempChanges.distribution) ? tempChanges.distribution.join('\n') : tempChanges
+                        .distribution) :
+                        (Array.isArray(surnameData.distribution) ? surnameData.distribution.join('\n') : '');
+                    document.getElementById('edit-distribution-input').value = distributionValue;
+                    break;
+                case 'history':
+                    populateCelebrityForms('history', tempChanges.history !== null ? tempChanges.history : (surnameData
+                        .history || []));
+                    break;
+                case 'modern':
+                    populateCelebrityForms('modern', tempChanges.modern !== null ? tempChanges.modern : (surnameData
+                        .modern || []));
+                    break;
+            }
+            disableAllEditButtons();
+            resetIdleTimer();
+        }
+
+        function populateCelebrityForms(type, celebrities) {
+            var container = document.getElementById(type + '-celebrity-forms');
+            container.innerHTML = '';
+            if (!Array.isArray(celebrities) || celebrities.length === 0) {
+                addCelebrityForm(type);
+                return;
+            }
+            for (var i = 0; i < celebrities.length; i++) {
+                var celebrity = celebrities[i];
+                var cName = '',
+                    cDesc = '';
+                if (typeof celebrity === 'object') {
+                    cName = celebrity.name || '';
+                    cDesc = celebrity.description || '';
+                } else if (typeof celebrity === 'string') {
+                    var parts = celebrity.split(':');
+                    cName = parts[0] ? parts[0].trim() : '';
+                    cDesc = parts.slice(1).join(':').trim() || '';
+                }
+                var formHtml =
+                    '<div class="celebrity-form" id="' + type + '-form-' + i + '">' +
+                    '<h4>名人 ' + (i + 1) + '</h4>' +
+                    '<div class="form-group">' +
+                    '<label for="' + type + '-name-' + i + '">姓名：</label>' +
+                    '<input type="text" id="' + type + '-name-' + i + '" value="' + escapeHtml(cName) +
+                    '" placeholder="请输入名人姓名">' +
+                    '</div>' +
+                    '<div class="form-group">' +
+                    '<label for="' + type + '-desc-' + i + '">描述：</label>' +
+                    '<textarea id="' + type + '-desc-' + i + '" placeholder="请输入名人描述...">' + escapeHtml(cDesc) +
+                    '</textarea>' +
+                    '</div>' +
+                    '<button type="button" class="remove-celebrity-btn" onclick="removeCelebrityForm(\'' + type + '\',' +
+                    i + ')">删除</button>' +
+                    '</div>';
+                container.innerHTML += formHtml;
+            }
+        }
+
+        function addHistoryCelebrityForm() {
+            if (currentlyEditingField !== 'history') {
+                showCustomToast('提示', '请先点击历史名人编辑按钮');
+                return;
+            }
+            addCelebrityForm('history');
+        }
+
+        function addModernCelebrityForm() {
+            if (currentlyEditingField !== 'modern') {
+                showCustomToast('提示', '请先点击现代名人编辑按钮');
+                return;
+            }
+            addCelebrityForm('modern');
+        }
+
+        function addCelebrityForm(type) {
+            var container = document.getElementById(type + '-celebrity-forms');
+            var index = container.querySelectorAll('.celebrity-form').length;
+            var formHtml =
+                '<div class="celebrity-form" id="' + type + '-form-' + index + '">' +
+                '<h4>名人 ' + (index + 1) + '</h4>' +
+                '<div class="form-group">' +
+                '<label for="' + type + '-name-' + index + '">姓名：</label>' +
+                '<input type="text" id="' + type + '-name-' + index + '" placeholder="请输入名人姓名">' +
+                '</div>' +
+                '<div class="form-group">' +
+                '<label for="' + type + '-desc-' + index + '">描述：</label>' +
+                '<textarea id="' + type + '-desc-' + index + '" placeholder="请输入名人描述..."></textarea>' +
+                '</div>' +
+                '<button type="button" class="remove-celebrity-btn" onclick="removeCelebrityForm(\'' + type + '\',' +
+                index + ')">删除</button>' +
+                '</div>';
+            container.innerHTML += formHtml;
+        }
+
+        function removeCelebrityForm(type, index) {
+            var form = document.getElementById(type + '-form-' + index);
+            if (form) {
+                form.remove();
+                var forms = document.querySelectorAll('#' + type + '-celebrity-forms .celebrity-form');
+                for (var i = 0; i < forms.length; i++) {
+                    forms[i].id = type + '-form-' + i;
+                    var h4 = forms[i].querySelector('h4');
+                    if (h4) h4.textContent = '名人 ' + (i + 1);
+                    var removeBtn = forms[i].querySelector('.remove-celebrity-btn');
+                    if (removeBtn) removeBtn.setAttribute('onclick', 'removeCelebrityForm(\'' + type + '\',' + i + ')');
+                }
+            }
+        }
+
+        function getCelebrityFormData(type) {
+            var forms = document.querySelectorAll('#' + type + '-celebrity-forms .celebrity-form');
+            var celebrities = [];
+            for (var i = 0; i < forms.length; i++) {
+                var nameInput = forms[i].querySelector('input[type="text"]');
+                var descTextarea = forms[i].querySelector('textarea');
+                var cName = nameInput ? nameInput.value.trim() : '';
+                var cDesc = descTextarea ? descTextarea.value.trim() : '';
+                if (cName) celebrities.push({ name: cName, description: cDesc });
+            }
+            return celebrities;
+        }
+
+        function previewSource() {
+            var sourceText = document.getElementById('edit-source-input').value.trim();
+            if (!sourceText) {
+                showCustomToast('提示', '请输入姓氏起源内容');
+                return;
+            }
+            var sourceArray = sourceText.split('\n').filter(function(line) { return line.trim() !== ''; });
+            tempChanges.source = sourceArray;
+            document.getElementById('preview-source-element').textContent = sourceArray.join('\n');
+            document.getElementById('preview-source-section').style.display = 'block';
+            document.getElementById('edit-source-section').style.display = 'none';
+            enableAllEditButtons();
+            currentlyEditingField = null;
+            showCustomToast('提示', '姓氏起源已更新到预览，点击"保存修改"按钮后才会保存');
+            resetIdleTimer();
+        }
+
+        function previewDistribution() {
+            var distributionText = document.getElementById('edit-distribution-input').value.trim();
+            if (!distributionText) {
+                showCustomToast('提示', '请输入迁徙分布内容');
+                return;
+            }
+            var distributionArray = distributionText.split('\n').filter(function(line) { return line.trim() !== ''; });
+            tempChanges.distribution = distributionArray;
+            document.getElementById('preview-distribution-element').textContent = distributionArray.join('\n');
+            document.getElementById('preview-distribution-section').style.display = 'block';
+            document.getElementById('edit-distribution-section').style.display = 'none';
+            enableAllEditButtons();
+            currentlyEditingField = null;
+            showCustomToast('提示', '迁徙分布已更新到预览，点击"保存修改"按钮后才会保存');
+            resetIdleTimer();
+        }
+
+        function previewHistory() {
+            var historyCelebrities = getCelebrityFormData('history');
+            if (historyCelebrities.length === 0) {
+                showCustomToast('提示', '请至少添加一个历史名人');
+                return;
+            }
+            tempChanges.history = historyCelebrities;
+            document.getElementById('preview-history-element').innerHTML = formatModernarray(historyCelebrities);
+            document.getElementById('preview-history-section').style.display = 'block';
+            document.getElementById('edit-history-section').style.display = 'none';
+            enableAllEditButtons();
+            currentlyEditingField = null;
+            showCustomToast('提示', '历史名人已更新到预览，点击"保存修改"按钮后才会保存');
+            resetIdleTimer();
+        }
+
+        function previewModern() {
+            var modernCelebrities = getCelebrityFormData('modern');
+            if (modernCelebrities.length === 0) {
+                showCustomToast('提示', '请至少添加一个现代名人');
+                return;
+            }
+            tempChanges.modern = modernCelebrities;
+            document.getElementById('preview-modern-element').innerHTML = formatModernarray(modernCelebrities);
+            document.getElementById('preview-modern-section').style.display = 'block';
+            document.getElementById('edit-modern-section').style.display = 'none';
+            enableAllEditButtons();
+            currentlyEditingField = null;
+            showCustomToast('提示', '现代名人已更新到预览，点击"保存修改"按钮后才会保存');
+            resetIdleTimer();
+        }
+
+        // ========== 核心：打开编辑模式 - 使用钱包道弹窗 ==========
+        async function openEditMode() {
+            currentUser = checkLoginStatus();
+            if (!currentUser) {
+                try {
+                    var result = await openWalletLogin();
+                    if (result && result.walletid) {
+                        currentUser = result;
+                        var owns = await checkOwnership();
+                        if (!owns) {
+                            showCustomToast('权限不足', '您未拥有该姓氏NFT，无法编辑', function() {
+                                logoutAndRefresh();
+                            });
+                            return;
+                        }
+                        await continueOpenEditMode();
+                    }
+                } catch (error) {
+    if (error.message === '用户取消登录') {
+        // 用户取消登录，静默处理，不弹窗
+        console.log('[name.html] 用户取消登录');
+    } else {
+        console.error('登录失败:', error);
+        showCustomToast('登录失败：' + error.message, 'error');
+    }
+}
+                return;
+            }
+            var owns = await checkOwnership();
+            if (!owns) {
+                showCustomToast('权限不足', '您未拥有该姓氏NFT，无法编辑', function() {
+                    logoutAndRefresh();
+                });
+                return;
+            }
+            await continueOpenEditMode();
+        }
+
+        async function continueOpenEditMode() {
+            isEditMode = true;
+            document.getElementById('main-container').classList.add('edit-mode');
+            document.getElementById('edit-mode-button').style.display = 'none';
+            document.getElementById('save-all-button').style.display = 'block';
+            var citangButton = document.getElementById('citang-button');
+            citangButton.textContent = '取消修改';
+            citangButton.onclick = cancelModification;
+            enableAllEditButtons();
+            resetIdleTimer();
+        }
+
+        function cancelModification() {
+            showConfirmToast('确认取消', '确定要取消所有修改并退出编辑模式吗？')
+                .then(function(result) {
+                    if (result) {
+                        clearTempChanges();
+                        cancelEditAll();
+                        exitEditMode(true);
+                    }
+                });
+        }
+
+        async function saveAllChanges() {
+            if (currentlyEditingField) {
+                showCustomToast('提示', '请先完成当前字段的编辑（点击确定或取消）');
+                return;
+            }
+            if (isSaving) {
+                showCustomToast('提示', '正在保存，请稍候');
+                return;
+            }
+            var hasChanges = Object.values(tempChanges).some(function(v) { return v !== null; });
+            if (!hasChanges) {
+                showCustomToast('提示', '没有需要保存的修改');
+                return;
+            }
+            var result = await showConfirmToast('确认保存', '确定要保存所有修改吗？保存后将立即退出登录。');
+            if (result) {
+                await executeSaveAllChanges();
+            }
+        }
+
+        async function executeSaveAllChanges() {
+            isSaving = true;
+            try {
+                var errorCount = 0;
+                if (tempChanges.source !== null) {
+                    var result = await saveFieldToServer('source', tempChanges.source);
+                    if (result) {
+                        surnameData.source = tempChanges.source;
+                        document.getElementById('source-element').textContent = Array.isArray(tempChanges.source) ? tempChanges
+                            .source.join('\n') : tempChanges.source;
+                        document.getElementById('preview-source-section').style.display = 'none';
+                        tempChanges.source = null;
+                    } else errorCount++;
+                }
+                if (tempChanges.distribution !== null) {
+                    var result2 = await saveFieldToServer('distribution', tempChanges.distribution);
+                    if (result2) {
+                        surnameData.distribution = tempChanges.distribution;
+                        document.getElementById('distribution-element').textContent = Array.isArray(tempChanges.distribution) ?
+                            tempChanges.distribution.join('\n') : tempChanges.distribution;
+                        document.getElementById('preview-distribution-section').style.display = 'none';
+                        tempChanges.distribution = null;
+                    } else errorCount++;
+                }
+                if (tempChanges.history !== null) {
+                    var result3 = await saveFieldToServer('history', tempChanges.history);
+                    if (result3) {
+                        surnameData.history = tempChanges.history;
+                        document.getElementById('history-element').innerHTML = formatModernarray(tempChanges.history);
+                        document.getElementById('preview-history-section').style.display = 'none';
+                        tempChanges.history = null;
+                    } else errorCount++;
+                }
+                if (tempChanges.modern !== null) {
+                    var result4 = await saveFieldToServer('modern', tempChanges.modern);
+                    if (result4) {
+                        surnameData.modern = tempChanges.modern;
+                        document.getElementById('modern-element').innerHTML = formatModernarray(tempChanges.modern);
+                        document.getElementById('preview-modern-section').style.display = 'none';
+                        tempChanges.modern = null;
+                    } else errorCount++;
+                }
+                if (errorCount === 0) {
+                    exitEditMode(true);
+                } else {
+                    showCustomToast('部分保存失败', errorCount + '项保存失败');
+                }
+            } catch (error) {
+                console.error('保存失败:', error);
+                showCustomToast('保存失败', error.message);
+            } finally {
+                isSaving = false;
+            }
+        }
+
+        async function saveFieldToServer(field, value) {
+            try {
+                var response = await fetch('/api/surname/update/' + card_number + '/' + encodeURIComponent(name), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ field: field, value: value, wallet: currentUser.walletid })
+                });
+                var result = await response.json();
+                return result.success;
+            } catch (error) {
+                console.error('保存' + field + '失败:', error);
+                return false;
+            }
+        }
+
+        function exitEditMode(shouldLogout) {
+            shouldLogout = shouldLogout || false;
+            if (idleTimer) {
+                clearTimeout(idleTimer);
+                idleTimer = null;
+            }
+            isEditMode = false;
+            document.getElementById('main-container').classList.remove('edit-mode');
+            document.getElementById('edit-mode-button').style.display = 'block';
+            document.getElementById('save-all-button').style.display = 'none';
+            var citangButton = document.getElementById('citang-button');
+            citangButton.textContent = '班级/社团';
+            citangButton.onclick = customFunction1;
+            disableAllEditButtons();
+            clearTempChanges();
+            cancelEditAll();
+            if (shouldLogout) logoutAndRefresh();
+        }
+
+        // ==================== 姓氏补充内容管理 ====================
+        async function openEditContentModal() {
+            if (currentlyEditingField) {
+                showCustomToast('提示', '请先完成当前字段的编辑');
+                return;
+            }
+
+            currentUser = checkLoginStatus();
+            if (!currentUser) {
+                try {
+                    var result = await openWalletLogin();
+                    if (result && result.walletid) {
+                        currentUser = result;
+                        var owns = await checkOwnership();
+                        if (owns) {
+                            await loadSurnameUploadedContent();
+                            document.getElementById('editContentModal').style.display = 'block';
+                            resetNameContentForm();
+                        } else {
+                            showCustomToast('权限不足', '您未拥有该姓氏NFT，无法编辑');
+                        }
+                    }
+                } catch (error) {
+    if (error.message === '用户取消登录') {
+        // 用户取消登录，静默处理，不弹窗
+        console.log('[name.html] 用户取消登录');
+    } else {
+        console.error('登录失败:', error);
+        showCustomToast('登录失败：' + error.message, 'error');
+    }
+}
+                return;
+            }
+
+            var owns = await checkOwnership();
+            if (!owns) {
+                showCustomToast('权限不足', '您未拥有该姓氏NFT，无法编辑补充信息');
+                return;
+            }
+
+            await loadSurnameUploadedContent();
+            resetNameContentForm();
+            document.getElementById('editContentModal').style.display = 'block';
+        }
+
+        function closeEditContentModal() {
+            document.getElementById('editContentModal').style.display = 'none';
+            namePendingContents = [];
+            nameContentsToDelete = [];
+            resetNameContentForm();
+        }
+
+        function resetNameContentForm() {
+            document.getElementById('nameTextInput').value = '';
+            document.getElementById('nameFileInput').value = '';
+            document.getElementById('nameImagePreview').style.display = 'none';
+            document.getElementById('namePreviewImage').src = '';
+            selectUploadTypeForName('text');
+        }
+
+        function selectUploadTypeForName(type) {
+            var options = document.querySelectorAll('#editContentModal .upload-option');
+            for (var i = 0; i < options.length; i++) {
+                options[i].classList.remove('active');
+                options[i].style.background = '';
+            }
+            var activeOpt = document.querySelector('#editContentModal .upload-option[data-type="' + type + '"]');
+            if (activeOpt) {
+                activeOpt.classList.add('active');
+                activeOpt.style.background = '#bbdefb';
+            }
+            var textUpload = document.getElementById('nameTextUpload');
+            var imageUpload = document.getElementById('nameImageUpload');
+            if (type === 'text') {
+                textUpload.style.display = 'block';
+                imageUpload.style.display = 'none';
+            } else {
+                textUpload.style.display = 'none';
+                imageUpload.style.display = 'block';
+            }
+        }
+
+        function handleNameImageSelect(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                showCustomToast('提示', '请选择图片文件');
+                event.target.value = '';
+                return;
+            }
+            if (file.size > 20 * 1024 * 1024) {
+                showCustomToast('提示', '图片大小不能超过20MB');
+                event.target.value = '';
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                document.getElementById('namePreviewImage').src = ev.target.result;
+                document.getElementById('nameImagePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function confirmTextContent() {
+            var textInput = document.getElementById('nameTextInput');
+            var text = textInput.value.trim();
+            if (!text) {
+                showCustomToast('提示', '请输入文本内容');
+                return;
+            }
+            await saveSingleContent('text', text);
+        }
+
+        async function confirmImageContent() {
+            var fileInput = document.getElementById('nameFileInput');
+            var file = fileInput.files[0];
+            if (!file) {
+                showCustomToast('提示', '请选择图片');
+                return;
+            }
+            await saveSingleContent('image', null, file);
+        }
+
+        function cancelContentEdit() {
+            namePendingContents = [];
+            nameContentsToDelete = [];
+            closeEditContentModal();
+            logoutAndRefresh();
+        }
+
+        async function saveSingleContent(type, text, file) {
+            var loginInfo = checkLoginStatus();
+            if (!loginInfo) {
+                showCustomToast('提示', '请先登录');
+                return;
+            }
+            var hasOwnership = await checkOwnership();
+            if (!hasOwnership) {
+                showCustomToast('权限不足', '您未拥有该姓氏NFT，无法修改');
+                return;
+            }
+            showStatusOverlay('正在保存补充信息...');
+            try {
+                var formData = new FormData();
+                formData.append('type', type);
+                if (type === 'text') {
+                    formData.append('text', text);
+                } else {
+                    formData.append('file', file);
+                }
+                var uploadUrl = '/surname/' + encodeURIComponent(name) + '/' + card_number + '/content/upload';
+                var response = await fetch(uploadUrl, { method: 'POST', body: formData });
+                hideStatusOverlayWithCleanup();
+                if (response.ok) {
+                    showCustomToast('保存成功', '内容已添加');
+                } else {
+                    var error = await response.text();
+                    showCustomToast('保存失败', error || '上传失败');
+                }
+                setTimeout(function() {
+                    closeEditContentModal();
+                    logoutAndRefresh();
+                }, 1500);
+            } catch (error) {
+                console.error('保存失败:', error);
+                hideStatusOverlayWithCleanup();
+                showCustomToast('保存失败', error.message);
+                setTimeout(function() {
+                    closeEditContentModal();
+                    logoutAndRefresh();
+                }, 1500);
+            }
+        }
+
+        async function loadSurnameUploadedContent() {
+            try {
+                var url = '/surname/' + encodeURIComponent(name) + '/' + card_number + '/content';
+                var response = await fetch(url);
+                if (response.status === 404) {
+                    document.getElementById('nameUploadedContentList').innerHTML =
+                        '<p style="color: #999; text-align: center; padding: 20px;">暂无内容</p>';
+                    document.getElementById('surnameUploadedContent').innerHTML =
+                        '<div style="color: #999; text-align: center; padding: 20px;">暂无补充信息</div>';
+                    return;
+                }
+                if (!response.ok) throw new Error('加载失败');
+                var contents = await response.json();
+                var container = document.getElementById('nameUploadedContentList');
+                container.innerHTML = '';
+                if (!contents.length) {
+                    container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">暂无内容</p>';
+                    document.getElementById('surnameUploadedContent').innerHTML =
+                        '<div style="color: #999; text-align: center; padding: 20px;">暂无补充信息</div>';
+                    return;
+                }
+                for (var i = 0; i < contents.length; i++) {
+                    var content = contents[i];
+                    var itemDiv = document.createElement('div');
+                    itemDiv.className = 'existing-content-item';
+                    itemDiv.dataset.timestamp = content.timestamp;
+                    itemDiv.style.cssText =
+                        'background: #f5f5f5; padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;';
+
+                    var contentPreview = '';
+                    if (content.type === 'image') {
+                        contentPreview = '<img src="' + content.path +
+                            '" style="max-width: 100px; max-height: 100px; border-radius: 4px;" alt="图片">';
+                    } else {
+                        var textPreview = content.content.length > 100 ? content.content.substring(0, 100) + '...' : content
+                            .content;
+                        contentPreview = '<div style="max-width: 400px; word-break: break-word;">📝 ' + escapeHtml(
+                            textPreview) + '</div>';
+                    }
+
+                    var isMarkedForDelete = nameContentsToDelete.indexOf(content.timestamp) !== -1;
+
+                    itemDiv.innerHTML =
+                        '<div style="flex: 1;">' + contentPreview + '</div>' +
+                        '<button class="delete-existing-btn" data-timestamp="' + content.timestamp + '"' +
+                        'style="background: ' + (isMarkedForDelete ? '#4caf50' : '#f44336') +
+                        '; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer;">' +
+                        (isMarkedForDelete ? '撤销删除' : '删除') +
+                        '</button>';
+
+                    var deleteBtn = itemDiv.querySelector('.delete-existing-btn');
+                    (function(ts, div, btn) {
+                        deleteBtn.addEventListener('click', function() {
+                            toggleNameContentDelete(ts, div, btn);
+                        });
+                    })(content.timestamp, itemDiv, deleteBtn);
+
+                    container.appendChild(itemDiv);
+                }
+                await displaySurnameUploadedContent(contents);
+            } catch (error) {
+                console.error('加载姓氏内容失败:', error);
+                document.getElementById('nameUploadedContentList').innerHTML =
+                    '<p style="color: #f44336; text-align: center; padding: 20px;">加载失败</p>';
+            }
+        }
+
+        function toggleNameContentDelete(timestamp, itemDiv, deleteBtn) {
+            var index = nameContentsToDelete.indexOf(timestamp);
+            if (index === -1) {
+                nameContentsToDelete.push(timestamp);
+                itemDiv.style.opacity = '0.6';
+                deleteBtn.textContent = '撤销删除';
+                deleteBtn.style.background = '#4caf50';
+            } else {
+                nameContentsToDelete.splice(index, 1);
+                itemDiv.style.opacity = '1';
+                deleteBtn.textContent = '删除';
+                deleteBtn.style.background = '#f44336';
+            }
+        }
+
+        async function displaySurnameUploadedContent(contents) {
+            var container = document.getElementById('surnameUploadedContent');
+            container.innerHTML = '';
+            if (!contents || contents.length === 0) {
+                container.innerHTML = '<div style="color: #999; text-align: center; padding: 20px;">暂无补充信息</div>';
+                return;
+            }
+            for (var i = 0; i < contents.length; i++) {
+                var content = contents[i];
+                var itemDiv = document.createElement('div');
+                itemDiv.className = 'uploaded-item';
+                itemDiv.style.cssText = 'background: #f9f9f9; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);';
+                if (content.type === 'image') {
+                    itemDiv.innerHTML = '<img src="' + content.path +
+                        '" style="width: 100%; height: auto; display: block;" alt="补充图片">';
+                } else {
+                    itemDiv.innerHTML =
+                        '<div class="uploaded-text">' +
+                        '<div style="color: #333; line-height: 1.6;">' + escapeHtml(content.content) + '</div>' +
+                        '<div style="color: #999; font-size: 12px; margin-top: 8px;">' + new Date(content.timestamp)
+                        .toLocaleString() + '</div>' +
+                        '</div>';
+                }
+                container.appendChild(itemDiv);
+            }
+        }
+
+        async function saveNameContentChanges() {
+            var loginInfo = checkLoginStatus();
+            if (!loginInfo) {
+                showCustomToast('提示', '请先登录');
+                return;
+            }
+            var hasOwnership = await checkOwnership();
+            if (!hasOwnership) {
+                showCustomToast('权限不足', '您未拥有该姓氏NFT，无法修改');
+                return;
+            }
+            showStatusOverlay('正在保存补充信息...');
+            try {
+                var uploadedCount = 0;
+                var deletedCount = 0;
+                var failedCount = 0;
+
+                for (var i = 0; i < namePendingContents.length; i++) {
+                    var content = namePendingContents[i];
+                    var formData = new FormData();
+                    formData.append('type', content.type);
+                    if (content.type === 'text') {
+                        formData.append('text', content.content);
+                    } else {
+                        formData.append('file', content.file);
+                    }
+                    var uploadUrl = '/surname/' + encodeURIComponent(name) + '/' + card_number + '/content/upload';
+                    var response = await fetch(uploadUrl, { method: 'POST', body: formData });
+                    if (response.ok) {
+                        uploadedCount++;
+                    } else {
+                        failedCount++;
+                        console.error('上传失败:', await response.text());
+                    }
+                }
+
+                for (var j = 0; j < nameContentsToDelete.length; j++) {
+                    var timestamp = nameContentsToDelete[j];
+                    var deleteUrl = '/surname/' + encodeURIComponent(name) + '/' + card_number + '/content/' + timestamp;
+                    var delResponse = await fetch(deleteUrl, { method: 'DELETE' });
+                    if (delResponse.ok) {
+                        deletedCount++;
+                    } else {
+                        failedCount++;
+                        console.error('删除失败:', timestamp);
+                    }
+                }
+
+                namePendingContents = [];
+                nameContentsToDelete = [];
+                await loadSurnameUploadedContent();
+
+                hideStatusOverlayWithCleanup();
+                if (failedCount > 0) {
+                    showCustomToast('保存完成', '成功添加 ' + uploadedCount + ' 个内容，删除 ' + deletedCount + ' 个内容，失败 ' +
+                        failedCount + ' 个');
+                } else {
+                    showCustomToast('保存成功', '成功添加 ' + uploadedCount + ' 个内容，删除 ' + deletedCount + ' 个内容');
+                }
+
+                setTimeout(function() {
+                    closeEditContentModal();
+                    logoutAndRefresh();
+                }, 2000);
+
+            } catch (error) {
+                console.error('保存失败:', error);
+                hideStatusOverlayWithCleanup();
+                showCustomToast('保存失败', error.message);
+                setTimeout(function() {
+                    closeEditContentModal();
+                    logoutAndRefresh();
+                }, 2000);
+            }
+        }
+
+        // ==================== 监听登录成功事件 ====================
+        document.addEventListener('wallet-login-success', function(event) {
+            var detail = event.detail;
+            if (detail && detail.walletid) {
+                console.log('[name.html] 登录成功，walletid:', detail.walletid.substring(0, 16) + '...');
+                currentUser = { walletid: detail.walletid, name: detail.name, phone: detail.phone };
+                checkOwnership().then(function(owns) {
+                    if (owns) {
+                        if (document.getElementById('edit-mode-button').style.display !== 'none') {
+                            continueOpenEditMode();
+                        }
+                    } else {
+                        showCustomToast('权限不足', '您未拥有该姓氏NFT，无法编辑');
+                        logoutAndRefresh();
+                    }
+                });
+            }
+        });
+
+        // ==================== 初始化 ====================
+        document.addEventListener('DOMContentLoaded', async function() {
+            await fetchData();
+            currentUser = checkLoginStatus();
+            if (currentUser) {
+                var owns = await checkOwnership();
+                if (!owns) {
+                    logoutAndRefresh();
+                } else {
+                    document.getElementById('edit-mode-button').style.display = 'block';
+                }
+            }
+            await loadSurnameUploadedContent();
+            setupIdleReset();
+        });
+
+        // 页面卸载
+        window.addEventListener('beforeunload', function() {
+            if (idleTimer) {
+                clearTimeout(idleTimer);
+                idleTimer = null;
+            }
+            clearWalletLogin();
+            fetch('/api/logout', { method: 'POST', keepalive: true });
+        });
+
+        // 点击外部关闭
+        window.onclick = function(event) {
+            var editModal = document.getElementById('editContentModal');
+            var statusOverlay = document.getElementById('statusOverlay');
+            var customToast = document.getElementById('customToast');
+            var confirmToast = document.getElementById('confirmToast');
+            var noPermModal = document.getElementById('noPermissionModal');
+
+            if (event.target === editModal) closeEditContentModal();
+            if (event.target === statusOverlay) hideStatusOverlayWithCleanup();
+            if (event.target === customToast) hideCustomToast();
+            if (event.target === confirmToast) {
+                confirmToast.style.display = 'none';
+                if (saveConfirmCallback) saveConfirmCallback(false);
+            }
+            if (event.target === noPermModal) {
+                closeNoPermissionModal();
+            }
+        };
+    </script>
+</body>
+
+</html>

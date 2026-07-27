@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="log_title">Transaction Log – HKU DAO</title>
+    <link rel="shortcut icon" type="image/x-icon" href="image/favicon.png">
+    
+    <!-- External Dependencies -->
+    <script src="js/qrcode.min.js"></script>
+    <script src="/wallet-auth.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/ti_log.css" />
+</head>
+
+<body>
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="header-inner container">
+            <h1 class="logo" onclick="window.location.href='/'">Gang Da Dao</h1>
+            <nav class="nav">
+                <button class="nav-btn" data-i18n="nav_market" onclick="window.location.href='/nft/NFT_market.html'">Market</button>
+                <button class="nav-btn" data-i18n="nav_categories" onclick="window.location.href='/nft/categories.html'">Categories</button>
+                <button class="nav-btn" id="lang-switch" onclick="toggleLanguage()">中文</button>
+                <button class="nav-btn" onclick="window.location.href='/portfolio.html'" data-i18n="nav_portfolio">Portfolio</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="container">
+        <div class="transaction-header">
+            <h2 class="project" data-i18n="transaction_info">Transaction Info:</h2>
+            <div class="transaction-count" id="transaction-count" data-i18n="total_records">Total: 0 records</div>
+        </div>
+
+        <div class="scrollable-table-container">
+            <div class="table-container">
+                <table id="transaction-table">
+                    <thead>
+                        <tr>
+                            <th data-i18n="thread">#</th>
+                            <th data-i18n="time">Time</th>
+                            <th data-i18n="price">Price</th>
+                            <th data-i18n="seller">Seller</th>
+                            <th data-i18n="buyer">Buyer</th>
+                            <th data-i18n="chain">Chain</th>
+                            <th data-i18n="next_chain">Next Chain</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button class="button" onclick="goBack()" data-i18n="back">Back</button>
+        </div>
+    </div>
+
+    <!-- ===== AUTH CODE MODAL ===== -->
+    <div id="authCodeModal" class="auth-code-modal">
+        <div class="auth-code-modal-content">
+            <span class="auth-code-close" onclick="closeAuthCodeModal()">&times;</span>
+            <h3 data-i18n="auth_code_title">Transaction Auth Code (64-bit uppercase)</h3>
+            <div class="auth-code-text" id="authCodeFullText"></div>
+            <button class="copy-button" onclick="copyAuthCode()" data-i18n="copy">Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="js/qrcode.min.js"></script>
+    <script src="js/ti_log.js"></script>
+</body>
+
+</html>

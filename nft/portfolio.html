@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title data-i18n="portfolio_title">My NFTs</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="shortcut icon" href="image/favicon.png" />
+    
+    <!-- External Dependencies -->
+    <script src="js/qrcode.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/portfolio.css" />
+</head>
+
+<body>
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="header-inner container">
+            <h1 class="logo" onclick="window.location.href='/'">Gang Da Dao</h1>
+            <nav class="nav">
+                <button class="nav-btn" data-i18n="nav_market" onclick="window.location.href='/nft/NFT_market.html'">NFT Market</button>
+                <button class="nav-btn" data-i18n="nav_categories" onclick="window.location.href='/nft/categories.html'">Categories</button>
+                <button class="nav-btn" id="lang-switch" onclick="toggleLanguage()">中文</button>
+                <button class="nav-btn" onclick="logout()" data-i18n="logout">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ===== USER INFO ===== -->
+    <div class="user-info">
+        <h3 data-i18n="user_info">User Info</h3>
+        <div><strong data-i18n="name_label">Name:</strong> <span id="displayUserName"></span></div>
+        <div><strong data-i18n="phone_label">Phone:</strong> <span id="displayPhone"></span></div>
+        <div><strong data-i18n="wallet_label">Wallet:</strong> <span id="displayWallet"></span></div>
+    </div>
+
+    <!-- ===== NFT CONTENT ===== -->
+    <div id="nft-content">
+        <div class="loading" data-i18n="loading_portfolio">Loading your NFTs...</div>
+    </div>
+
+    <!-- ===== LOADING INDICATOR ===== -->
+    <div id="loading-indicator" class="loading-indicator" style="display: none;">
+        <div class="spinner"></div>
+        <span data-i18n="loading_more">Loading more NFTs...</span>
+    </div>
+
+    <!-- ===== SELL CONFIRM MODAL ===== -->
+    <div class="modal" id="sellConfirmModal">
+        <div class="modal-content">
+            <span class="close" onclick="hideSellConfirmModal()">&times;</span>
+
+            <div id="sellConfirmSection">
+                <h3 style="color: #910209; margin-bottom: 20px;" data-i18n="confirm_sell">Confirm NFT Sale</h3>
+
+                <div class="confirm-info-card">
+                    <h4 style="margin-bottom: 15px; color: #333;" data-i18n="nft_details">NFT Details</h4>
+
+                    <div class="confirm-nft-details">
+                        <div class="detail-row">
+                            <span style="font-weight: bold; min-width: 80px;" data-i18n="level_label">Level:</span>
+                            <span id="confirmLevel" style="color: #333;"></span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span style="font-weight: bold; min-width: 80px;" data-i18n="number_label">Number:</span>
+                            <span id="confirmNumber" style="color: #333;"></span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span style="font-weight: bold; min-width: 80px;" data-i18n="surname_label">Surname:</span>
+                            <span id="confirmSurname" style="color: #333;"></span>
+                        </div>
+
+                        <div class="detail-row" id="confirmCitangRow" style="display: none;">
+                            <span style="font-weight: bold; min-width: 80px;" data-i18n="citang_label">Citang:</span>
+                            <span id="confirmCitang" style="color: #333;"></span>
+                        </div>
+
+                        <div class="detail-row" id="confirmMemberRow" style="display: none;">
+                            <span style="font-weight: bold; min-width: 80px;" data-i18n="member_label">Member:</span>
+                            <span id="confirmMember" style="color: #333;"></span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span style="font-weight: bold; min-width: 80px;" data-i18n="nft_hash_label">NFT Hash:</span>
+                            <span id="confirmNftHash" style="color: #333; font-family: monospace; font-size: 12px; word-break: break-all;"></span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span style="font-weight: bold; min-width: 80px;" data-i18n="sell_price_label">Selling Price:</span>
+                            <span id="confirmPrice" style="color: #e74c3c; font-weight: bold; font-size: 1.2rem;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="price-section">
+                    <p style="margin: 0; color: #856404;" data-i18n="sell_warning">
+                        <strong>Note:</strong> Once listed, other users can purchase this NFT. To cancel, go to the market page.
+                    </p>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="button" onclick="hideSellConfirmModal()"
+                        style="padding: 10px 30px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; flex: 1;"
+                        data-i18n="cancel_sell">Cancel Sale</button>
+                    <button class="confirm-btn" onclick="proceedSell()"
+                        style="padding: 10px 30px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: bold; flex: 1;"
+                        data-i18n="confirm_sell_btn">Confirm Sale</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="js/qrcode.min.js"></script>
+    <script src="js/portfolio.js"></script>
+</body>
+
+</html>

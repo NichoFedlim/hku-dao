@@ -1,0 +1,2143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="../../image/favicon.png">
+    <title>宗祠详情</title>
+    <!-- Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- ========== 引入钱包道统一登录工具 ========== -->
+    <script src="/wallet-auth.js"></script>
+    <style>
+        /* ========== 原页面样式（保持不变） ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #000;
+            padding-top: 80px;
+            min-height: 100vh
+        }
+
+        /* ============ 修改为与name.html一致的header样式 ============ */
+        .header {
+            background: linear-gradient(135deg, #c00, #8b0000);
+            padding: 5px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 2px solid #d90007;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            flex: 1 1 100%;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #FFF;
+            font-size: 1.5em;
+            letter-spacing: 1px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex: 1 1 100%;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            background: #4cb7db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #3a9bc7;
+        }
+
+        /* 移除登录状态样式 */
+        .login-status {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .header {
+                flex-wrap: nowrap;
+                padding: 15px 20px;
+            }
+
+            .header h1 {
+                flex: 1;
+                margin-bottom: 0;
+                text-align: left;
+                padding-left: 20px;
+            }
+
+            .nav-buttons {
+                flex: 0 0 auto;
+                justify-content: flex-end;
+                margin-bottom: 0;
+            }
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .7);
+            width: 1100px;
+            max-width: 95%;
+            margin: 20px auto;
+            padding: 30px;
+            border: 1px solid #444
+        }
+
+        .header-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #444
+        }
+
+        .clan-info h1 {
+            font-size: 2.5rem;
+            color: #0096c7;
+            margin-bottom: 10px
+        }
+
+        .clan-id {
+            background: #0096c7;
+            padding: 10px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            display: inline-block;
+            margin-bottom: 0
+        }
+
+        .hash-display {
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1rem;
+            color: #000;
+            word-break: break-all;
+            margin-top: 5px;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        .hash-display:hover {
+            background: rgba(0, 0, 0, .1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .1)
+        }
+
+        .button-column {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center
+        }
+
+        .custom-button {
+            background: #0096c7;
+            color: #000;
+            border: none;
+            padding: 12px 0;
+            text-align: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 8px;
+            width: 100px;
+            transition: all .3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, .2);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px
+        }
+
+        .custom-button:hover {
+            background: #0077b6;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, .3)
+        }
+
+        .custom-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .section {
+            margin-bottom: 20px
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: #0096c7;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #0096c7;
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 15px
+        }
+
+        .info-card {
+            background: #0096c7;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #444
+        }
+
+        .info-card h3 {
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 1.3rem
+        }
+
+        .info-card p {
+            line-height: 1.7;
+            color: #fff
+        }
+
+        .achievement-item {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            color: #000
+        }
+
+        .achievement-item h3 {
+            color: #000;
+            margin-bottom: 10px;
+            font-size: 1.2rem
+        }
+
+        .achievement-item p {
+            color: #333;
+            line-height: 1.6
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            border-top: 1px solid #444;
+            color: #aaa;
+            font-size: .9rem
+        }
+
+        .block-cert {
+            color: #0096c7;
+            font-size: 1.3rem;
+            margin-bottom: 5px
+        }
+
+        .responsive-image {
+            max-width: 30%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, .2)
+        }
+
+        .full-width {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, .2)
+        }
+
+        /* 上传内容展示样式 */
+        #uploadedContentContainer {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .uploaded-item-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .uploaded-item {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+            overflow: hidden;
+        }
+
+        .uploaded-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: pointer;
+        }
+
+        .uploaded-text {
+            padding: 15px;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .delete-btn-container {
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+
+        .delete-button {
+            background: #f44336;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background .3s;
+        }
+
+        .delete-button:hover {
+            background: #d32f2f;
+        }
+
+        .permission-hint {
+            color: #333;
+            font-size: 14px;
+            margin-left: 10px;
+            font-style: italic;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background: rgba(0, 0, 0, .4)
+        }
+
+        .modal-content {
+            background: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, .2)
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer
+        }
+
+        .close-button:hover {
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 15px
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: #000;
+            background-color: #fff;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical
+        }
+
+        .upload-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px
+        }
+
+        .upload-option {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        .upload-option.active {
+            background: #bbdefb;
+            border-color: #1e88e5
+        }
+
+        .upload-content {
+            display: none
+        }
+
+        .file-input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #4caf50;
+            color: #000;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all .3s;
+            font-weight: bold;
+        }
+
+        .file-input-label:hover {
+            background: #388e3c
+        }
+
+        .preview {
+            margin-top: 20px;
+            background: #e3f2fd;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+            padding: 15px;
+            display: none
+        }
+
+        .preview img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px
+        }
+
+        .modal-button {
+            flex: 1;
+            padding: 12px 24px;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        .upload-button {
+            background: #4caf50
+        }
+
+        .upload-button:hover {
+            background: #388e3c
+        }
+
+        .cancel-button {
+            background: #f44336
+        }
+
+        .cancel-button:hover {
+            background: #d32f2f
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .message.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+            display: block;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+            display: block;
+        }
+
+        /* 编辑按钮组样式 */
+        .edit-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .save-button {
+            background: #4caf50;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .save-button:hover:not(:disabled) {
+            background: #388e3c;
+        }
+
+        .save-button:disabled {
+            background: #cccccc;
+            color: #888888;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .cancel-edit-button {
+            background: #f44336;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .cancel-edit-button:hover:not(:disabled) {
+            background: #d32f2f;
+        }
+
+        .cancel-edit-button:disabled {
+            background: #cccccc;
+            color: #888888;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* 操作状态提示 */
+        .operation-status {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 100;
+            animation: fadeIn 0.3s ease;
+            pointer-events: none;
+        }
+
+        .processing-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .button-processing {
+            position: relative;
+            color: transparent !important;
+            pointer-events: none;
+        }
+
+        .button-processing::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .status-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .status-modal {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .status-modal h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .status-modal .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .status-modal .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4cb7db, #28a745);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* 自定义提示弹窗 */
+        .custom-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+            padding: 20px 25px;
+            max-width: 320px;
+            text-align: center;
+            z-index: 3000;
+            display: none;
+        }
+
+        .custom-toast .toast-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #d32f2f;
+        }
+
+        .custom-toast .toast-msg {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .custom-toast .toast-close {
+            background: #1e88e5;
+            color: white;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: .95rem;
+        }
+
+        .custom-toast .toast-close:hover {
+            background: #1565c0;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 成就编辑样式 */
+        .achievement-edit-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .achievement-edit-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+
+        .achievement-edit-item .delete-achievement-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .achievement-edit-item .delete-achievement-btn:hover {
+            background: #d32f2f;
+        }
+
+        .add-achievement-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .add-achievement-btn:hover {
+            background: #388e3c;
+        }
+
+        /* 内容编辑样式 */
+        .content-edit-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .pending-content-item,
+        .existing-content-item {
+            border: 1px solid #ddd;
+            transition: all 0.3s;
+        }
+
+        .pending-content-item:hover,
+        .existing-content-item:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .existing-content-item.deleting {
+            opacity: 0.5;
+            background: #ffeaea;
+        }
+
+        .content-item-preview {
+            max-width: 300px;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .add-content-confirm-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .add-content-confirm-group .confirm-add-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            flex: 1;
+            transition: all 0.3s;
+        }
+
+        .add-content-confirm-group .confirm-add-btn:hover:not(:disabled) {
+            background: #388e3c;
+        }
+
+        .add-content-confirm-group .confirm-add-btn:disabled {
+            background: #cccccc;
+            color: #888888;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .add-content-confirm-group .cancel-add-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            flex: 1;
+            transition: all 0.3s;
+        }
+
+        .add-content-confirm-group .cancel-add-btn:hover:not(:disabled) {
+            background: #d32f2f;
+        }
+
+        .add-content-confirm-group .cancel-add-btn:disabled {
+            background: #cccccc;
+            color: #888888;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* 编辑遮罩层 */
+        .edit-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .edit-modal-overlay.active {
+            display: flex;
+        }
+
+        .edit-modal-overlay .edit-modal-box {
+            background: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 850px;
+            width: 95%;
+            max-height: 92vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .edit-modal-overlay .edit-modal-box .close-edit-btn {
+            position: sticky;
+            top: 0;
+            float: right;
+            font-size: 30px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 10;
+        }
+
+        .edit-modal-overlay .edit-modal-box .close-edit-btn:hover {
+            color: #666;
+        }
+
+        .no-content {
+            color: #999;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .edit-modal-overlay .edit-modal-box {
+                width: 98%;
+                padding: 15px;
+                margin: 10px;
+                max-height: 95vh;
+            }
+            
+            .edit-modal-overlay .upload-options {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .edit-modal-overlay .upload-option {
+                width: 100%;
+            }
+
+            .add-content-confirm-group {
+                flex-direction: column;
+            }
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ===== Header ===== -->
+    <div class="header">
+        <h1 id="introduce">宗祠详细介绍</h1>
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="goBackToMemberList()">返回上一页</button>
+            <a href="index_main.html" class="nav-btn">返回首页</a>
+            <button class="nav-btn" onclick="window.location.href = '/NFT_market.html'">NFT交易市场</button>
+        </div>
+    </div>
+
+    <!-- ===== 主体 ===== -->
+    <div class="container">
+        <div class="header-section">
+            <div class="clan-info">
+                <h1 id="clan-name">张氏宗祠</h1>
+                <div class="clan-id">编号: <span id="citang-number">2</span></div>
+                <div class="hash-display" id="hash-element">
+                    <div class="block-cert">区块证</div>
+                    748272C65C3981C355BCA5210FAA057E8E3A6A31AC224FB881C27912EBB178EA
+                </div>
+            </div>
+            <div class="button-column">
+                <button class="custom-button" onclick="viewCitangList()">
+                    <i class="fas fa-temple icon"></i> 成员信息
+                </button>
+                <button class="custom-button" id="editCitangBtn" onclick="editCitangDetail()">
+                    <i class="fas fa-edit icon"></i> 编辑班级
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== 基本信息 ===== -->
+        <div class="section">
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3><i class="fas fa-map-marker-alt"></i> 班级位置</h3>
+                    <p><strong>楼栋:</strong> <span id="province"></span></p>
+                    <p><strong>教室:</strong> <span id="address"></span></p>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-phone"></i> 联系方式</h3>
+                    <p><strong>电话:</strong> <span id="telephone">0512-87654321</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 班级信息 ===== -->
+        <div class="section">
+            <h2 class="section-title">班级信息</h2>
+            <div id="achievements"></div>
+        </div>
+
+        <!-- ===== 补充信息 ===== -->
+        <div class="section">
+            <div class="photo-header"
+                style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+                <h2 class="section-title">补充信息</h2>
+            </div>
+            <div class="uploaded-content-container" id="uploadedContentContainer">
+                <div class="no-content" id="noContentMessage">信息</div>
+            </div>
+        </div>
+
+        <div class="footer"></div>
+    </div>
+
+    <!-- ===== 编辑会堂模态框 ===== -->
+    <div class="edit-modal-overlay" id="editModalOverlay">
+        <div class="edit-modal-box" onclick="event.stopPropagation()">
+            <button class="close-edit-btn" onclick="closeEditCitangModal()">&times;</button>
+            <h3 style="color: #000; margin-bottom: 20px;">编辑会堂信息</h3>
+            <form id="editCitangForm">
+                <div class="form-group">
+                    <label>会堂名称：</label>
+                    <input type="text" id="editCitangName" required disabled>
+                </div>
+                <div class="form-group">
+                    <label>省/市：</label>
+                    <input type="text" id="editProvince" required disabled>
+                </div>
+                <div class="form-group">
+                    <label>区/县：</label>
+                    <input type="text" id="editDistrict" required disabled>
+                </div>
+                <div class="form-group">
+                    <label>详细地址：</label>
+                    <input type="text" id="editAddress">
+                </div>
+                <div class="form-group">
+                    <label>联系电话：</label>
+                    <input type="text" id="editTelephone">
+                </div>
+                <div class="form-group">
+                    <label>联系人：</label>
+                    <input type="text" id="editContacts">
+                </div>
+
+                <div class="form-group">
+                    <label>成员信息查看权限：</label>
+                    <select id="editPrivacyLevel" required>
+                        <option value="public">公开（默认）- 所有用户可查看</option>
+                        <option value="members">会员公开 - 拥有会堂或任意成员NFT可查看</option>
+                        <option value="private">私有 - 仅会堂NFT持有者可见</option>
+                    </select>
+                </div>
+
+                <!-- 成就编辑 -->
+                <div class="achievement-edit-section">
+                    <label style="font-weight: bold; margin-bottom: 10px; display: block;">宗祠成就：</label>
+                    <div id="achievementEditList"></div>
+                    <button type="button" class="add-achievement-btn" onclick="addAchievementField()">+ 添加信息</button>
+                </div>
+                <div style="color: #000; margin-top: 15px;">以下添加图片信息:</div>
+
+                <!-- 内容编辑 -->
+                <div class="content-edit-section" id="contentEditSection">
+                    <label style="font-weight: bold; margin-bottom: 10px; display: block;">补充信息（照片/文本）：</label>
+
+                    <div class="upload-options" style="margin-bottom: 15px;">
+                        <div class="upload-option" data-type="image" onclick="selectUploadType('image')">
+                            <h4 style="color: #000;">图片</h4>
+                            <p style="color: #000;">上传照片或图片</p>
+                        </div>
+                        <div class="upload-option active" data-type="text" onclick="selectUploadType('text')">
+                            <h4 style="color: #000;">添加图片说明</h4>
+                            <p style="color: #000;">添加文字描述</p>
+                        </div>
+                    </div>
+
+                    <!-- 文本上传 -->
+                    <div class="upload-content" id="textUpload" style="margin-bottom: 15px;">
+                        <div class="form-group">
+                            <textarea id="textInput" placeholder="输入补充信息内容..."
+                                style="width: 100%; min-height: 80px; padding: 8px; border-radius: 4px; border: 1px solid #ccc;"></textarea>
+                        </div>
+                        <div class="add-content-confirm-group" id="textConfirmGroup">
+                            <button type="button" class="confirm-add-btn" onclick="confirmAddText()" disabled>确定</button>
+                            <button type="button" class="cancel-add-btn" onclick="cancelAddText()" disabled>取消</button>
+                        </div>
+                    </div>
+
+                    <!-- 图片上传 -->
+                    <div class="upload-content" id="imageUpload" style="display: none; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <input type="file" id="fileInput" accept="image/*" style="display:none"
+                                onchange="handleImageSelect(event)">
+                            <div class="file-input-container">
+                                <label for="fileInput" class="file-input-label"
+                                    style="display: inline-block; padding: 8px 16px; background: #4caf50; color: white; border-radius: 4px; cursor: pointer;">选择图片</label>
+                                <div class="preview" id="imagePreview" style="display: none; margin-top: 10px;">
+                                    <img id="previewImage" src="" alt="图片预览"
+                                        style="max-width: 100%; height: auto; border-radius: 8px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="add-content-confirm-group" id="imageConfirmGroup" style="display: none;">
+                            <button type="button" class="confirm-add-btn" onclick="confirmAddImage()" disabled>确定</button>
+                            <button type="button" class="cancel-add-btn" onclick="cancelAddImage()" disabled>取消</button>
+                        </div>
+                    </div>
+
+                    <!-- 待添加内容 -->
+                    <div id="newContentList" style="margin-top: 15px;">
+                        <h4 style="margin-bottom: 10px; color: #333;">待添加的内容：</h4>
+                        <div id="pendingContentList" style="margin-bottom: 15px;"></div>
+                    </div>
+
+                    <!-- 已上传内容 -->
+                    <div id="existingContentList" style="margin-top: 15px;">
+                        <h4 style="margin-bottom: 10px; color: #333;">已上传的内容：</h4>
+                        <div id="uploadedContentEditList"></div>
+                    </div>
+                </div>
+
+                <div class="edit-buttons">
+                    <button type="button" class="save-button" id="saveEditBtn" onclick="saveCitangDetailEdit()">保存修改</button>
+                    <button type="button" class="cancel-edit-button" id="cancelEditBtn" onclick="closeEditCitangModal()">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== 全局状态覆盖层 ===== -->
+    <div id="statusOverlay" class="status-overlay" style="display: none;">
+        <div class="status-modal">
+            <h3 id="statusTitle">系统处理中</h3>
+            <div id="statusMessage">正在处理您的请求，请稍候...</div>
+            <div class="progress-bar">
+                <div class="progress" id="statusProgress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 自定义提示弹窗 ===== -->
+    <div id="customToast" class="custom-toast">
+        <div class="toast-title">提示</div>
+        <div class="toast-msg"></div>
+        <button class="toast-close" onclick="hideCustomToast()">确定</button>
+    </div>
+
+    <!-- ===== 脚本 ===== -->
+    <script>
+        /* ========= 全局变量 ========= */
+        let currentCitangInfo = { surname: '', citangNumber: '', cardNumber: '', name: '' };
+        let currentCitangHash = '';
+        let originalCitangData = {};
+        let pendingContents = [];
+        let contentsToDelete = [];
+        let isProcessingEdit = false;
+        let privacyLevel = 'public';
+        let loginPurpose = '';
+        let pendingEditAfterLogin = false;
+        let isEditWindowOpen = false;
+        let isConfirmingContent = false;
+        let pendingImageFile = null;
+        let pendingTextContent = null;
+
+        // ============ 使用 wallet-auth.js 的登录状态 ============
+        function checkLoginStatus() {
+            return checkWalletLoginStatus();
+        }
+
+        function clearUserSession() {
+            clearWalletLogin();
+        }
+
+        function logoutAndRefresh() {
+            clearUserSession();
+            location.reload();
+        }
+
+        function logout() {
+            clearWalletLogin();
+            isEditWindowOpen = false;
+            console.log('用户已退出登录');
+        }
+
+        /* ========= 控制保存和取消按钮状态 ========= */
+        function disableSaveButtons() {
+            const saveBtn = document.getElementById('saveEditBtn');
+            const cancelBtn = document.getElementById('cancelEditBtn');
+            if (saveBtn) { saveBtn.disabled = true; }
+            if (cancelBtn) { cancelBtn.disabled = true; }
+        }
+
+        function enableSaveButtons() {
+            const saveBtn = document.getElementById('saveEditBtn');
+            const cancelBtn = document.getElementById('cancelEditBtn');
+            if (saveBtn) { saveBtn.disabled = false; }
+            if (cancelBtn) { cancelBtn.disabled = false; }
+        }
+
+        /* ========= 自定义提示 ========= */
+        function showCustomToast(title, msg, callback) {
+            callback = callback || null;
+            var toast = document.getElementById('customToast');
+            if (!toast) {
+                console.log(title + ': ' + msg);
+                if (callback) callback();
+                return;
+            }
+            var titleEl = toast.querySelector('.toast-title');
+            var msgEl = toast.querySelector('.toast-msg');
+            if (titleEl) titleEl.textContent = title;
+            if (msgEl) msgEl.textContent = msg;
+            toast.style.display = 'block';
+            var closeBtn = toast.querySelector('.toast-close');
+            if (closeBtn) {
+                var newCloseBtn = closeBtn.cloneNode(true);
+                closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+                newCloseBtn.onclick = function() {
+                    toast.style.display = 'none';
+                    if (callback && typeof callback === 'function') callback();
+                };
+            }
+        }
+
+        function hideCustomToast() {
+            var toast = document.getElementById('customToast');
+            if (toast) toast.style.display = 'none';
+        }
+
+        /* ========= 检查会堂所有权 ========= */
+        async function checkCitangOwnership() {
+            var loginInfo = checkLoginStatus();
+            if (!loginInfo || !currentCitangHash) {
+                return false;
+            }
+
+            try {
+                var response = await fetch('/api/user/nfts?wallet=' + loginInfo.walletid);
+                if (!response.ok) return false;
+                
+                var userNFTs = await response.json();
+
+                var hasOwnership = userNFTs.some(function(nft) {
+                    return nft.level === 'citang' &&
+                        nft.card_number === currentCitangInfo.cardNumber &&
+                        nft.surname === currentCitangInfo.surname &&
+                        nft.citang_number === currentCitangInfo.citangNumber &&
+                        nft.citang_name === currentCitangInfo.name &&
+                        (nft.hash === currentCitangHash || nft.realHash === currentCitangHash);
+                });
+                
+                return hasOwnership;
+            } catch (error) {
+                console.error('检查会堂所有权失败:', error);
+                return false;
+            }
+        }
+
+        /* ========= 检查用户是否拥有任意成员NFT ========= */
+        async function checkAnyMemberOwnership() {
+            var loginInfo = checkLoginStatus();
+            if (!loginInfo) return false;
+
+            try {
+                var response = await fetch('/api/user/nfts?wallet=' + loginInfo.walletid);
+                var userNFTs = await response.json();
+
+                return userNFTs.some(function(nft) {
+                    return nft.level === 'member' &&
+                        nft.card_number === currentCitangInfo.cardNumber &&
+                        nft.surname === currentCitangInfo.surname &&
+                        nft.citang_number === currentCitangInfo.citangNumber &&
+                        nft.citang_name === currentCitangInfo.name;
+                });
+            } catch (error) {
+                console.error('检查成员所有权失败:', error);
+                return false;
+            }
+        }
+
+        /* ========= 核心修改：编辑会堂 - 使用钱包道弹窗 ========= */
+        async function editCitangDetail() {
+            if (isProcessingEdit) return;
+            isProcessingEdit = true;
+            
+            try {
+                var loginInfo = checkLoginStatus();
+                
+                if (!loginInfo) {
+                    pendingEditAfterLogin = true;
+                    loginPurpose = 'edit';
+                    // 直接打开钱包道登录弹窗
+                    openWalletLogin().then(function(result) {
+                        if (result && result.walletid) {
+                            console.log('[citang_detail.html] 登录成功，walletid:', result.walletid.substring(0, 16) + '...');
+                            // 重新检查所有权
+                            checkCitangOwnership().then(function(hasOwnership) {
+                                if (hasOwnership) {
+                                    openEditWindow();
+                                } else {
+                                    showCustomToast('权限不足', '您未拥有该会堂NFT，无法编辑会堂', function() {
+                                        logoutAndRefresh();
+                                    });
+                                }
+                            });
+                        }
+                    }).catch(function(error) {
+                        if (error.message === '用户取消登录') {
+                            // 用户取消登录，立即退出登录并刷新
+                            console.log('[citang_detail.html] 用户取消登录，自动退出');
+                            logoutAndRefresh();
+                        } else {
+                            console.error('登录失败:', error);
+                            showCustomToast('登录失败：' + error.message, 'error');
+                        }
+                    });
+                    return;
+                }
+                
+                var hasOwnership = await checkCitangOwnership();
+                
+                if (!hasOwnership) {
+                    showCustomToast('权限不足', '您未拥有该会堂NFT，无法编辑会堂', function() {
+                        logoutAndRefresh();
+                    });
+                    return;
+                }
+                
+                openEditWindow();
+            } finally {
+                setTimeout(function() {
+                    isProcessingEdit = false;
+                }, 500);
+            }
+        }
+
+        /* ========= 打开编辑窗口 ========= */
+        function openEditWindow() {
+            if (isEditWindowOpen) {
+                document.getElementById('editModalOverlay').classList.remove('active');
+                setTimeout(function() {
+                    showEditWindow();
+                }, 100);
+            } else {
+                showEditWindow();
+            }
+        }
+        
+        function showEditWindow() {
+            document.body.classList.add('modal-open');
+            
+            document.getElementById('editCitangName').value = originalCitangData.name || '';
+            document.getElementById('editProvince').value = originalCitangData.province || '';
+            document.getElementById('editDistrict').value = originalCitangData.district || '';
+            document.getElementById('editAddress').value = originalCitangData.address || '_';
+            document.getElementById('editTelephone').value = originalCitangData.telephone || '_';
+            document.getElementById('editContacts').value = originalCitangData.contacts || '';
+            document.getElementById('editPrivacyLevel').value = privacyLevel;
+
+            loadAchievementsToEdit();
+            loadExistingContentForEdit();
+            pendingContents = [];
+            contentsToDelete = [];
+            renderPendingContents();
+
+            isConfirmingContent = false;
+            pendingImageFile = null;
+            pendingTextContent = null;
+            enableSaveButtons();
+
+            document.getElementById('editModalOverlay').classList.add('active');
+            isEditWindowOpen = true;
+        }
+
+        /* ========= 关闭编辑窗口 ========= */
+        function closeEditCitangModal() {
+            document.body.classList.remove('modal-open');
+            
+            document.getElementById('editModalOverlay').classList.remove('active');
+            pendingContents = [];
+            contentsToDelete = [];
+            document.getElementById('textInput').value = '';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            isConfirmingContent = false;
+            pendingImageFile = null;
+            pendingTextContent = null;
+            document.getElementById('imageConfirmGroup').style.display = 'none';
+            document.getElementById('textConfirmGroup').style.display = 'flex';
+            enableSaveButtons();
+            isEditWindowOpen = false;
+            
+            logout();
+            location.reload();
+        }
+
+        /* ========= 查看成员列表 ========= */
+        async function viewCitangList() {
+            if (privacyLevel === 'public') {
+                var info = currentCitangInfo;
+                location.href = 'citang_member.html?citang_number=' + info.citangNumber + '&surname=' + encodeURIComponent(info.surname) + '&card_number=' + info.cardNumber + '&citangname=' + encodeURIComponent(info.name || '');
+                return;
+            }
+            
+            loginPurpose = 'view_members';
+            
+            var loginInfo = checkLoginStatus();
+            if (!loginInfo) {
+                // 直接打开钱包道登录
+                openWalletLogin().then(function(result) {
+                    if (result && result.walletid) {
+                        console.log('[citang_detail.html] 登录成功，walletid:', result.walletid.substring(0, 16) + '...');
+                        checkAccessAndRedirectToMembers();
+                    }
+                }).catch(function(error) {
+                    if (error.message === '用户取消登录') {
+                        console.log('[citang_detail.html] 用户取消登录，自动退出');
+                        logoutAndRefresh();
+                    } else {
+                        console.error('登录失败:', error);
+                        showCustomToast('登录失败：' + error.message, 'error');
+                    }
+                });
+            } else {
+                await checkAccessAndRedirectToMembers();
+            }
+        }
+
+        /* ========= 检查权限并跳转 ========= */
+        async function checkAccessAndRedirectToMembers() {
+            var loginInfo = checkLoginStatus();
+            if (!loginInfo) {
+                showCustomToast('提示', '请先登录');
+                loginPurpose = 'view_members';
+                return;
+            }
+
+            var hasAccess = false;
+            
+            if (privacyLevel === 'public') {
+                hasAccess = true;
+            } else if (privacyLevel === 'private') {
+                hasAccess = await checkCitangOwnership();
+            } else if (privacyLevel === 'members') {
+                var ownsCitang = await checkCitangOwnership();
+                var ownsAnyMember = await checkAnyMemberOwnership();
+                hasAccess = ownsCitang || ownsAnyMember;
+            }
+            
+            if (hasAccess) {
+                var info = currentCitangInfo;
+                location.href = 'citang_member.html?citang_number=' + info.citangNumber + '&surname=' + encodeURIComponent(info.surname) + '&card_number=' + info.cardNumber + '&citangname=' + encodeURIComponent(info.name || '');
+            } else {
+                logout();
+                var levelText = privacyLevel === 'private' ? '私有' : '会员公开';
+                showCustomToast('权限不足', '您未拥有该会堂或成员的NFT\n\n该会堂的成员信息查看权限为"' + levelText + '"，您需要拥有相应的NFT才能查看', function() {
+                    loginPurpose = 'view_members';
+                });
+            }
+        }
+
+        /* ========= 数据填充 ========= */
+        function populatePage(d) {
+            window.currentCitangName = d.name;
+            document.getElementById('clan-name').textContent = d.name;
+            document.getElementById('citang-number').textContent = d.citang_number;
+            
+            document.getElementById('province').textContent = d.province || '-';
+            document.getElementById('address').textContent = d.address || '-';
+            document.getElementById('telephone').textContent = d.telephone || '-';
+
+            var he = document.getElementById('hash-element');
+            var hashParts = (d.hash || '').match(/.{1,16}/g);
+            he.innerHTML = '<div class="block-cert">区块证</div>' + (hashParts ? hashParts.join('<br>') : '');
+
+            var ach = document.getElementById('achievements');
+            ach.innerHTML = '';
+            if (d.成就 && d.成就.length) {
+                d.成就.forEach(function(a) {
+                    var div = document.createElement('div');
+                    div.className = 'achievement-item';
+                    div.innerHTML = '<h3>' + (a.名称 || '') + '</h3><p>' + (a.内容 || '') + '</p>';
+                    ach.appendChild(div);
+                });
+            } else {
+                ach.innerHTML = '<div class="no-content">信息</div>';
+            }
+
+            var urlObj = new URLSearchParams(location.search);
+            var surname = decodeURIComponent(urlObj.get('surname') || '');
+            var citangName = d.name || '未知';
+            document.getElementById('introduce').textContent = surname + '.' + citangName;
+        }
+
+        function goBackToMemberList() {
+            var info = currentCitangInfo;
+            if (info.surname && info.cardNumber) {
+                var backUrl = 'citang.html?surname=' + encodeURIComponent(info.surname) + '&card_number=' + info.cardNumber + '&name=' + encodeURIComponent(info.surname);
+                window.location.href = backUrl;
+            } else {
+                history.back();
+            }
+        }
+
+        /* ========= 成就编辑 ========= */
+        function loadAchievementsToEdit() {
+            var achievementList = document.getElementById('achievementEditList');
+            achievementList.innerHTML = '';
+            var achievements = originalCitangData.成就 || [];
+            achievements.forEach(function(achievement, index) {
+                addAchievementField(achievement, index);
+            });
+        }
+
+        function addAchievementField(achievement, index) {
+            achievement = achievement || null;
+            index = index !== null ? index : Date.now();
+            var achievementList = document.getElementById('achievementEditList');
+            var achievementItem = document.createElement('div');
+            achievementItem.className = 'achievement-edit-item';
+            achievementItem.innerHTML = 
+                '<div class="form-group">' +
+                '<label>信息名称：</label>' +
+                '<input type="text" id="achievement_name_' + index + '" placeholder="例如：百年祠堂修缮完成" value="' + (achievement ? achievement.名称 || '' : '') + '">' +
+                '</div>' +
+                '<div class="form-group">' +
+                '<label>信息内容：</label>' +
+                '<textarea id="achievement_content_' + index + '" rows="2" placeholder="详细描述...">' + (achievement ? achievement.内容 || '' : '') + '</textarea>' +
+                '</div>' +
+                '<button type="button" class="delete-achievement-btn" onclick="removeAchievementField(this)">删除</button>';
+            achievementItem.dataset.index = index;
+            achievementList.appendChild(achievementItem);
+        }
+
+        function removeAchievementField(button) {
+            var achievementItem = button.closest('.achievement-edit-item');
+            achievementItem.remove();
+        }
+
+        /* ========= 内容编辑 ========= */
+        function selectUploadType(type) {
+            if (isConfirmingContent) {
+                showCustomToast('提示', '请先完成当前内容的添加或取消');
+                return;
+            }
+            
+            var options = document.querySelectorAll('.upload-option');
+            for (var i = 0; i < options.length; i++) {
+                options[i].classList.toggle('active', options[i].dataset.type === type);
+            }
+            var contents = document.querySelectorAll('.upload-content');
+            for (var j = 0; j < contents.length; j++) {
+                contents[j].style.display = 'none';
+            }
+            document.getElementById(type + 'Upload').style.display = 'block';
+            
+            if (type === 'image') {
+                document.getElementById('imageConfirmGroup').style.display = 'flex';
+                document.getElementById('textConfirmGroup').style.display = 'none';
+                document.querySelector('#imageConfirmGroup .confirm-add-btn').disabled = true;
+                document.querySelector('#imageConfirmGroup .cancel-add-btn').disabled = true;
+            } else {
+                document.getElementById('imageConfirmGroup').style.display = 'none';
+                document.getElementById('textConfirmGroup').style.display = 'flex';
+                document.querySelector('#textConfirmGroup .confirm-add-btn').disabled = true;
+                document.querySelector('#textConfirmGroup .cancel-add-btn').disabled = true;
+            }
+            
+            pendingImageFile = null;
+            pendingTextContent = null;
+            if (!isConfirmingContent) {
+                enableSaveButtons();
+            }
+        }
+
+        function handleImageSelect(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 20 * 1024 * 1024) {
+                showCustomToast('提示', '文件过大');
+                event.target.value = '';
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                document.getElementById('previewImage').src = ev.target.result;
+                document.getElementById('imagePreview').style.display = 'block';
+                pendingImageFile = file;
+                isConfirmingContent = true;
+                disableSaveButtons();
+                document.querySelector('#imageConfirmGroup .confirm-add-btn').disabled = false;
+                document.querySelector('#imageConfirmGroup .cancel-add-btn').disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function confirmAddText() {
+            var textInput = document.getElementById('textInput');
+            var text = textInput.value.trim();
+            
+            if (!text) {
+                showCustomToast('提示', '请输入文本内容');
+                return;
+            }
+
+            pendingContents.push({
+                type: 'text',
+                content: text,
+                timestamp: Date.now()
+            });
+
+            textInput.value = '';
+            renderPendingContents();
+            
+            isConfirmingContent = false;
+            enableSaveButtons();
+            document.querySelector('#textConfirmGroup .confirm-add-btn').disabled = true;
+            document.querySelector('#textConfirmGroup .cancel-add-btn').disabled = true;
+        }
+
+        function cancelAddText() {
+            var textInput = document.getElementById('textInput');
+            textInput.value = '';
+            isConfirmingContent = false;
+            enableSaveButtons();
+            document.querySelector('#textConfirmGroup .confirm-add-btn').disabled = true;
+            document.querySelector('#textConfirmGroup .cancel-add-btn').disabled = true;
+        }
+
+        function confirmAddImage() {
+            if (!pendingImageFile) {
+                showCustomToast('提示', '请先选择图片');
+                return;
+            }
+
+            pendingContents.push({
+                type: 'image',
+                file: pendingImageFile,
+                timestamp: Date.now()
+            });
+
+            document.getElementById('fileInput').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('previewImage').src = '';
+            pendingImageFile = null;
+            
+            isConfirmingContent = false;
+            enableSaveButtons();
+            
+            document.querySelector('#imageConfirmGroup .confirm-add-btn').disabled = true;
+            document.querySelector('#imageConfirmGroup .cancel-add-btn').disabled = true;
+            
+            renderPendingContents();
+        }
+
+        function cancelAddImage() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('previewImage').src = '';
+            pendingImageFile = null;
+            isConfirmingContent = false;
+            enableSaveButtons();
+            document.querySelector('#imageConfirmGroup .confirm-add-btn').disabled = true;
+            document.querySelector('#imageConfirmGroup .cancel-add-btn').disabled = true;
+        }
+
+        // 文本输入监听
+        document.addEventListener('DOMContentLoaded', function() {
+            var textInput = document.getElementById('textInput');
+            if (textInput) {
+                textInput.addEventListener('input', function() {
+                    if (this.value.trim().length > 0 && !isConfirmingContent) {
+                        isConfirmingContent = true;
+                        disableSaveButtons();
+                        document.querySelector('#textConfirmGroup .confirm-add-btn').disabled = false;
+                        document.querySelector('#textConfirmGroup .cancel-add-btn').disabled = false;
+                    } else if (this.value.trim().length === 0) {
+                        if (isConfirmingContent) {
+                            isConfirmingContent = false;
+                            enableSaveButtons();
+                            document.querySelector('#textConfirmGroup .confirm-add-btn').disabled = true;
+                            document.querySelector('#textConfirmGroup .cancel-add-btn').disabled = true;
+                        }
+                    }
+                });
+            }
+        });
+
+        function renderPendingContents() {
+            var listContainer = document.getElementById('pendingContentList');
+            listContainer.innerHTML = '';
+
+            if (pendingContents.length === 0) {
+                listContainer.innerHTML = '<p style="color: #999;">暂无待添加内容</p>';
+                return;
+            }
+
+            pendingContents.forEach(function(content, index) {
+                var itemDiv = document.createElement('div');
+                itemDiv.className = 'pending-content-item';
+                itemDiv.style.cssText = 'background: #e3f2fd; padding: 10px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;';
+
+                var contentPreview = '';
+                if (content.type === 'image') {
+                    contentPreview = '<span style="color: #4caf50;">📷 图片: ' + content.file.name + '</span>';
+                } else {
+                    var textPreview = content.content.length > 50 ? content.content.substring(0, 50) + '...' : content.content;
+                    contentPreview = '<span>📝 文本: ' + textPreview + '</span>';
+                }
+
+                itemDiv.innerHTML = 
+                    '<div>' + contentPreview + '</div>' +
+                    '<button type="button" onclick="removePendingContent(' + index + ')" style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">移除</button>';
+
+                listContainer.appendChild(itemDiv);
+            });
+        }
+
+        function removePendingContent(index) {
+            pendingContents.splice(index, 1);
+            renderPendingContents();
+        }
+
+        async function loadExistingContentForEdit() {
+            var info = currentCitangInfo;
+            var url = '/citang/' + encodeURIComponent(info.surname) + '/' + info.citangNumber + '/content' +
+                '?card_number=' + info.cardNumber +
+                '&name=' + encodeURIComponent(info.name || '');
+
+            try {
+                var r = await fetch(url);
+                if (!r.ok) {
+                    document.getElementById('uploadedContentEditList').innerHTML = '<p style="color: #999;">暂无内容</p>';
+                    return;
+                }
+                var arr = await r.json();
+
+                var listContainer = document.getElementById('uploadedContentEditList');
+                listContainer.innerHTML = '';
+
+                if (!arr.length) {
+                    listContainer.innerHTML = '<p style="color: #999;">暂无内容</p>';
+                    return;
+                }
+
+                arr.forEach(function(content) {
+                    var itemDiv = document.createElement('div');
+                    itemDiv.className = 'existing-content-item';
+                    itemDiv.dataset.timestamp = content.timestamp;
+                    itemDiv.style.cssText = 'background: #f5f5f5; padding: 10px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;';
+
+                    var contentPreview = '';
+                    if (content.type === 'image') {
+                        contentPreview = '<img src="' + content.path + '" class="content-item-preview" alt="图片">';
+                    } else {
+                        var textPreview = content.content.length > 50 ? content.content.substring(0, 50) + '...' : content.content;
+                        contentPreview = '<p style="margin: 0;">' + textPreview + '</p>';
+                    }
+
+                    itemDiv.innerHTML = 
+                        '<div>' + contentPreview + '</div>' +
+                        '<button type="button" class="delete-existing-content-btn" data-timestamp="' + content.timestamp + '" onclick="markContentForDelete(this)" style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">删除</button>';
+
+                    listContainer.appendChild(itemDiv);
+                });
+            } catch (e) {
+                console.error('加载内容失败:', e);
+                document.getElementById('uploadedContentEditList').innerHTML = '<p style="color: #f44336;">加载失败</p>';
+            }
+        }
+
+        function markContentForDelete(button) {
+            var timestamp = button.dataset.timestamp;
+            var itemDiv = button.closest('.existing-content-item');
+
+            if (contentsToDelete.indexOf(timestamp) !== -1) {
+                contentsToDelete = contentsToDelete.filter(function(t) { return t !== timestamp; });
+                itemDiv.classList.remove('deleting');
+                button.textContent = '删除';
+                button.style.background = '#f44336';
+            } else {
+                contentsToDelete.push(timestamp);
+                itemDiv.classList.add('deleting');
+                button.textContent = '撤销删除';
+                button.style.background = '#4caf50';
+            }
+        }
+
+        /* ========= 保存编辑 ========= */
+        async function saveCitangDetailEdit() {
+            var loginInfo = checkLoginStatus();
+            if (!loginInfo) {
+                showCustomToast('提示', '请先登录');
+                return;
+            }
+
+            var hasOwnership = await checkCitangOwnership();
+            if (!hasOwnership) {
+                showCustomToast('权限不足', '您未拥有该会堂NFT，无法编辑会堂');
+                return;
+            }
+
+            var citangName = document.getElementById('editCitangName').value;
+            var province = document.getElementById('editProvince').value;
+            var district = document.getElementById('editDistrict').value;
+            var address = document.getElementById('editAddress').value || '_';
+            var telephone = document.getElementById('editTelephone').value || '_';
+            var contacts = document.getElementById('editContacts').value || '';
+            var privacyLevelValue = document.getElementById('editPrivacyLevel').value || 'public';
+
+            var achievementItems = document.querySelectorAll('.achievement-edit-item');
+            var achievements = [];
+
+            achievementItems.forEach(function(item) {
+                var index = item.dataset.index;
+                var name = document.getElementById('achievement_name_' + index).value.trim();
+                var content = document.getElementById('achievement_content_' + index).value.trim();
+
+                if (name || content) {
+                    achievements.push({ "名称": name, "内容": content });
+                }
+            });
+
+            if (!citangName || !province || !district) {
+                showCustomToast('提示', '会堂名称、省/市、区/县为必填项');
+                return;
+            }
+
+            var updatedData = Object.assign({}, originalCitangData, {
+                name: citangName,
+                province: province,
+                district: district,
+                address: address,
+                telephone: telephone,
+                contacts: contacts,
+                privacy_level: privacyLevelValue,
+                "成就": achievements
+            });
+
+            try {
+                var filePath = 'nft/data/' + currentCitangInfo.cardNumber + '_' + currentCitangInfo.surname + '/' + currentCitangInfo.citangNumber + '_' + currentCitangInfo.name + '/citang.json';
+                
+                var response = await fetch('/api/citang/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        filePath: filePath,
+                        citangData: updatedData,
+                        card_number: currentCitangInfo.cardNumber,
+                        surname: currentCitangInfo.surname,
+                        citang_number: currentCitangInfo.citangNumber,
+                        citang_name: citangName
+                    })
+                });
+
+                var result = await response.json();
+                if (!result.success) throw new Error(result.error || '保存失败');
+
+                for (var i = 0; i < pendingContents.length; i++) {
+                    var content = pendingContents[i];
+                    var fd = new FormData();
+                    fd.append('type', content.type);
+                    if (content.type === 'text') {
+                        fd.append('text', content.content);
+                    } else {
+                        fd.append('file', content.file);
+                    }
+
+                    var uploadUrl = '/citang/' + encodeURIComponent(currentCitangInfo.surname) + '/' + currentCitangInfo.citangNumber + '/content/upload' +
+                        '?card_number=' + currentCitangInfo.cardNumber +
+                        '&name=' + encodeURIComponent(currentCitangInfo.name || '');
+
+                    var uploadRes = await fetch(uploadUrl, { method: 'POST', body: fd });
+                    if (!uploadRes.ok) {
+                        var errorText = await uploadRes.text();
+                        console.error('上传内容失败:', errorText);
+                    }
+                }
+
+                for (var j = 0; j < contentsToDelete.length; j++) {
+                    var timestamp = contentsToDelete[j];
+                    var deleteUrl = '/citang/' + encodeURIComponent(currentCitangInfo.surname) + '/' + currentCitangInfo.citangNumber + '/content/' + timestamp +
+                        '?card_number=' + currentCitangInfo.cardNumber + '&name=' + encodeURIComponent(currentCitangInfo.name || '');
+
+                    var deleteRes = await fetch(deleteUrl, { method: 'DELETE' });
+                    if (!deleteRes.ok) {
+                        var errorText2 = await deleteRes.text();
+                        console.error('删除内容失败:', errorText2);
+                    }
+                }
+
+                originalCitangData = updatedData;
+                privacyLevel = privacyLevelValue;
+                populatePage(updatedData);
+
+                if (citangName !== currentCitangInfo.name) {
+                    currentCitangInfo.name = citangName;
+                    document.getElementById('introduce').textContent = currentCitangInfo.surname + '.' + citangName;
+                }
+
+                showCustomToast('提示', '会堂信息修改成功！页面即将刷新...');
+
+                pendingContents = [];
+                contentsToDelete = [];
+
+                setTimeout(function() {
+                    closeEditCitangModal();
+                }, 1500);
+
+            } catch (error) {
+                console.error('编辑会堂失败:', error);
+                showCustomToast('编辑失败', '编辑会堂失败: ' + error.message);
+            }
+        }
+
+        /* ========= 加载已上传的内容 ========= */
+        async function loadUploadedContent() {
+            var info = currentCitangInfo;
+            var url = '/citang/' + encodeURIComponent(info.surname) + '/' + info.citangNumber + '/content' +
+                '?card_number=' + info.cardNumber +
+                '&name=' + encodeURIComponent(info.name || '');
+
+            try {
+                var r = await fetch(url);
+                if (r.status === 404) { renderEmpty(); return; }
+                if (!r.ok) throw r.status;
+                var arr = await r.json();
+
+                var box = document.getElementById('uploadedContentContainer');
+                box.innerHTML = '';
+
+                if (!arr.length) { renderEmpty(); return; }
+
+                arr.forEach(function(content) {
+                    var wrap = document.createElement('div');
+                    wrap.className = 'uploaded-item-wrapper';
+
+                    var delBox = document.createElement('div');
+                    delBox.className = 'delete-btn-container';
+                    delBox.style.display = 'none';
+
+                    var delBtn = document.createElement('button');
+                    delBtn.className = 'delete-button';
+                    delBtn.textContent = '删除';
+
+                    var delUrl = '/citang/' + encodeURIComponent(info.surname) + '/' + info.citangNumber + '/content/' + content.timestamp +
+                        '?card_number=' + info.cardNumber + '&name=' + encodeURIComponent(info.name || '');
+                    delBtn.dataset.deleteUrl = delUrl;
+                    delBox.appendChild(delBtn);
+                    wrap.appendChild(delBox);
+
+                    var item = document.createElement('div');
+                    item.className = 'uploaded-item';
+
+                    if (content.type === 'image') {
+                        item.innerHTML = '<img src="' + content.path + '" alt="补充图片" style="width:100%;height:auto;display:block;border-radius:8px;">';
+                        var loginInfo = checkLoginStatus();
+                        if (loginInfo) {
+                            checkCitangOwnership().then(function(hasOwnership) {
+                                if (hasOwnership) {
+                                    var imgElement = item.querySelector('img');
+                                    imgElement.style.cursor = 'pointer';
+                                    imgElement.addEventListener('click', function() {
+                                        delBox.style.display = delBox.style.display === 'none' ? 'block' : 'none';
+                                    });
+                                }
+                            });
+                        }
+                    } else {
+                        item.innerHTML = '<div class="uploaded-text"><p>' + (content.content || '无文本内容') + '</p></div>';
+                        var loginInfo2 = checkLoginStatus();
+                        if (loginInfo2) {
+                            checkCitangOwnership().then(function(hasOwnership) {
+                                if (hasOwnership) {
+                                    var textElement = item.querySelector('.uploaded-text');
+                                    textElement.style.cursor = 'pointer';
+                                    textElement.addEventListener('click', function() {
+                                        delBox.style.display = delBox.style.display === 'none' ? 'block' : 'none';
+                                    });
+                                }
+                            });
+                        }
+                    }
+
+                    wrap.appendChild(item);
+                    box.appendChild(wrap);
+                });
+
+                box.querySelectorAll('.delete-button').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        checkCitangOwnership().then(function(hasOwnership) {
+                            if (!hasOwnership) {
+                                showCustomToast('权限不足', '您没有权限删除此内容');
+                                return;
+                            }
+                            
+                            showCustomToast('确认删除', '确定删除这条内容吗？', function() {
+                                fetch(e.target.dataset.deleteUrl, { method: 'DELETE' })
+                                    .then(function(res) {
+                                        if (!res.ok) throw res.status;
+                                        loadUploadedContent();
+                                        showCustomToast('提示', '删除成功');
+                                    })
+                                    .catch(function(err) {
+                                        console.error('删除失败:', err);
+                                        showCustomToast('删除失败', '删除失败，请重试');
+                                    });
+                            });
+                        });
+                    });
+                });
+            } catch (e) {
+                console.error('加载内容失败:', e);
+                renderEmpty();
+            }
+
+            function renderEmpty() {
+                var box = document.getElementById('uploadedContentContainer');
+                box.innerHTML = '<div class="no-content">其它信息</div>';
+            }
+        }
+
+        // ========== 监听登录成功事件 ==========
+        document.addEventListener('wallet-login-success', function(event) {
+            var detail = event.detail;
+            if (detail && detail.walletid) {
+                console.log('[citang_detail.html] 登录成功，walletid:', detail.walletid.substring(0, 16) + '...');
+                if (pendingEditAfterLogin || loginPurpose === 'edit') {
+                    pendingEditAfterLogin = false;
+                    loginPurpose = '';
+                    checkCitangOwnership().then(function(hasOwnership) {
+                        if (hasOwnership) {
+                            openEditWindow();
+                        } else {
+                            showCustomToast('权限不足', '您未拥有该会堂NFT，无法编辑会堂', function() {
+                                logoutAndRefresh();
+                            });
+                        }
+                    });
+                } else if (loginPurpose === 'view_members') {
+                    loginPurpose = '';
+                    checkAccessAndRedirectToMembers();
+                }
+            }
+        });
+
+        // ========== 初始化 ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            var url = new URLSearchParams(location.search);
+            var surname = url.get('surname');
+            var citangNumber = url.get('citang_number');
+            var cardNumber = url.get('card_number');
+            var citangname = url.get('name');
+
+            currentCitangInfo = { 
+                surname: decodeURIComponent(surname || ''), 
+                citangNumber: citangNumber, 
+                cardNumber: cardNumber, 
+                name: decodeURIComponent(citangname || '') 
+            };
+
+            if (citangNumber && cardNumber) {
+                document.getElementById('introduce').textContent = currentCitangInfo.surname + '.' + currentCitangInfo.name + ': 详细资料';
+            }
+
+            fetch('/api/citang/details?card_number=' + cardNumber + '&citang_number=' + citangNumber + '&surname=' + encodeURIComponent(currentCitangInfo.surname) + '&name=' + encodeURIComponent(currentCitangInfo.name))
+                .then(function(response) {
+                    if (!response.ok) throw new Error('数据加载失败');
+                    return response.json();
+                })
+                .then(function(data) {
+                    currentCitangHash = data.hash || '';
+                    originalCitangData = Object.assign({}, data);
+                    privacyLevel = data.privacy_level || 'public';
+
+                    console.log('加载的会堂数据:', data);
+                    console.log('会堂隐私级别:', privacyLevel);
+
+                    populatePage(data);
+                    loadUploadedContent();
+                })
+                .catch(function(e) {
+                    console.error(e);
+                    showCustomToast('加载失败', '数据加载失败');
+                });
+
+            // 页面关闭时退出登录
+            window.addEventListener('beforeunload', function() {
+                clearWalletLogin();
+            });
+        });
+
+        // 点击外部关闭编辑窗口
+        window.onclick = function(event) {
+            var editOverlay = document.getElementById('editModalOverlay');
+            var toast = document.getElementById('customToast');
+
+            if (event.target === editOverlay && editOverlay.classList.contains('active')) {
+                if (!isConfirmingContent) {
+                    closeEditCitangModal();
+                } else {
+                    showCustomToast('提示', '请先完成当前内容的添加或取消');
+                }
+            }
+            
+            if (event.target === toast) {
+                hideCustomToast();
+            }
+        };
+
+        // 页面加载重置标志
+        window.onload = function() {
+            isProcessingEdit = false;
+            loginPurpose = '';
+            pendingEditAfterLogin = false;
+            isEditWindowOpen = false;
+            isConfirmingContent = false;
+            pendingImageFile = null;
+            pendingTextContent = null;
+            enableSaveButtons();
+
+            var loginInfo = checkLoginStatus();
+            if (loginInfo) {
+                checkCitangOwnership().then(function(hasOwnership) {
+                    if (!hasOwnership) {
+                        console.log('检测到无权限用户，自动退出登录');
+                        logout();
+                    }
+                });
+            }
+        };
+    </script>
+</body>
+
+</html>

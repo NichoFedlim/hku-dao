@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <link rel="shortcut icon" type="image/x-icon" href="image/favicon.png" />
+    <title data-i18n="item_title">Item – HKU DAO</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="js/qrcode.min.js"></script>
+    <script src="/wallet-auth.js"></script>
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+        .item-detail-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            max-width: 700px;
+            margin: 0 auto;
+            border-left: 6px solid var(--hku-gold);
+        }
+        .item-detail-card h1 { color: var(--primary); font-size: 2.2rem; }
+        .item-detail-card .meta { color: #666; margin: 8px 0; }
+        .item-detail-card .desc { margin-top: 16px; font-size: 1.1rem; line-height: 1.7; }
+        .item-detail-card .nft-hash {
+            background: #f5f5f5; padding: 12px; border-radius: 8px;
+            font-family: monospace; word-break: break-all; margin-top: 16px;
+        }
+        .action-row { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+        .action-row .btn {
+            padding: 10px 24px; border: none; border-radius: 30px;
+            cursor: pointer; font-weight: 600; transition: var(--transition);
+        }
+        .btn-primary { background: var(--hku-gold); color: var(--primary); }
+        .btn-primary:hover { background: #b8922a; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+    </style>
+</head>
+<body data-page="item">
+    <header class="header">
+        <div class="header-inner container">
+            <h1 class="logo" data-i18n="brand_name" onclick="window.location.href='/'">Gang Da Dao</h1>
+            <nav class="nav">
+                <button class="nav-btn" data-i18n="nav_market" onclick="window.location.href='/nft/NFT_market.html'">NFT Market</button>
+                <button class="nav-btn" data-i18n="nav_categories" onclick="window.location.href='/nft/categories.html'">Categories (Level 2)</button>
+                <button class="nav-btn" id="lang-switch" onclick="toggleLanguage()">中文</button>
+                <button class="nav-btn" id="login-btn" onclick="handleLogin()" data-i18n="nav_login">Login</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="max-width:800px; margin-top:20px;">
+        <div id="item-detail" class="item-detail-card">
+            <div class="loading-spinner"><div class="loader"></div><p data-i18n="loading_item">Loading item...</p></div>
+        </div>
+        <div style="text-align:center; margin-top:20px;">
+            <button class="btn btn-secondary" onclick="window.history.back()" data-i18n="back">← Back</button>
+        </div>
+    </main>
+
+    <script type="module">
+        import { loadLanguage, t, applyTranslations } from './js/i18n.js';
+        import { checkLoginStatus } from './js/auth.js';
+        import { getItemDetail } from './js/api.js';
+        import { showToast, getDisplayName } from './js/components.js';
+
+        async function initItemPage() {
+            const params = new URLSearchParams(window.location.search);
+            const itemId = params.get('item');
+            if (!itemId) {
+                document.getElementById('item-detail').innerHTML = `<p style="color:red;">${t('missing_item_id')}</p>`;
+                return;
+            }
+
+            const savedLang = localStorage.getItem('hku_lang') || 'en';
+            await loadLanguage(savedLang);
+            applyTranslations();
+
+            const item = await getItemDetail(parseInt(itemId));
+            const container = document.getElementById('item-detail');
+            if (!item) {
+                container.innerHTML = `<p style="color:red;">${t('item_not_found')}</p>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <h1>${getDisplayName(item)}</h1>
+                <div class="meta">${t('item_id')}: ${item.id}</div>
+                <div class="desc">${item.description || t('no_description')}</div>
+                <div class="nft-hash">NFT: 0x${Math.random().toString(16).substring(2, 10)}... (mock)</div>
+                <div class="action-row">
+                    <button class="btn btn-primary" onclick="window.location.href='/nft/ti_log.html?level=item&id=${item.id}'" data-i18n="view_transactions">View Transactions</button>
+                    <button class="btn btn-secondary" onclick="window.location.href='/nft/NFT_market.html'" data-i18n="market">Market</button>
+                </div>
+            `;
+        }
+
+        window.toggleLanguage = async function() {
+            const next = localStorage.getItem('hku_lang') === 'zh' ? 'en' : 'zh';
+            await loadLanguage(next);
+            applyTranslations();
+            initItemPage();
+        };
+
+        window.handleLogin = async function() {
+            const info = checkLoginStatus();
+            if (info) { window.location.href = '/nft/portfolio.html'; return; }
+            try {
+                const result = await openWalletLogin();
+                if (result && result.walletid) {
+                    showToast(t('login_success'));
+                    setTimeout(() => window.location.reload(), 500);
+                }
+            } catch (e) {
+                if (e.message !== '用户取消登录') showToast(t('login_error') + ': ' + e.message, 'error');
+            }
+        };
+
+        initItemPage();
+    </script>
+</body>
+</html>

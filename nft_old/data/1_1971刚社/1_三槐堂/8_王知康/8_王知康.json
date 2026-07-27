@@ -1,0 +1,24 @@
+{
+  "number": "8",
+  "name": "王知康",
+  "birth": "1955",
+  "birthplace": "中国上海",
+  "gender": "男",
+  "telephone": "_",
+  "mail": "_",
+  "hash": "E24B8D108DF607235262804AF49CF54504B60CDAAE71F8D53CA63E6FADBBBD40",
+  "family": {
+    "spouse": "张卫玲",
+    "child": [
+      "王加中",
+      "王思中",
+      "王佑中"
+    ]
+  },
+  "death_date": "_",
+  "death_place": "_",
+  "source": "user",
+  "shortlink": "https://dao002.rbas.top/s/bg",
+  "short_code": "bg",
+  "purchase_price": 100
+}

@@ -1,0 +1,30 @@
+{
+  "log": [
+    {
+      "thread": 1,
+      "time": "2025/06/13 10:31:38",
+      "price": 10000,
+      "seller": "创始者",
+      "buyer": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+      "chain": "B973E260B442E140",
+      "next_chain": "7BE878318B951433",
+      "verification_code": "7BE878318B951433B73E0F5A3BDDFC31269AD33E47649E4CACE05FE5EB82A955"
+    },
+    {
+      "thread": 2,
+      "time": "2026/05/19 16:27:32",
+      "price": 10000,
+      "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+      "buyer": "519552D3C92CBBF4206B827A9DBE1F166173E7C27D9CCC55C3E4C44896D45B13",
+      "chain": "7BE878318B951433",
+      "next_chain": "F0A98541FD2F8E9F",
+      "verification_code": "F0A98541FD2F8E9F8E59B8E37EAEC126CD2C8B92EC9148233FD0AC17D8C647F3"
+    }
+  ],
+  "nft_holder": {
+    "wallet": "519552D3C92CBBF4206B827A9DBE1F166173E7C27D9CCC55C3E4C44896D45B13",
+    "phone_number": "",
+    "email": "",
+    "other": "......"
+  }
+}

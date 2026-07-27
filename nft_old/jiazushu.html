@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家族树</title>
+
+    <!-- 主要 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            overflow-x: auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px
+        }
+
+        .header h2 {
+            font-size: 16px;
+            opacity: .9;
+            font-weight: normal
+        }
+
+        .tree-container {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            display: block
+        }
+
+        .loading,
+        .error {
+            text-align: center;
+            padding: 100px;
+            font-size: 18px;
+            color: #718096
+        }
+
+        .error {
+            color: #e53e3e
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, .3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        /* 纯SVG卡片样式 */
+        .person-card-rect {
+            fill: #fff;
+            stroke: #cbd5e0;
+            stroke-width: 2
+        }
+
+        .person-card-rect.root {
+            stroke: #ff6b6b
+        }
+
+        .person-card-rect.male {
+            stroke: #4ecdc4
+        }
+
+        .person-card-rect.female {
+            stroke: #ff6b6b
+        }
+
+        .person-name {
+            font-size: 14px;
+            font-weight: 600;
+            fill: #2d3748
+        }
+
+        .person-details,
+        .spouse-name {
+            font-size: 14px;
+            fill: #718096
+        }
+
+        .link-path {
+            fill: none;
+            stroke: #a0aec0;
+            stroke-width: 1.5
+        }
+
+        .generation-label {
+            font-size: 12px;
+            font-weight: 600;
+            fill: #4a5568;
+            background: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .3s ease;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, .2)
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 100px;
+            left: 20px;
+            background: white;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all .3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .15)
+        }
+
+        @media(max-width:768px) {
+            .controls {
+                bottom: 10px;
+                right: 10px;
+                gap: 6px
+            }
+
+            .control-btn {
+                width: 36px;
+                height: 36px
+            }
+
+            .back-btn {
+                top: 10px;
+                left: 10px;
+                padding: 6px 12px;
+                font-size: 12px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1 id="tree-title">家族树</h1>
+        <h2 id="tree-subtitle">正在加载家族数据...</h2>
+    </div>
+
+    <div class="tree-container" id="tree-container">
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            <p>加载中...</p>
+        </div>
+    </div>
+
+    <button class="back-btn" onclick="goBack()">← 返回</button>
+
+    <div class="controls">
+        <button class="control-btn" onclick="zoomIn()" title="放大">🔍+</button>
+        <button class="control-btn" onclick="zoomOut()" title="缩小">🔍-</button>
+        <button class="control-btn" onclick="resetZoom()" title="重置">🔄</button>
+    </div>
+
+    <script>
+        /* ---------- 全局变量 ---------- */
+        let currentZoom = 1, svg, g;
+        let surname, citangNumber, memberNumber, cardNumber, citangname, membername;
+
+        /* ---------- D3.js 加载检查 ---------- */
+        function checkD3Loaded() {
+            return new Promise((resolve, reject) => {
+                if (typeof d3 !== 'undefined') {
+                    resolve();
+                    return;
+                }
+
+                // 如果 D3 未加载，尝试重新加载
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/d3@7.8.5/dist/d3.min.js';
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+
+                // 设置超时
+                setTimeout(() => {
+                    reject(new Error('D3.js 加载超时'));
+                }, 10000);
+            });
+        }
+
+        /* ---------- 初始化 ---------- */
+        async function initPage() {
+            try {
+                // 首先检查 D3.js
+                await checkD3Loaded();
+
+                const p = new URLSearchParams(location.search);
+                surname = decodeURIComponent(p.get('surname') || '');
+                citangNumber = p.get('citang_number');
+                memberNumber = p.get('member_number');
+                cardNumber = p.get('card_number');
+                citangname = decodeURIComponent(p.get('citangname') || '');
+                membername = decodeURIComponent(p.get('membername') || '未命名');
+
+                document.getElementById('tree-title').textContent = `${membername}的家族树`;
+                document.getElementById('tree-subtitle').textContent = `${surname}·${citangname}`;
+
+                // 初始化家族树
+                await init();
+            } catch (error) {
+                console.error('页面初始化失败:', error);
+                showError(`初始化失败: ${error.message}`);
+            }
+        }
+
+        function goBack() { window.history.back() }
+        function zoomIn() {
+            if (!g) return;
+            currentZoom = Math.min(currentZoom * 1.2, 3);
+            g.attr('transform', `translate(100,50) scale(${currentZoom})`);
+        }
+        function zoomOut() {
+            if (!g) return;
+            currentZoom = Math.max(currentZoom / 1.2, .5);
+            g.attr('transform', `translate(100,50) scale(${currentZoom})`);
+        }
+        function resetZoom() {
+            if (!g) return;
+            currentZoom = 1;
+            g.attr('transform', 'translate(100,50) scale(1)');
+        }
+
+        function showError(message) {
+            const container = document.getElementById('tree-container');
+            container.innerHTML =
+                `<div class="error">
+                    <p>${message}</p>
+                    <button onclick="location.reload()" style="margin-top: 10px; padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">刷新页面</button>
+                </div>`;
+        }
+
+        /* ---------- 家族树核心 ---------- */
+        class ModernFamilyTree {
+            constructor() {
+                this.members = new Map();
+                this.nameMap = new Map();
+                this.rootId = memberNumber;
+                this.container = d3.select('#tree-container');
+                this.margin = { top: 50, right: 50, bottom: 50, left: 50 };
+            }
+
+
+            async loadData() {
+                try {
+                    const url = `/citang/${encodeURIComponent(surname)}/${citangNumber}/members-for-tree?card_number=${cardNumber}&citangname=${encodeURIComponent(citangname)}`;
+                    console.log('正在请求数据:', url);
+
+                    const res = await fetch(url);
+                    if (!res.ok) {
+                        throw new Error(`HTTP错误! 状态码: ${res.status}`);
+                    }
+
+                    const data = await res.json();
+                    console.log('收到数据:', data);
+
+                    if (!Array.isArray(data)) {
+                        throw new Error('数据格式错误: 期望数组但收到其他格式');
+                    }
+
+                    if (data.length === 0) {
+                        throw new Error('没有找到成员数据');
+                    }
+
+                    data.forEach(m => {
+                        if (!m.number) return;
+
+                        const id = m.number;
+                        const name = m.name || '未登记';
+
+                        this.members.set(id, {
+                            id, name,
+                            gender: m.gender || '未知',
+                            birth: m.birth || '未知',
+                            spouse: (m.family?.spouse && m.family.spouse !== '_') ? m.family.spouse : null,
+                            child: m.family?.child || [],
+                            childrenIds: []
+                        });
+                        this.nameMap.set(name, id);
+                    });
+
+                    this.members.forEach(p => {
+                        (p.child || []).forEach(cName => {
+                            if (!cName || cName === '_') return;
+
+                            let childId = this.nameMap.get(cName);
+                            if (!childId) {
+                                childId = `__${cName}__`;
+                                this.members.set(childId, {
+                                    id: childId,
+                                    name: cName,
+                                    gender: '',
+                                    birth: '',
+                                    spouse: null,
+                                    child: [],
+                                    childrenIds: []
+                                });
+                                this.nameMap.set(cName, childId);
+                            }
+                            p.childrenIds.push(childId);
+                        });
+                    });
+
+                    console.log(`加载了 ${this.members.size} 个成员`);
+
+                    // 检查根成员是否存在
+                    if (!this.members.has(this.rootId)) {
+                        console.warn('根成员不存在，可用的成员ID:', Array.from(this.members.keys()));
+                        throw new Error(`未找到根成员 (ID: ${this.rootId})`);
+                    }
+
+                    return true;
+
+                } catch (error) {
+                    console.error('加载数据失败:', error);
+                    throw error;
+                }
+            }
+
+            buildTree() {
+                const root = this.members.get(this.rootId);
+                if (!root) {
+                    throw new Error(`未找到根成员 (ID: ${this.rootId})，可用的成员: ${Array.from(this.members.keys()).join(', ')}`);
+                }
+
+                const build = node => {
+                    const m = this.members.get(node.id);
+                    return {
+                        name: m.name,
+                        id: m.id,
+                        gender: m.gender,
+                        birth: m.birth,
+                        spouse: m.spouse,
+                        children: (m.childrenIds || [])
+                            .map(id => this.members.get(id))
+                            .filter(c => c && c.name !== '_')
+                            .map(c => build(c))
+                    };
+                };
+                return build(root);
+            }
+
+
+            render() {
+                this.container.selectAll('*').remove();
+                const treeData = this.buildTree();
+
+                const counts = new Map();
+                d3.hierarchy(treeData).each(d => counts.set(d.depth, (counts.get(d.depth) || 0) + 1));
+
+                const maxNodes = Math.max(...counts.values(), 1);
+                const h = Math.max(600, maxNodes * 100);
+                const w = this.margin.left + this.margin.right + (Math.max(...counts.keys()) + 1) * 280;
+
+                svg = this.container.append('svg')
+                    .attr('width', '100%').attr('height', h)
+                    .attr('viewBox', `0 0 ${w} ${h}`);
+                g = svg.append('g').attr('transform', `translate(${this.margin.left},${this.margin.top})`);
+
+                const tree = d3.tree()
+                    .size([w - this.margin.left - this.margin.right, h - this.margin.top - this.margin.bottom])
+                    .separation((a, b) => {
+                        const la = !a.children || a.children.length === 0, lb = !b.children || b.children.length === 0;
+                        if (la && lb) return .8;
+                        if (la || lb) return 1.2;
+                        return 1.5;
+                    });
+
+                const root = d3.hierarchy(treeData);
+                tree(root);
+
+                g.selectAll('.link-path')
+                    .data(root.links()).enter().append('path')
+                    .attr('class', 'link-path')
+                    .attr('d', d3.linkHorizontal().x(d => d.y).y(d => d.x));
+
+                const nodes = g.selectAll('.node')
+                    .data(root.descendants()).enter().append('g')
+                    .attr('class', 'node')
+                    .attr('transform', d => `translate(${d.y},${d.x})`);
+
+                nodes.each(function (d) {
+                    const sel = d3.select(this), isRoot = d.data.id === memberNumber;
+                    sel.append('rect')
+                        .attr('class', `person-card-rect ${isRoot ? 'root' : ''} ${d.data.gender === '男' ? 'male' : d.data.gender === '女' ? 'female' : ''}`)
+                        .attr('x', -80).attr('y', -30)
+                        .attr('width', 160).attr('height', 60).attr('rx', 12);
+                    sel.append('text').attr('class', 'person-name').attr('y', -12).attr('text-anchor', 'middle').text(d.data.name);
+                    if (d.data.birth) sel.append('text').attr('class', 'person-details').attr('y', 2).attr('text-anchor', 'middle').text('出生: ' + d.data.birth);
+                    if (d.data.spouse) sel.append('text').attr('class', 'spouse-name').attr('y', 18).attr('text-anchor', 'middle').text('配偶: ' + d.data.spouse);
+                });
+
+                nodes.on('dblclick', (e, d) => {
+                    const cid = d.data.id;
+                    if (cid === memberNumber || cid.startsWith('__')) return;
+                    const m = this.members.get(cid); if (!m) return;
+                    const url = new URL(location);
+                    url.searchParams.set('member_number', cid);
+                    url.searchParams.set('membername', m.name);
+                    location = url;
+                });
+
+                [...counts.keys()].forEach(gen => {
+                    g.append('text').attr('class', 'generation-label')
+                        .attr('x', gen * 250).attr('y', -20)
+                        .text(`第${gen + 1}代`);
+                });
+
+                const zoom = d3.zoom().scaleExtent([.3, 3]).on('zoom', ev => g.attr('transform', ev.transform));
+                svg.call(zoom);
+            }
+        }
+
+        /* ---------- 启动 ---------- */
+        async function init() {
+            try {
+                document.getElementById('tree-container').innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>加载家族数据中...</p></div>';
+                const tree = new ModernFamilyTree();
+                await tree.loadData();
+                tree.render();
+            } catch (err) {
+                console.error(err);
+                showError(`加载失败: ${err.message}`);
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+
+</html>

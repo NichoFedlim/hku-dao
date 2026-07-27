@@ -1,0 +1,22 @@
+{
+  "name": "project_bjx_introduce",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "async-mutex": "^0.5.0",
+    "axios": "^1.7.9",
+    "cors": "^2.8.6",
+    "express": "^4.21.2",
+    "ip": "^2.0.1",
+    "multer": "^2.0.2",
+    "ws": "^8.21.1"
+  }
+}

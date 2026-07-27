@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交易日志</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../../image/favicon.png">
+    <style>
+        body {
+            font-family: monospace;
+            /* font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif; */
+            /* font-family: roboto, monospace; */
+
+            margin: 0;
+            padding: 0;
+            /* background-color: #f4f4f4; */
+            background-color: black;
+        }
+
+        .top-header {
+            background-color: red;
+            text-align: center;
+            width: 100vw;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .top-header h1 {
+            margin: 0;
+            color: white;
+            font-size: 2.5em;
+            padding: 15px;
+        }
+
+        .header {
+            background-color: #910209;
+            text-align: center;
+            width: 100vw;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 10px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            min-width: 360px;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            /* background-color: #4cb7db; */
+            background-color: #0096C7;
+            /* background-color: #fff; */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto 0;
+
+
+        }
+
+        h1,
+        h2,
+        h4,
+        p {
+            margin: 10px 0;
+            font-size: 1.5em;
+
+        }
+
+        .p_color {
+            /* color: #ffffff; */
+            color: #000;
+            font-size: 1.5em;
+            text-align: left;
+        }
+
+        h1 {
+            font-size: 2em;
+        }
+
+        h2 {
+            font-size: 1.5em;
+        }
+
+        h4 {
+            font-size: 1.2em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .footer {
+            background-color: #0099cc;
+            color: #ffffff;
+            text-align: center;
+            font-size: 12px;
+            padding: 15px;
+            margin-top: 30px;
+        }
+
+        .table-container {
+            margin-top: 1px;
+            overflow-x: auto;
+            font-size: 16px;
+            color: #000;
+        }
+
+        .scrollable-table-container {
+            max-height: 260px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 10px 0;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 20px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .project {
+            background-color: #ff9500;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+            font-size: 19px;
+        }
+
+        .query-button {
+            background-color: #ff9500;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .query-button:hover {
+            background-color: #e08900;
+        }
+
+        .loading {
+            font-size: 1.2em;
+            color: #ff9500;
+            margin: 20px 0;
+            display: none;
+        }
+
+        #qr-code {
+            width: 190px;
+            height: 190px;
+            text-align: right;
+            margin-left: 1mm;
+            margin-right: 1mm;
+        }
+
+        #nft-holder-chain {
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.5;
+        }
+
+        .info-line {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .nft-holder-clickable {
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+        }
+
+
+        /* 新增样式 */
+
+
+
+        #nft-holder-chain {
+            line-height: 1.1;
+            margin: 2px 0;
+            font-family: monospace;
+            /* overflow-y: auto;       允许横向滚动  */
+            white-space: nowrap;
+            background-color: #ffffff;
+            display: inline-block;
+            /* 新增关键属性 */
+            padding: 4px 12px;
+            /* 可选：增加一点内边距 */
+        }
+
+        .chain-line {
+            display: block;
+            text-indent: 0em;
+            /* 首行缩进3字符 */
+            margin: px;
+            /* 压缩行间距 */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-header">
+        <h1 id="page-title">交易日志</h1>
+    </div>
+    <div class="container">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <h2 class="project" style="margin-bottom: 0px;">NFT持有者信息：</h2><br><br>
+                <p class="p_color">持有证码: </p>
+                <p id="nft-holder-chain" style="font-size: 1.2em;"></p>
+            </div>
+            <!-- 二维码显示区域 -->
+            <div id="qr-code"></div>
+        </div>
+
+        <p class="p_color">持有者钱包: <span id="nft-holder-wallet"></span></p>
+        <p class="p_color">电话号码: <span id="nft-holder-telephone"></span></p>
+        <p class="p_color">邮箱地址: <span id="nft-holder-email"></span></p>
+        <p class="p_color">其它: <span id="nft-holder-other"></span></p>
+
+        <h2 class="project" style="margin-bottom: 0px;">交易信息：</h2>
+        <div class="scrollable-table-container">
+            <div class="table-container">
+                <table id="transaction-table">
+                    <thead>
+                        <tr>
+                            <th>thread</th>
+                            <th>时间</th>
+                            <th>价格</th>
+                            <th>卖出方</th>
+                            <th>买入方</th>
+                            <th>交易链</th>
+                            <th>交易认证码</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content">
+            <a href="javascript:history.back();" class="button">返回</a>
+        </div>
+    </div>
+
+    <script src="js/qrcode.min.js"></script>
+    <script>
+        // 格式化函数保持不变
+        function formatChainLong(chain) {
+            if (!chain) return '未知';
+            const partLength = 16;
+            let result = '';
+            for (let i = 0; i < 4; i++) {
+                const start = i * partLength;
+                const end = start + partLength;
+                result += `<span class="chain-line">${chain.slice(start, end)}</span>`;
+            }
+            return result;
+        }
+
+        function formatChainShort(chain) {
+            const displayLength = 4;
+            return chain ? chain.slice(0, displayLength) + '...' : '未知';
+        }
+
+        // 修改后的数据加载函数
+
+        async function fetchData() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const name = decodeURIComponent(urlParams.get('name') || '');
+                const card_number = urlParams.get('card_number');          // 必需
+                if (!card_number) throw new Error('缺少 card_number');
+
+                // 1. 拉姓氏级日志
+                const logResp = await fetch(`/ti-log/${card_number}?surname=${encodeURIComponent(name)}`);
+                if (!logResp.ok) throw new Error('读取日志接口失败');
+                const { log,nft_holder } = await logResp.json();
+
+                // 2. 拉姓氏静态资料（用于持有者信息、NFT 链等）
+                // const infoResp = await fetch(`/ti-log/${card_number}?surname=${encodeURIComponent(name)}`);
+                // if (!infoResp.ok) throw new Error('读取姓氏资料失败');
+                // const data = await infoResp.json();
+
+
+
+                const response = await fetch(`/data/${card_number}${name}/content.json`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+
+                // 3. 填充顶部信息
+                document.getElementById('page-title').textContent = `${name} 区块证 交易日志`;
+                document.getElementById('nft-holder-wallet').textContent = data.nft_holder?.wallet || '未知';
+                document.getElementById('nft-holder-telephone').textContent = data.nft_holder?.telephone || '未知';
+                document.getElementById('nft-holder-email').textContent = data.nft_holder?.email || '未知';
+                document.getElementById('nft-holder-other').textContent = data.nft_holder?.other || '未知';
+
+                // 4. 当前持有者 NFT 链（长格式） & 二维码
+                const nftChain = data.nft || '';
+                document.getElementById('nft-holder-chain').innerHTML = formatChainLong(nftChain);
+                if (nftChain) {
+                    new QRCode(document.getElementById('qr-code'), {
+                        text: nftChain,
+                        width: 180,
+                        height: 180,
+                        colorDark: '#000',
+                        colorLight: '#fff',
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+                }
+
+                // 5. 渲染交易表格
+                loadTransactions(log);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('page-title').innerText = '数据加载失败';
+                document.getElementById('nft-holder-chain').innerText = '加载错误: ' + err.message;
+            }
+        }
+
+
+        // 在 formatChainShort 函数后面添加这个新函数
+function formatWalletShort(wallet) {
+    if (!wallet) return '未知';
+    if (wallet.length <= 8) return wallet;
+    return wallet.slice(0, 4) + '***' + wallet.slice(-4);
+}
+        // 修改后的交易记录加载函数
+        function loadTransactions(logs) {
+            const tableBody = document.getElementById('transaction-table').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            logs.forEach(log => {
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td>${log.thread}</td>
+                    <td>${log.time}</td>
+                    <td>￥${log.price}</td>
+                    <td>${formatWalletShort(log.seller)}</td>  <!-- 修改这里 -->
+            <td>${formatWalletShort(log.buyer)}</td>   <!-- 修改这里 -->
+                    <td>${formatChainShort(log.chain)}</td>
+                    <td>
+                        <a href="javascript:void(0);" onclick="verifyChain('${log.next_chain}')">${formatChainShort(log.next_chain)}</a>
+                        <button onclick="verifyChain('${log.next_chain}')">验证</button>
+                    </td>
+                `;
+
+                // 移除了这里生成二维码的代码
+            });
+        }
+
+        // 其他函数保持不变
+        function verifyChain(next_chain) {
+            const encodedChain = encodeURIComponent(next_chain);
+            window.location.href = `query.html?chain=${encodedChain}`;
+        }
+
+        fetchData();
+    </script>
+</body>
+
+</html>

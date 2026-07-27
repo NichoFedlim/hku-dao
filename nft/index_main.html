@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <link rel="shortcut icon" type="image/x-icon" href="image/favicon.png" />
+    <title data-i18n="page_title">HKU DAO - 港大道</title>
+
+    <!-- QR Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="js/qrcode.min.js"></script>
+    <script src="/wallet-auth.js"></script>
+
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+        /* ============================================================
+           HOMEPAGE-SPECIFIC STYLES
+           ============================================================ */
+
+        /* ----- DAO CARD (hybrid: old card + new theme) ----- */
+        .dao-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin: 20px 0 30px;
+            overflow: hidden;
+            border: 1px solid rgba(204, 159, 46, 0.2);
+            border-left: 6px solid var(--hku-gold);
+            transition: var(--transition);
+        }
+
+        .dao-card:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .dao-card-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 24px;
+            align-items: stretch;
+        }
+
+        /* Left column: logo + name + subtitle */
+        .dao-card-left {
+            flex: 1.2;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .dao-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #f0f4f8;
+            padding: 12px;
+            object-fit: contain;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            margin-bottom: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .dao-logo:hover {
+            transform: scale(1.03);
+        }
+
+        .dao-year-logo {
+            max-width: 100px;
+            height: auto;
+            opacity: 0.8;
+            margin: 4px 0 8px;
+        }
+
+        .dao-name {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--hku-green);
+            font-family: "KaiTi", "楷体", "Microsoft YaHei", serif;
+            letter-spacing: 4px;
+            margin: 4px 0;
+        }
+
+        .dao-subtitle {
+            font-size: 1rem;
+            color: #666;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        /* Right column: QR code + NFT hash */
+        .dao-card-right {
+            flex: 1;
+            min-width: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            border-left: 1px solid #e8e8e8;
+            gap: 12px;
+        }
+
+        .dao-qr-wrapper {
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            display: inline-block;
+        }
+
+        .dao-qr-wrapper .qrcode {
+            width: 140px;
+            height: 140px;
+            display: block;
+        }
+
+        .dao-hash-display {
+            background: #f5f7fb;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: monospace;
+            font-size: 0.7rem;
+            line-height: 1.5;
+            word-break: break-all;
+            text-align: center;
+            width: 100%;
+            max-height: 90px;
+            overflow-y: auto;
+            border: 1px solid #e8e8e8;
+            color: #333;
+        }
+
+        /* Bottom: action button */
+        .dao-card-footer {
+            padding: 12px 24px 20px;
+            text-align: center;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .dao-action-btn {
+            background: linear-gradient(135deg, var(--hku-gold), #b8922a);
+            color: var(--hku-green);
+            border: none;
+            padding: 12px 40px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 1px;
+        }
+
+        .dao-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(204, 159, 46, 0.4);
+        }
+
+        /* ----- DAO DESCRIPTION SECTION ----- */
+        .dao-description {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 28px 32px;
+            margin: 20px 0 30px;
+            border-left: 6px solid var(--hku-green);
+        }
+
+        .dao-description h2 {
+            color: var(--hku-green);
+            font-size: 1.6rem;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dao-description h2::after {
+            content: "";
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, var(--hku-gold), transparent);
+        }
+
+        .dao-description p {
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: #444;
+            margin-bottom: 12px;
+        }
+
+        .dao-description .highlight-text {
+            background: linear-gradient(to right, rgba(204, 159, 46, 0.08), rgba(204, 159, 46, 0.02));
+            padding: 16px 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--hku-gold);
+            margin: 16px 0;
+        }
+
+        .dao-description ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .dao-description ul li {
+            padding: 8px 0 8px 28px;
+            position: relative;
+            font-size: 1rem;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .dao-description ul li::before {
+            content: "◆";
+            position: absolute;
+            left: 4px;
+            color: var(--hku-gold);
+            font-size: 0.8rem;
+        }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 768px) {
+            .dao-card-layout {
+                flex-direction: column;
+                padding: 16px;
+            }
+
+            .dao-card-right {
+                border-left: none;
+                border-top: 1px solid #e8e8e8;
+                padding-top: 16px;
+            }
+
+            .dao-name {
+                font-size: 1.8rem;
+            }
+
+            .dao-logo {
+                width: 100px;
+                height: 100px;
+            }
+
+            .dao-qr-wrapper .qrcode {
+                width: 120px;
+                height: 120px;
+            }
+
+            .dao-description {
+                padding: 20px;
+            }
+
+            .dao-description h2 {
+                font-size: 1.3rem;
+            }
+
+            .dao-description p {
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dao-name {
+                font-size: 1.5rem;
+                letter-spacing: 2px;
+            }
+
+            .dao-logo {
+                width: 80px;
+                height: 80px;
+            }
+
+            .dao-qr-wrapper .qrcode {
+                width: 100px;
+                height: 100px;
+            }
+
+            .dao-action-btn {
+                padding: 10px 24px;
+                font-size: 0.95rem;
+            }
+
+            .dao-description {
+                padding: 16px;
+            }
+
+            .dao-description h2 {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="header-inner container">
+            <h1 class="logo" onclick="window.location.href='/'">港大道 Gang Da Dao</h1>
+            <nav class="nav">
+                <button class="nav-btn" data-i18n="nav_market" onclick="window.location.href='/nft/NFT_market.html'">NFT Market</button>
+                <button class="nav-btn" data-i18n="nav_categories" onclick="window.location.href='/nft/categories.html'">Categories (Level 2)</button>
+                <button class="nav-btn" id="lang-switch" onclick="toggleLanguage()">中文</button>
+                <button class="nav-btn" id="login-btn" onclick="handleLogin()" data-i18n="nav_login">Login</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- ============================================================
+             DAO CARD (Hybrid: Old Card Structure + New Theme)
+             ============================================================ -->
+        <div class="dao-card" id="dao-card">
+            <div class="dao-card-layout">
+                <!-- Left: Logo + Name -->
+                <div class="dao-card-left">
+                    <img src="/nft/image/hku_logo.png" class="dao-logo" alt="HKU DAO" onerror="this.style.display='none'" />
+                    <div class="dao-name" data-i18n="featured_name">港大道 - HKU DAO</div>
+                    <div class="dao-subtitle" data-i18n="featured_subtitle">HKU DAO - The University of Hong Kong</div>
+                </div>
+
+                <!-- Right: QR Code + NFT Hash -->
+                <div class="dao-card-right">
+                    <div class="dao-qr-wrapper">
+                        <div class="qrcode" id="dao-qrcode"></div>
+                    </div>
+                    <div class="dao-hash-display" id="dao-hash-display">
+                        <span data-i18n="loading_hash">Loading NFT hash...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom: Action Button -->
+            <div class="dao-card-footer">
+                <button class="dao-action-btn" onclick="handleDaoTransaction()" data-i18n="dao_action">
+                    港大DAO-NFT
+                </button>
+            </div>
+        </div>
+
+        <!-- ============================================================
+             DAO DESCRIPTION SECTION
+             ============================================================ -->
+        <section class="dao-description" id="dao-description">
+            <h2 data-i18n="about_title">🏛️ About 港大道 (HKU DAO)</h2>
+
+            <div class="highlight-text" data-i18n="about_intro">
+                <strong>港大道 (HKU DAO)</strong> is a decentralized autonomous organization built on the RBAS blockchain,
+                dedicated to preserving and celebrating the rich heritage of the University of Hong Kong.
+            </div>
+
+            <p data-i18n="about_p1">
+                The University of Hong Kong (HKU), founded in 1911, is the oldest tertiary institution in Hong Kong.
+                With over a century of excellence, HKU has shaped generations of leaders, thinkers, and innovators.
+                <strong>港大道</strong> transforms HKU's legacy into a digital ecosystem where alumni, students,
+                and enthusiasts can connect, trade, and co-create value through NFTs.
+            </p>
+
+            <p data-i18n="about_p2">
+                <strong>Our mission</strong> is to bridge the past and the future by tokenizing HKU's cultural assets
+                – from historic buildings and academic milestones to student memories and iconic symbols.
+                Each NFT represents a unique piece of HKU's story, secured on the RBAS blockchain.
+            </p>
+
+            <h4 style="color: var(--hku-green); margin-top: 20px; margin-bottom: 12px; font-size: 1.2rem;" data-i18n="key_features_title">
+                🔑 Key Features
+            </h4>
+
+            <ul>
+                <li data-i18n="feature_1">
+                    <strong>🏛️ Faculty &amp; Department NFTs</strong> – Own a piece of HKU's academic heritage.
+                </li>
+                <li data-i18n="feature_2">
+                    <strong>🌆 Iconic Buildings &amp; Landmarks</strong> – Collect NFTs of HKU's most beloved structures.
+                </li>
+                <li data-i18n="feature_3">
+                    <strong>📜 History by Year</strong> – Trace HKU's journey through milestone NFTs.
+                </li>
+                <li data-i18n="feature_4">
+                    <strong>🍜 Local Culture</strong> – From dim sum to hiking trails, explore HKU's vibrant community.
+                </li>
+                <li data-i18n="feature_5">
+                    <strong>💎 NFT Marketplace</strong> – Buy, sell, and trade HKU NFTs with the community.
+                </li>
+                <li data-i18n="feature_6">
+                    <strong>🔗 RBAS Blockchain</strong> – Secure, transparent, and authentic digital ownership.
+                </li>
+            </ul>
+
+            <div style="margin-top: 20px; padding: 16px 20px; background: #f0f7ff; border-radius: 10px; border-left: 4px solid var(--hku-green);">
+                <p style="font-size: 1rem; color: #333; margin: 0;" data-i18n="cta_text">
+                    <strong>🚀 Join the movement!</strong> Explore the categories, collect NFTs, and become part of
+                    the HKU DAO community. Together, we build the future of heritage on the blockchain.
+                </p>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             SEARCH SECTION
+             ============================================================ -->
+        <section class="search-section">
+            <div class="search-container">
+                <input type="text" id="search-input" data-i18n-placeholder="search_placeholder" placeholder="Search categories..." />
+                <button type="button" id="scan-btn" data-i18n="scan_btn">Scan</button>
+            </div>
+            <div id="search-status" class="search-status"></div>
+        </section>
+
+        <!-- ============================================================
+             CATEGORY GRID (Homepage Preview)
+             ============================================================ -->
+        <section class="grid grid-3" id="grid">
+            <div class="loading-spinner">
+                <div class="loader"></div>
+                <p data-i18n="loading_categories">Loading categories...</p>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             ADMIN SECTION
+             ============================================================ -->
+        <div class="admin-section">
+            <button class="admin-btn disabled" id="add-btn" data-i18n="add_category">Add Category</button>
+            <div class="admin-hint" id="permission-hint" data-i18n="login_to_add">Please login to add a category.</div>
+        </div>
+    </main>
+
+    <!-- ============================================================
+         SCAN MODAL
+         ============================================================ -->
+    <div class="scan-modal" id="scan-modal">
+        <div class="scan-container">
+            <h3 data-i18n="scan_qr_title">Scan QR Code</h3>
+            <video id="scan-video" playsinline></video>
+            <div id="scan-result" data-i18n="scan_qr_ready">Ready to scan...</div>
+            <button class="close-scan" id="close-scan" data-i18n="scan_qr_close">Close</button>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         FOOTER
+         ============================================================ -->
+    <footer class="footer">
+        <p data-i18n="footer_text">© 2026 港大道 · Built on RBAS Blockchain</p>
+    </footer>
+
+    <!-- ============================================================
+         JAVASCRIPT
+         ============================================================ -->
+    <script>
+        // ============================================================
+        // I18N SYSTEM
+        // ============================================================
+        const LOCALES = {
+            en: '/nft/locales/en.json',
+            zh: '/nft/locales/zh.json'
+        };
+        let currentLang = localStorage.getItem('hku_lang') || 'en';
+        let translations = {};
+
+        async function loadLanguage(lang) {
+            try {
+                const res = await fetch(LOCALES[lang]);
+                if (!res.ok) throw new Error('Failed to load locale');
+                translations = await res.json();
+                currentLang = lang;
+                localStorage.setItem('hku_lang', lang);
+                applyTranslations();
+                const toggle = document.getElementById('lang-switch');
+                if (toggle) toggle.textContent = lang === 'zh' ? 'English' : '中文';
+            } catch (e) {
+                console.warn('i18n error, using fallback', e);
+                translations = {};
+            }
+        }
+
+        function t(key, fallback = key) {
+            return translations[key] || fallback;
+        }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            const translation = t(key);
+            // Only update if translation exists and is not empty
+            if (translation && translation.trim() !== '' && translation !== key) {
+                el.textContent = translation;
+            }
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                el.placeholder = t(key);
+            });
+            document.title = 'HKU DAO - 港大道' || t('page_title') ;
+        }
+
+        window.toggleLanguage = function() {
+            const next = currentLang === 'zh' ? 'en' : 'zh';
+            loadLanguage(next);
+        };
+
+        // ============================================================
+        // WALLET AUTH
+        // ============================================================
+        function checkLoginStatus() {
+            if (typeof checkWalletLoginStatus === 'function') {
+                return checkWalletLoginStatus();
+            }
+            return null;
+        }
+
+        function openWalletLoginModal() {
+            if (typeof openWalletLogin === 'function') {
+                return openWalletLogin();
+            }
+            return Promise.reject(new Error('wallet-auth not loaded'));
+        }
+
+        window.handleLogin = async function() {
+            const info = checkLoginStatus();
+            if (info) {
+                window.location.href = '/nft/portfolio.html';
+                return;
+            }
+            try {
+                const result = await openWalletLoginModal();
+                if (result && result.walletid) {
+                    showToast(t('login_success'));
+                    location.reload();
+                }
+            } catch (e) {
+                if (e.message !== '用户取消登录') {
+                    showToast(t('login_error') + ': ' + e.message, 'error');
+                }
+            }
+        };
+
+        // ============================================================
+        // TOAST
+        // ============================================================
+        function showToast(message, type = 'info') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============================================================
+        // DAO CARD: LOAD DATA & GENERATE QR
+        // ============================================================
+        let daoData = null;
+
+        async function loadDaoData() {
+            try {
+                const response = await fetch('/nft/data/peizheng.json');
+                if (!response.ok) throw new Error('Failed to load DAO data');
+                daoData = await response.json();
+
+                // Update NFT hash display
+                const hashDisplay = document.getElementById('dao-hash-display');
+                if (daoData.hash) {
+                    const formattedHash = daoData.hash.match(/.{1,16}/g).join('<br>');
+                    hashDisplay.innerHTML = formattedHash;
+                } else {
+                    hashDisplay.innerHTML = 'No NFT hash available';
+                }
+
+                // Generate QR code
+                const qrContent = daoData.shortlink?.trim() || daoData.hash?.trim() || 'https://hku.hk';
+                const qrContainer = document.getElementById('dao-qrcode');
+                if (qrContainer && qrContent) {
+                    qrContainer.innerHTML = '';
+                    new QRCode(qrContainer, {
+                        text: qrContent,
+                        width: 140,
+                        height: 140,
+                        colorDark: '#003153',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+                }
+
+            } catch (error) {
+                console.error('Failed to load DAO data:', error);
+                document.getElementById('dao-hash-display').innerHTML = '⚠️ Failed to load data';
+            }
+        }
+
+        // ============================================================
+        // DAO ACTION BUTTON
+        // ============================================================
+        window.handleDaoTransaction = function() {
+            // Navigate to the DAO's transaction log or categories page
+            window.location.href = '/nft/categories.html';
+        };
+
+        // ============================================================
+        // CATEGORY GRID (Homepage Preview) – using main.js pattern
+        // ============================================================
+        // This is a simplified version. In production, use the modular JS.
+        // For now, we'll fetch and display categories.
+
+        async function loadHomepageCategories() {
+            const grid = document.getElementById('grid');
+            try {
+                // Fetch from API (or use mock data)
+                const response = await fetch('/api/categories');
+                let categories;
+                if (response.ok) {
+                    categories = await response.json();
+                } else {
+                    // Mock data for demo
+                    categories = [
+                        { id: 1, name: 'Architecture', name_zh: '建筑学院', subcount: 4 },
+                        { id: 2, name: 'Arts', name_zh: '文学院', subcount: 4 },
+                        { id: 3, name: 'Business & Economics', name_zh: '商学院', subcount: 5 },
+                        { id: 4, name: 'Dentistry', name_zh: '牙医学院', subcount: 2 },
+                        { id: 5, name: 'Education', name_zh: '教育学院', subcount: 3 },
+                        { id: 6, name: 'Engineering', name_zh: '工程学院', subcount: 5 },
+                        { id: 7, name: 'Law', name_zh: '法学院', subcount: 2 },
+                        { id: 8, name: 'Medicine', name_zh: '李嘉诚医学院', subcount: 9 },
+                        { id: 9, name: 'Science', name_zh: '理学院', subcount: 6 },
+                        { id: 10, name: 'Social Sciences', name_zh: '社会科学学院', subcount: 5 }
+                    ];
+                }
+
+                const displayName = (item) => currentLang === 'zh' ? item.name_zh : item.name;
+
+                grid.innerHTML = categories.map(cat => `
+                    <div class="category-card" data-id="${cat.id}">
+                        <div class="name">${displayName(cat)}</div>
+                        <div class="subcount">${cat.subcount || 0} ${t('category_card_subitems') || 'sub-items'}</div>
+                    </div>
+                `).join('');
+
+                // Click handler
+                grid.querySelectorAll('.category-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const id = card.dataset.id;
+                        window.location.href = `/nft/subcategories.html?category=${id}`;
+                    });
+                });
+
+            } catch (e) {
+                grid.innerHTML = `<p style="color:red;text-align:center;padding:40px;">${t('load_error')}: ${e.message}</p>`;
+            }
+        }
+
+        // ============================================================
+        // SEARCH (simplified)
+        // ============================================================
+        const searchInput = document.getElementById('search-input');
+        const searchStatus = document.getElementById('search-status');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', debounce((e) => {
+                const query = e.target.value.trim();
+                if (query) {
+                    searchStatus.textContent = `${t('search_results') || 'Search results'}: "${query}"`;
+                } else {
+                    searchStatus.textContent = '';
+                }
+            }, 300));
+        }
+
+        function debounce(fn, delay = 300) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn(...args), delay);
+            };
+        }
+
+        // ============================================================
+        // QR SCAN (simplified – you can keep your existing logic)
+        // ============================================================
+        // [Keep your existing QR scan logic from the old file here]
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        async function init() {
+            await loadLanguage(currentLang);
+            applyTranslations();
+            await loadDaoData();
+            await loadHomepageCategories();
+
+            // Update login button
+            const info = checkLoginStatus();
+            const loginBtn = document.getElementById('login-btn');
+            if (info && loginBtn) {
+                loginBtn.textContent = info.name || 'User';
+                loginBtn.onclick = () => window.location.href = '/nft/portfolio.html';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

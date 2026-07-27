@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <link rel="shortcut icon" type="image/x-icon" href="image/favicon.png" />
+    <title data-i18n="items_title">Items – HKU DAO</title>
+
+    <!-- QR libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="js/qrcode.min.js"></script>
+
+    <!-- Wallet auth -->
+    <script src="/wallet-auth.js"></script>
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+        /* ===== ITEMS PAGE STYLES ===== */
+        .items-header {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 16px 24px;
+            box-shadow: var(--shadow);
+            margin: 10px 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .items-header .title-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .items-header .title-section h2 {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin: 0;
+        }
+        .items-header .title-section .count-badge {
+            background: var(--hku-gold);
+            color: var(--primary);
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .items-header .breadcrumb {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        .items-header .breadcrumb a {
+            color: var(--hku-green);
+            text-decoration: none;
+        }
+        .items-header .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== GRID ===== */
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 20px 0;
+        }
+
+        /* ===== NFT CARD ===== */
+        .nft-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+        .nft-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--hku-gold);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .nft-card .card-inner {
+            display: flex;
+            padding: 16px 20px;
+            gap: 20px;
+            flex: 1;
+            align-items: center;
+        }
+        .nft-card .card-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .nft-card .card-left .item-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2px;
+        }
+        .nft-card .card-left .item-parent {
+            font-size: 0.75rem;
+            color: #999;
+            background: #f0f0f0;
+            padding: 2px 12px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .nft-card .card-left .price-tag {
+            font-size: 0.9rem;
+            color: var(--hku-gold);
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .nft-card .card-right {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .nft-card .card-right .qr-wrapper {
+            background: white;
+            padding: 4px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nft-card .card-right .qr-wrapper .qrcode {
+            width: 90px;
+            height: 90px;
+            display: block;
+        }
+        .nft-card .card-right .qr-wrapper .qrcode canvas,
+        .nft-card .card-right .qr-wrapper .qrcode img {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+        }
+        .nft-card .card-right .nft-hash {
+            font-family: monospace;
+            font-size: 0.55rem;
+            line-height: 1.3;
+            word-break: break-all;
+            text-align: center;
+            background: #f5f7fb;
+            padding: 4px 8px;
+            border-radius: 6px;
+            width: 100%;
+            max-width: 90px;
+            max-height: 42px;
+            overflow-y: auto;
+            color: #555;
+        }
+        .nft-card .card-footer {
+            padding: 8px 16px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+        }
+        .nft-card .card-footer .action-btn {
+            background: linear-gradient(135deg, var(--hku-gold), #b8922a);
+            color: var(--primary);
+            border: none;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .nft-card .card-footer .action-btn:hover {
+            transform: scale(1.02);
+        }
+        .nft-card .card-footer .card-number {
+            font-size: 0.7rem;
+            color: #999;
+        }
+
+        /* ===== ADMIN SECTION ===== */
+        .admin-section {
+            margin: 30px 0 20px;
+            text-align: center;
+        }
+        .admin-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .admin-btn:hover {
+            background: #218838;
+        }
+        .admin-btn.disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .admin-hint {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .empty-state .empty-icon { font-size: 3rem; margin-bottom: 16px; }
+        .empty-state h3 { color: var(--primary); font-size: 1.3rem; margin-bottom: 8px; }
+        .empty-state p { color: #888; font-size: 1rem; }
+        .empty-state .back-link {
+            display: inline-block;
+            margin-top: 16px;
+            color: var(--hku-gold);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .empty-state .back-link:hover { text-decoration: underline; }
+
+        /* ===== PAGINATION ===== */
+        .pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0 10px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        .pagination-info { font-size: 0.9rem; color: #666; }
+        .pagination-info strong { color: var(--primary); }
+        .pagination-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            padding: 6px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            color: #555;
+        }
+        .page-btn:hover {
+            border-color: var(--hku-gold);
+            color: var(--primary);
+        }
+        .page-btn.active {
+            background: var(--hku-gold);
+            border-color: var(--hku-gold);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .page-btn.show-all {
+            background: #f0f0f0;
+            border-color: #ddd;
+            color: #666;
+        }
+        .page-btn.show-all.active {
+            background: var(--hku-green);
+            border-color: var(--hku-green);
+            color: white;
+        }
+
+        /* ===== SEARCH ===== */
+        .search-section { margin: 20px 0 15px; }
+        .search-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        #search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 18px;
+            border: 2px solid #ddd;
+            border-radius: 30px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        #search-input:focus { border-color: var(--hku-gold); outline: none; }
+        #scan-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .search-status { margin-top: 8px; font-size: 0.9rem; color: #666; min-height: 1.5em; }
+
+        /* ===== LOADING ===== */
+        .loading-spinner {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 40px;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--hku-gold);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== SCAN MODAL ===== */
+        .scan-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .scan-container {
+            background: #1a1a2e;
+            padding: 24px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            color: white;
+            text-align: center;
+        }
+        .scan-container h3 { margin-bottom: 16px; }
+        #scan-video { width: 100%; border-radius: 8px; background: #000; }
+        #scan-result { margin: 12px 0; font-size: 1rem; color: #89f8e8; }
+        .close-scan {
+            background: #c00;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .close-scan:hover { background: #a00; }
+
+        /* ===== FOOTER ===== */
+        .footer { margin-top: 40px; padding: 20px 0; text-align: center; border-top: 1px solid #ddd; color: #888; font-size: 0.9rem; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            body { padding-top: 110px; }
+            .header-inner { flex-direction: column; align-items: stretch; }
+            .nav { justify-content: center; }
+            .items-header { flex-direction: column; align-items: stretch; text-align: center; }
+            .item-grid { grid-template-columns: 1fr; }
+            .nft-card .card-inner {
+                padding: 12px 16px;
+                gap: 12px;
+            }
+            .nft-card .card-right .qr-wrapper .qrcode {
+                width: 70px;
+                height: 70px;
+            }
+            .nft-card .card-right .nft-hash {
+                max-width: 70px;
+                font-size: 0.45rem;
+                max-height: 34px;
+                padding: 3px 6px;
+            }
+            .pagination-bar { flex-direction: column; align-items: stretch; text-align: center; }
+            .pagination-controls { justify-content: center; }
+        }
+        @media (max-width: 480px) {
+            .search-container { flex-direction: column; }
+            #scan-btn { width: 100%; }
+            .nft-card .card-inner {
+                padding: 10px 12px;
+                gap: 10px;
+                flex-direction: row;
+            }
+            .nft-card .card-left .item-name {
+                font-size: 1rem;
+            }
+            .nft-card .card-right .qr-wrapper .qrcode {
+                width: 60px;
+                height: 60px;
+            }
+            .nft-card .card-right .nft-hash {
+                max-width: 60px;
+                font-size: 0.4rem;
+                max-height: 28px;
+                padding: 2px 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="header-inner container">
+            <h1 class="logo" onclick="window.location.href='/nft/index_main.html'">港大道 Gang Da Dao</h1>
+            <nav class="nav">
+                <button class="nav-btn" data-i18n="nav_market" onclick="window.location.href='/nft/NFT_market.html'">NFT Market</button>
+                <button class="nav-btn" data-i18n="nav_mainpage" onclick="window.location.href='/nft/index_main.html'">Main Page</button>
+                <button class="nav-btn" data-i18n="nav_categories" onclick="window.location.href='/nft/categories.html'">Categories</button>
+                <button class="nav-btn" id="lang-switch" onclick="toggleLanguage()">中文</button>
+                <button class="nav-btn" id="login-btn" onclick="handleLogin()" data-i18n="nav_login">Login</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- ===== ITEMS HEADER ===== -->
+        <div class="items-header">
+            <div class="title-section">
+                <h2 id="page-title" data-i18n="items_title">Items</h2>
+                <span class="count-badge" id="count-badge">0</span>
+            </div>
+            <div class="breadcrumb" id="breadcrumb">
+                <a href="/nft/categories.html" data-i18n="categories">Categories</a>
+                <span class="separator">›</span>
+                <span id="parent-name" data-i18n="loading_data">Loading...</span>
+            </div>
+        </div>
+
+        <!-- ===== SEARCH ===== -->
+        <section class="search-section">
+            <div class="search-container">
+                <input type="text" id="search-input" data-i18n-placeholder="search_items" placeholder="Search items..." />
+                <button type="button" id="scan-btn" data-i18n="scan_btn">Scan</button>
+            </div>
+            <div id="search-status" class="search-status"></div>
+        </section>
+
+        <!-- ===== PAGINATION (top) ===== -->
+        <div class="pagination-bar" id="pagination-top">
+            <div class="pagination-info">
+                <span data-i18n="showing">Showing</span> <strong id="showing-start">0</strong>–<strong id="showing-end">0</strong>
+                <span data-i18n="of">of</span> <strong id="total-count">0</strong> <span data-i18n="items_label">items</span>
+            </div>
+            <div class="pagination-controls">
+                <button class="page-btn" id="prev-page-btn" onclick="prevPage()" data-i18n="prev">‹ Prev</button>
+                <span id="page-numbers"></span>
+                <button class="page-btn" id="next-page-btn" onclick="nextPage()" data-i18n="next">Next ›</button>
+                <button class="page-btn show-all" id="show-all-btn" onclick="toggleShowAll()" data-i18n="show_all">Show All</button>
+            </div>
+        </div>
+
+        <!-- ===== ITEM GRID ===== -->
+        <section class="item-grid" id="item-grid">
+            <div class="loading-spinner">
+                <div class="loader"></div>
+                <p data-i18n="loading_items">Loading items...</p>
+            </div>
+        </section>
+
+        <!-- ===== PAGINATION (bottom) ===== -->
+        <div class="pagination-bar" id="pagination-bottom">
+            <div class="pagination-info">
+                <span data-i18n="showing">Showing</span> <strong id="showing-start-bottom">0</strong>–<strong id="showing-end-bottom">0</strong>
+                <span data-i18n="of">of</span> <strong id="total-count-bottom">0</strong> <span data-i18n="items_label">items</span>
+            </div>
+            <div class="pagination-controls">
+                <button class="page-btn" onclick="prevPage()" data-i18n="prev">‹ Prev</button>
+                <span id="page-numbers-bottom"></span>
+                <button class="page-btn" onclick="nextPage()" data-i18n="next">Next ›</button>
+                <button class="page-btn show-all" onclick="toggleShowAll()" data-i18n="show_all">Show All</button>
+            </div>
+        </div>
+
+        <!-- ===== ADMIN SECTION (NEW) ===== -->
+        <div class="admin-section">
+            <button class="admin-btn disabled" id="add-item-btn" data-i18n="add_item" onclick="openAddItem()">Add Subcategory</button>
+            <div class="admin-hint" id="permission-hint" data-i18n="login_to_add">Please login to add a subcategory.</div>
+        </div>
+    </main>
+
+    <!-- ===== SCAN MODAL ===== -->
+    <div class="scan-modal" id="scan-modal">
+        <div class="scan-container">
+            <h3 data-i18n="scan_qr_title">Scan QR Code</h3>
+            <video id="scan-video" playsinline></video>
+            <div id="scan-result" data-i18n="scan_qr_ready">Ready to scan...</div>
+            <button class="close-scan" id="close-scan" data-i18n="scan_qr_close">Close</button>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <p data-i18n="footer_text">© 2026 Gang Da Dao · Built on RBAS Blockchain</p>
+    </footer>
+
+    <script>
+        // ============================================================
+        // I18N SYSTEM
+        // ============================================================
+        const LOCALES = {
+            en: '/nft/locales/en.json',
+            zh: '/nft/locales/zh.json'
+        };
+        let currentLang = localStorage.getItem('hku_lang') || 'en';
+        let translations = {};
+
+        async function loadLanguage(lang) {
+            try {
+                const res = await fetch(LOCALES[lang]);
+                if (!res.ok) throw new Error('Failed to load locale');
+                translations = await res.json();
+                currentLang = lang;
+                localStorage.setItem('hku_lang', lang);
+                applyTranslations();
+                const toggle = document.getElementById('lang-switch');
+                if (toggle) toggle.textContent = lang === 'zh' ? 'English' : '中文';
+            } catch (e) {
+                console.warn('i18n error, using fallback', e);
+                translations = {};
+            }
+        }
+
+        function t(key, fallback = key) { return translations[key] || fallback; }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.textContent = t(key);
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                el.placeholder = t(key);
+            });
+            document.title = t('items_title') || 'Items';
+        }
+
+        window.toggleLanguage = function() {
+            const next = currentLang === 'zh' ? 'en' : 'zh';
+            loadLanguage(next);
+        };
+
+        // ============================================================
+        // WALLET AUTH
+        // ============================================================
+        let hasOwnership = false;
+
+        function checkLoginStatus() {
+            if (typeof checkWalletLoginStatus === 'function') {
+                return checkWalletLoginStatus();
+            }
+            return null;
+        }
+
+        function openWalletLoginModal() {
+            if (typeof openWalletLogin === 'function') {
+                return openWalletLogin();
+            }
+            return Promise.reject(new Error('wallet-auth not loaded'));
+        }
+
+        window.handleLogin = async function() {
+            const info = checkLoginStatus();
+            if (info) {
+                window.location.href = '/nft/portfolio.html';
+                return;
+            }
+            try {
+                const result = await openWalletLoginModal();
+                if (result && result.walletid) {
+                    hasOwnership = true;
+                    updateAdminUI();
+                    const loginBtn = document.getElementById('login-btn');
+                    loginBtn.textContent = result.name || 'User';
+                    loginBtn.onclick = () => window.location.href = '/nft/portfolio.html';
+                    showToast(t('login_success'));
+                }
+            } catch (e) {
+                if (e.message !== '用户取消登录') {
+                    showToast(t('login_error') + ': ' + e.message, 'error');
+                }
+            }
+        };
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+                background:${type === 'error' ? '#f44336' : type === 'warning' ? '#ff9800' : '#4CAF50'};
+                color:white; padding:12px 24px; border-radius:30px;
+                font-weight:500; box-shadow:0 4px 12px rgba(0,0,0,0.2);
+                z-index:3000; transition:opacity 0.3s;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============================================================
+        // ADMIN UI
+        // ============================================================
+        function updateAdminUI() {
+            const info = checkLoginStatus();
+            const addBtn = document.getElementById('add-item-btn');
+            const permissionHint = document.getElementById('permission-hint');
+
+            if (info && hasOwnership) {
+                if (addBtn) addBtn.classList.remove('disabled');
+                if (permissionHint) {
+                    permissionHint.textContent = t('add_item_owner_required');
+                    permissionHint.style.color = '#28a745';
+                }
+            } else {
+                if (addBtn) addBtn.classList.add('disabled');
+                if (permissionHint) {
+                    permissionHint.textContent = info ? t('add_item_owner_required') : t('login_to_add');
+                    permissionHint.style.color = info ? '#f44336' : '#666';
+                }
+            }
+        }
+
+        // ===== ADD SUBCATEGORY =====
+        function openAddItem() {
+            const info = checkLoginStatus();
+            if (!info) {
+                showToast(t('login_to_add'), 'warning');
+                handleLogin();
+                return;
+            }
+            if (!hasOwnership) {
+                showToast(t('add_item_owner_required'), 'warning');
+                return;
+            }
+
+            // Get the parent category name for context
+            const parentName = document.getElementById('parent-name').textContent || 'this category';
+
+            // In production, this would open a modal with form fields
+            const name = prompt(t('add_item_placeholder') + ' (' + parentName + ')');
+            if (name && name.trim()) {
+                // In production: call API to add subcategory
+                showToast(t('add_item_success'), 'success');
+                // Reload items to show the new one
+                loadItems();
+            }
+        }
+
+        // ============================================================
+        // SUBCATEGORY DATA (same as subcategories.html)
+        // ============================================================
+        const SUBCATEGORY_DATA = {
+            // ===== FACULTIES =====
+            1: { // Architecture
+                name: 'Architecture',
+                name_zh: '建筑学院',
+                subcategories: [
+                    { id: 101, name: 'Architecture', name_zh: '建筑学系' },
+                    { id: 102, name: 'Real Estate & Construction', name_zh: '房地产及建设系' },
+                    { id: 103, name: 'Urban Planning & Design', name_zh: '城市规划及设计系' },
+                    { id: 104, name: 'Landscape Architecture', name_zh: '景观建筑学部' }
+                ]
+            },
+            2: { // Arts
+                name: 'Arts',
+                name_zh: '文学院',
+                subcategories: [
+                    { id: 201, name: 'School of Chinese', name_zh: '中文学院' },
+                    { id: 202, name: 'School of English', name_zh: '英文学院' },
+                    { id: 203, name: 'School of Humanities', name_zh: '人文学院' },
+                    { id: 204, name: 'School of Modern Languages & Cultures', name_zh: '现代语言及文化学院' }
+                ]
+            },
+            3: { // Business
+                name: 'Business & Economics',
+                name_zh: '商学院',
+                subcategories: [
+                    { id: 301, name: 'Accounting & Law', name_zh: '会计及法律' },
+                    { id: 302, name: 'Economics', name_zh: '经济学' },
+                    { id: 303, name: 'Finance', name_zh: '金融学' },
+                    { id: 304, name: 'Management', name_zh: '管理学' },
+                    { id: 305, name: 'Marketing', name_zh: '市场营销学' }
+                ]
+            },
+            4: { // Dentistry
+                name: 'Dentistry',
+                name_zh: '牙医学院',
+                subcategories: [
+                    { id: 401, name: 'Clinical Disciplines', name_zh: '临床学科' },
+                    { id: 402, name: 'Institute for Advanced Dentistry', name_zh: '先进牙科研究所' }
+                ]
+            },
+            5: { // Education
+                name: 'Education',
+                name_zh: '教育学院',
+                subcategories: [
+                    { id: 501, name: 'Teacher Education', name_zh: '教师教育' },
+                    { id: 502, name: 'Social Contexts & Policies', name_zh: '社会背景及政策' },
+                    { id: 503, name: 'Human Communication', name_zh: '人类沟通' }
+                ]
+            },
+            6: { // Engineering
+                name: 'Engineering',
+                name_zh: '工程学院',
+                subcategories: [
+                    { id: 601, name: 'Civil Engineering', name_zh: '土木工程系' },
+                    { id: 602, name: 'Computer Science', name_zh: '计算机科学系' },
+                    { id: 603, name: 'Electrical & Electronic Engineering', name_zh: '电机电子工程系' },
+                    { id: 604, name: 'Industrial & Manufacturing Systems Engineering', name_zh: '工业及制造系统工程系' },
+                    { id: 605, name: 'Mechanical Engineering', name_zh: '机械工程系' }
+                ]
+            },
+            7: { // Law
+                name: 'Law',
+                name_zh: '法学院',
+                subcategories: [
+                    { id: 701, name: 'Department of Law', name_zh: '法律学系' },
+                    { id: 702, name: 'Department of Professional Legal Education', name_zh: '专业法律教育系' }
+                ]
+            },
+            8: { // Medicine
+                name: 'Medicine',
+                name_zh: '李嘉诚医学院',
+                subcategories: [
+                    { id: 801, name: 'Anaesthesiology', name_zh: '麻醉学系' },
+                    { id: 802, name: 'Clinical Oncology', name_zh: '临床肿瘤学系' },
+                    { id: 803, name: 'Medicine', name_zh: '内科学系' },
+                    { id: 804, name: 'Microbiology', name_zh: '微生物学系' },
+                    { id: 805, name: 'Pathology', name_zh: '病理学系' },
+                    { id: 806, name: 'Pharmacology & Pharmacy', name_zh: '药理学及药剂学系' },
+                    { id: 807, name: 'Surgery', name_zh: '外科学系' },
+                    { id: 808, name: 'School of Public Health', name_zh: '公共卫生学院' }
+                ]
+            },
+            9: { // Science
+                name: 'Science',
+                name_zh: '理学院',
+                subcategories: [
+                    { id: 901, name: 'Chemistry', name_zh: '化学系' },
+                    { id: 902, name: 'Earth Sciences', name_zh: '地球科学系' },
+                    { id: 903, name: 'Mathematics', name_zh: '数学系' },
+                    { id: 904, name: 'Physics', name_zh: '物理系' },
+                    { id: 905, name: 'Biological Sciences', name_zh: '生物科学学院' },
+                    { id: 906, name: 'Statistics & Actuarial Science', name_zh: '统计及精算学系' }
+                ]
+            },
+            10: { // Social Sciences
+                name: 'Social Sciences',
+                name_zh: '社会科学学院',
+                subcategories: [
+                    { id: 1001, name: 'Geography', name_zh: '地理学系' },
+                    { id: 1002, name: 'Politics & Public Administration', name_zh: '政治及公共行政学系' },
+                    { id: 1003, name: 'Psychology', name_zh: '心理学系' },
+                    { id: 1004, name: 'Social Work & Social Administration', name_zh: '社会工作及社会行政学系' },
+                    { id: 1005, name: 'Sociology', name_zh: '社会学系' }
+                ]
+            },
+
+            // ===== MAIN CAMPUS BUILDINGS (rooms) =====
+            101: { // Main Building
+                name: 'Main Building',
+                name_zh: '主楼',
+                subcategories: [
+                    { id: 10101, name: 'Loke Yew Hall', name_zh: '陆佑堂' },
+                    { id: 10102, name: 'MG14', name_zh: 'MG14室' },
+                    { id: 10103, name: 'MG20', name_zh: 'MG20室' },
+                    { id: 10104, name: 'MG21', name_zh: 'MG21室' },
+                    { id: 10105, name: 'MG22', name_zh: 'MG22室' },
+                    { id: 10106, name: 'MG23', name_zh: 'MG23室' },
+                    { id: 10107, name: 'MG24', name_zh: 'MG24室' },
+                    { id: 10108, name: 'MG25', name_zh: 'MG25室' },
+                    { id: 10109, name: 'MG26', name_zh: 'MG26室' },
+                    { id: 10110, name: '1/F', name_zh: '1楼' },
+                    { id: 10111, name: '2/F', name_zh: '2楼' },
+                    { id: 10112, name: '3/F', name_zh: '3楼' },
+                    { id: 10113, name: '4/F', name_zh: '4楼' },
+                    { id: 10114, name: '5/F', name_zh: '5楼' }
+                ]
+            },
+            102: { // Haking Wong Building
+                name: 'Haking Wong Building',
+                name_zh: '王克桢楼',
+                subcategories: [
+                    { id: 10201, name: 'HW311', name_zh: 'HW311室' },
+                    { id: 10202, name: 'HW312', name_zh: 'HW312室' },
+                    { id: 10203, name: 'HW313', name_zh: 'HW313室' },
+                    { id: 10204, name: 'HW314', name_zh: 'HW314室' },
+                    { id: 10205, name: 'HW315', name_zh: 'HW315室' },
+                    { id: 10206, name: 'HW316', name_zh: 'HW316室' },
+                    { id: 10207, name: 'HW317', name_zh: 'HW317室' },
+                    { id: 10208, name: 'HW318', name_zh: 'HW318室' },
+                    { id: 10209, name: 'HW319', name_zh: 'HW319室' },
+                    { id: 10210, name: 'HW320', name_zh: 'HW320室' }
+                ]
+            },
+            103: { // Chow Yei Ching Building
+                name: 'Chow Yei Ching Building',
+                name_zh: '周亦卿楼',
+                subcategories: [
+                    { id: 10301, name: 'CYC101', name_zh: 'CYC101室' },
+                    { id: 10302, name: 'CYC102', name_zh: 'CYC102室' },
+                    { id: 10303, name: 'CYC103', name_zh: 'CYC103室' },
+                    { id: 10304, name: 'CYC104', name_zh: 'CYC104室' },
+                    { id: 10305, name: 'CYC105', name_zh: 'CYC105室' },
+                    { id: 10306, name: 'CYC106', name_zh: 'CYC106室' },
+                    { id: 10307, name: 'CYC201', name_zh: 'CYC201室' },
+                    { id: 10308, name: 'CYC202', name_zh: 'CYC202室' },
+                    { id: 10309, name: 'CYC203', name_zh: 'CYC203室' },
+                    { id: 10310, name: 'CYC204', name_zh: 'CYC204室' },
+                    { id: 10311, name: 'CYC205', name_zh: 'CYC205室' },
+                    { id: 10312, name: 'CYC206', name_zh: 'CYC206室' },
+                    { id: 10313, name: 'CYC301', name_zh: 'CYC301室' },
+                    { id: 10314, name: 'CYC302', name_zh: 'CYC302室' },
+                    { id: 10315, name: 'CYC303', name_zh: 'CYC303室' },
+                    { id: 10316, name: 'CYC304', name_zh: 'CYC304室' },
+                    { id: 10317, name: 'CYC305', name_zh: 'CYC305室' },
+                    { id: 10318, name: 'CYC306', name_zh: 'CYC306室' }
+                ]
+            },
+            104: { // K.K. Leung Building
+                name: 'K.K. Leung Building',
+                name_zh: '梁銶琚楼',
+                subcategories: [
+                    { id: 10401, name: 'KKL101', name_zh: 'KKL101室' },
+                    { id: 10402, name: 'KKL102', name_zh: 'KKL102室' },
+                    { id: 10403, name: 'KKL103', name_zh: 'KKL103室' },
+                    { id: 10404, name: 'KKL104', name_zh: 'KKL104室' },
+                    { id: 10405, name: 'KKL105', name_zh: 'KKL105室' },
+                    { id: 10406, name: 'KKL106', name_zh: 'KKL106室' },
+                    { id: 10407, name: 'KKL201', name_zh: 'KKL201室' },
+                    { id: 10408, name: 'KKL202', name_zh: 'KKL202室' },
+                    { id: 10409, name: 'KKL203', name_zh: 'KKL203室' },
+                    { id: 10410, name: 'KKL204', name_zh: 'KKL204室' },
+                    { id: 10411, name: 'KKL205', name_zh: 'KKL205室' },
+                    { id: 10412, name: 'KKL206', name_zh: 'KKL206室' },
+                    { id: 10413, name: 'KKL301', name_zh: 'KKL301室' },
+                    { id: 10414, name: 'KKL302', name_zh: 'KKL302室' },
+                    { id: 10415, name: 'KKL303', name_zh: 'KKL303室' },
+                    { id: 10416, name: 'KKL304', name_zh: 'KKL304室' },
+                    { id: 10417, name: 'KKL305', name_zh: 'KKL305室' },
+                    { id: 10418, name: 'KKL306', name_zh: 'KKL306室' }
+                ]
+            },
+            105: { // Meng Wah Complex
+                name: 'Meng Wah Complex',
+                name_zh: '蒙民伟楼',
+                subcategories: [
+                    { id: 10501, name: 'MW101', name_zh: 'MW101室' },
+                    { id: 10502, name: 'MW102', name_zh: 'MW102室' },
+                    { id: 10503, name: 'MW103', name_zh: 'MW103室' },
+                    { id: 10504, name: 'MW104', name_zh: 'MW104室' },
+                    { id: 10505, name: 'MW105', name_zh: 'MW105室' },
+                    { id: 10506, name: 'MW106', name_zh: 'MW106室' },
+                    { id: 10507, name: 'MW201', name_zh: 'MW201室' },
+                    { id: 10508, name: 'MW202', name_zh: 'MW202室' },
+                    { id: 10509, name: 'MW203', name_zh: 'MW203室' },
+                    { id: 10510, name: 'MW204', name_zh: 'MW204室' },
+                    { id: 10511, name: 'MW205', name_zh: 'MW205室' },
+                    { id: 10512, name: 'MW206', name_zh: 'MW206室' },
+                    { id: 10513, name: 'MW301', name_zh: 'MW301室' },
+                    { id: 10514, name: 'MW302', name_zh: 'MW302室' },
+                    { id: 10515, name: 'MW303', name_zh: 'MW303室' },
+                    { id: 10516, name: 'MW304', name_zh: 'MW304室' },
+                    { id: 10517, name: 'MW305', name_zh: 'MW305室' },
+                    { id: 10518, name: 'MW306', name_zh: 'MW306室' }
+                ]
+            },
+
+            // ===== CENTENNIAL CAMPUS BUILDINGS =====
+            201: { // Cheng Yu Tung Tower
+                name: 'Cheng Yu Tung Tower',
+                name_zh: '郑裕彤楼',
+                subcategories: [
+                    { id: 20101, name: 'CYT101', name_zh: 'CYT101室' },
+                    { id: 20102, name: 'CYT102', name_zh: 'CYT102室' },
+                    { id: 20103, name: 'CYT201', name_zh: 'CYT201室' },
+                    { id: 20104, name: 'CYT202', name_zh: 'CYT202室' },
+                    { id: 20105, name: 'CYT301', name_zh: 'CYT301室' },
+                    { id: 20106, name: 'CYT302', name_zh: 'CYT302室' }
+                ]
+            },
+
+            // ===== HALLS & RESIDENCES =====
+            301: { // Eliot Hall
+                name: 'Eliot Hall',
+                name_zh: '伊利沙伯堂',
+                subcategories: [
+                    { id: 30101, name: 'Eliot Hall - Floor 1', name_zh: '伊堂1楼' },
+                    { id: 30102, name: 'Eliot Hall - Floor 2', name_zh: '伊堂2楼' },
+                    { id: 30103, name: 'Eliot Hall - Floor 3', name_zh: '伊堂3楼' },
+                    { id: 30104, name: 'Eliot Hall - Floor 4', name_zh: '伊堂4楼' },
+                    { id: 30105, name: 'Eliot Hall - Floor 5', name_zh: '伊堂5楼' }
+                ]
+            }
+        };
+
+        // ============================================================
+        // ITEMS DATA LOADING
+        // ============================================================
+        let items = [];
+        let filteredItems = [];
+        let currentLevel = 'category';
+        let parentId = null;
+        let parentName = '';
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 50;
+        let showAllMode = false;
+
+        // ===== DOM REFS =====
+        const grid = document.getElementById('item-grid');
+        const searchInput = document.getElementById('search-input');
+        const searchStatus = document.getElementById('search-status');
+        const pageTitle = document.getElementById('page-title');
+        const countBadge = document.getElementById('count-badge');
+        const parentNameEl = document.getElementById('parent-name');
+
+        // ===== LOAD ITEMS =====
+        function loadItems() {
+            const params = new URLSearchParams(window.location.search);
+            const level = params.get('level') || 'category';
+            const id = params.get('id') || params.get('parent');
+
+            currentLevel = level;
+            parentId = id;
+
+            if (!id) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">❓</div>
+                        <h3>${t('missing_id')}</h3>
+                        <p>${t('missing_id_desc')}</p>
+                        <a href="/nft/categories.html" class="back-link" data-i18n="back_to_categories">← Back to Categories</a>
+                    </div>
+                `;
+                return;
+            }
+
+            const parentIdNum = parseInt(id);
+            const data = SUBCATEGORY_DATA[parentIdNum];
+
+            if (!data || !data.subcategories || data.subcategories.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <h3>${t('no_items_found')}</h3>
+                        <p>${t('no_items_desc')}</p>
+                        <a href="/nft/categories.html" class="back-link" data-i18n="back_to_categories">← Back to Categories</a>
+                    </div>
+                `;
+                parentNameEl.textContent = 'Unknown';
+                countBadge.textContent = '0';
+                renderPagination();
+                return;
+            }
+
+            parentName = currentLang === 'zh' ? data.name_zh : data.name;
+            parentNameEl.textContent = parentName;
+
+            // Build items with QR data
+            items = data.subcategories.map(sub => ({
+                id: sub.id,
+                name: sub.name,
+                name_zh: sub.name_zh,
+                nft: `0x${Math.random().toString(16).substring(2, 18)}${Math.random().toString(16).substring(2, 18)}`,
+                shortlink: `https://hku.hk/item/${sub.id}`,
+                price: Math.floor(Math.random() * 100) + 10,
+                parentName: data.name,
+                parentName_zh: data.name_zh
+            }));
+
+            countBadge.textContent = items.length;
+
+            filteredItems = [...items];
+            currentPage = 1;
+            showAllMode = false;
+            document.getElementById('show-all-btn').classList.remove('active');
+
+            renderCurrentView();
+        }
+
+        // ===== RENDER ITEMS =====
+        function renderItems(itemsList) {
+            if (!itemsList || itemsList.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <h3>${t('no_matching_items')}</h3>
+                        <p>${t('try_different_search')}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const displayName = (item) => currentLang === 'zh' ? (item.name_zh || item.name) : item.name;
+            const parentDisplay = (item) => currentLang === 'zh' ? (item.parentName_zh || item.parentName) : item.parentName;
+            const qrSize = window.innerWidth <= 480 ? 100 : 120;
+
+            grid.innerHTML = itemsList.map((item, index) => {
+                const qrContent = item.shortlink?.trim() || item.nft?.trim() || '';
+                const hashDisplay = item.nft ? item.nft.match(/.{1,16}/g)?.join('<br>') || item.nft : 'No hash';
+                const priceDisplay = item.price ? `${item.price} rc` : '';
+
+                return `
+                    <div class="nft-card" data-id="${item.id}" data-level="${currentLevel}">
+                        <div class="card-inner">
+                            <div class="card-left">
+                                <div class="item-name">${displayName(item)}</div>
+                                <div class="item-parent">${parentDisplay(item)}</div>
+                                ${priceDisplay ? `<div class="price-tag">💰 ${priceDisplay}</div>` : ''}
+                            </div>
+                            <div class="card-right">
+                                <div class="qr-wrapper">
+                                    <div class="qrcode" id="qr-${index}"></div>
+                                </div>
+                                <div class="nft-hash">${hashDisplay}</div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="card-number">#${item.id || index + 1}</span>
+                            <button class="action-btn" onclick="event.stopPropagation(); viewDetail(${item.id})" data-i18n="view_detail">View Detail</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Generate QR codes
+            itemsList.forEach((item, index) => {
+                setTimeout(() => {
+                    const qrDom = document.getElementById(`qr-${index}`);
+                    if (qrDom) {
+                        const qrContent = item.shortlink?.trim() || item.nft?.trim() || '';
+                        if (qrContent) {
+                            const size = window.innerWidth <= 480 ? 100 : 120;
+                            qrDom.innerHTML = '';
+                            new QRCode(qrDom, {
+                                text: qrContent,
+                                width: size,
+                                height: size,
+                                colorDark: '#003153',
+                                colorLight: '#ffffff',
+                                correctLevel: QRCode.CorrectLevel.L
+                            });
+                            const canvas = qrDom.querySelector('canvas');
+                            if (canvas) {
+                                canvas.style.width = '100%';
+                                canvas.style.height = '100%';
+                                canvas.style.display = 'block';
+                            }
+                        } else {
+                            qrDom.innerHTML = `<div style="width:${qrSize}px;height:${qrSize}px;display:flex;align-items:center;justify-content:center;background:#f0f0f0;color:#999;font-size:10px;text-align:center;">No QR</div>`;
+                        }
+                    }
+                }, index * 30);
+            });
+
+            // Click handler for cards
+            grid.querySelectorAll('.nft-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const id = card.dataset.id;
+                    viewDetail(parseInt(id));
+                });
+            });
+        }
+
+        function viewDetail(id) {
+            const type = currentLevel === 'category' || currentLevel === 'level1' ? 'item' : 'subitem';
+            window.location.href = `/nft/detail.html?type=${type}&id=${id}`;
+        }
+
+        // ===== PAGINATION =====
+        function getCurrentPageItems() {
+            if (showAllMode) return filteredItems;
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const end = Math.min(start + ITEMS_PER_PAGE, filteredItems.length);
+            return filteredItems.slice(start, end);
+        }
+
+        function getTotalPages() {
+            if (showAllMode) return 1;
+            return Math.ceil(filteredItems.length / ITEMS_PER_PAGE) || 1;
+        }
+
+        function renderPagination() {
+            const total = filteredItems.length;
+            const totalPages = getTotalPages();
+            const start = showAllMode ? 1 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+            const end = showAllMode ? total : Math.min(currentPage * ITEMS_PER_PAGE, total);
+
+            const infoEls = document.querySelectorAll('.pagination-info');
+            const startEls = document.querySelectorAll('#showing-start, #showing-start-bottom');
+            const endEls = document.querySelectorAll('#showing-end, #showing-end-bottom');
+            const totalEls = document.querySelectorAll('#total-count, #total-count-bottom');
+
+            startEls.forEach(el => el.textContent = total > 0 ? start : 0);
+            endEls.forEach(el => el.textContent = total > 0 ? end : 0);
+            totalEls.forEach(el => el.textContent = total);
+
+            const containers = document.querySelectorAll('#page-numbers, #page-numbers-bottom');
+            const prevBtns = document.querySelectorAll('#prev-page-btn');
+            const nextBtns = document.querySelectorAll('#next-page-btn');
+
+            containers.forEach(container => {
+                if (!container) return;
+                container.innerHTML = '';
+                if (showAllMode || totalPages <= 1) {
+                    const span = document.createElement('span');
+                    span.textContent = '1';
+                    span.className = 'page-btn active';
+                    container.appendChild(span);
+                    return;
+                }
+
+                const maxVisible = 7;
+                let startPage = Math.max(1, currentPage - 3);
+                let endPage = Math.min(totalPages, currentPage + 3);
+
+                if (startPage > 1) {
+                    const firstBtn = document.createElement('button');
+                    firstBtn.className = 'page-btn';
+                    firstBtn.textContent = '1';
+                    firstBtn.onclick = () => goToPage(1);
+                    container.appendChild(firstBtn);
+                    if (startPage > 2) {
+                        const dots = document.createElement('span');
+                        dots.textContent = '…';
+                        dots.style.padding = '0 4px';
+                        container.appendChild(dots);
+                    }
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                    btn.textContent = i;
+                    btn.onclick = () => goToPage(i);
+                    container.appendChild(btn);
+                }
+
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                        const dots = document.createElement('span');
+                        dots.textContent = '…';
+                        dots.style.padding = '0 4px';
+                        container.appendChild(dots);
+                    }
+                    const lastBtn = document.createElement('button');
+                    lastBtn.className = 'page-btn';
+                    lastBtn.textContent = totalPages;
+                    lastBtn.onclick = () => goToPage(totalPages);
+                    container.appendChild(lastBtn);
+                }
+            });
+
+            prevBtns.forEach(btn => {
+                if (btn) btn.disabled = currentPage <= 1 || showAllMode;
+            });
+            nextBtns.forEach(btn => {
+                if (btn) btn.disabled = currentPage >= totalPages || showAllMode;
+            });
+
+            const showAllBtn = document.getElementById('show-all-btn');
+            if (showAllBtn) {
+                showAllBtn.classList.toggle('active', showAllMode);
+                showAllBtn.textContent = showAllMode ? (t('show_pages') || 'Show Pages') : (t('show_all') || 'Show All');
+            }
+        }
+
+        function goToPage(page) {
+            if (showAllMode) return;
+            const totalPages = getTotalPages();
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderCurrentView();
+        }
+
+        function prevPage() { if (currentPage > 1) goToPage(currentPage - 1); }
+        function nextPage() { const totalPages = getTotalPages(); if (currentPage < totalPages) goToPage(currentPage + 1); }
+
+        function toggleShowAll() {
+            showAllMode = !showAllMode;
+            if (showAllMode) {
+                currentPage = 1;
+                document.getElementById('show-all-btn').classList.add('active');
+            } else {
+                document.getElementById('show-all-btn').classList.remove('active');
+            }
+            renderCurrentView();
+        }
+
+        function renderCurrentView() {
+            const itemsToShow = getCurrentPageItems();
+            renderItems(itemsToShow);
+            renderPagination();
+            const total = filteredItems.length;
+            if (searchStatus) {
+                searchStatus.textContent = `${t('showing')} ${total} ${t('items_label')}`;
+            }
+        }
+
+        // ===== SEARCH =====
+        const debounce = (fn, delay = 300) => {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn(...args), delay);
+            };
+        };
+
+        const handleSearch = debounce((query) => {
+            const q = query.trim().toLowerCase();
+            if (!q) {
+                filteredItems = [...items];
+                currentPage = 1;
+                showAllMode = false;
+                document.getElementById('show-all-btn').classList.remove('active');
+                renderCurrentView();
+                return;
+            }
+
+            filteredItems = items.filter(item =>
+                item.name.toLowerCase().includes(q) ||
+                (item.name_zh && item.name_zh.includes(q))
+            );
+
+            currentPage = 1;
+            showAllMode = false;
+            document.getElementById('show-all-btn').classList.remove('active');
+            renderCurrentView();
+
+            if (searchStatus) {
+                searchStatus.textContent = filteredItems.length ?
+                    `${t('search_results')}: ${filteredItems.length}` :
+                    t('search_no_results');
+            }
+        }, 300);
+
+        searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
+
+        // ===== QR SCAN =====
+        let scanning = false;
+        let stream = null;
+        const scanModal = document.getElementById('scan-modal');
+        const scanVideo = document.getElementById('scan-video');
+        const scanResult = document.getElementById('scan-result');
+        const closeScan = document.getElementById('close-scan');
+
+        document.getElementById('scan-btn').addEventListener('click', () => {
+            scanModal.style.display = 'flex';
+            startScanning();
+        });
+        closeScan.addEventListener('click', stopScanning);
+
+        async function startScanning() {
+            try {
+                scanning = true;
+                scanResult.textContent = t('scan_qr_preparing');
+                const constraints = {
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    }
+                };
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                scanVideo.srcObject = stream;
+                await scanVideo.play();
+                requestAnimationFrame(scanQRCode);
+            } catch (e) {
+                scanResult.textContent = t('scan_qr_error') + ': ' + e.message;
+                scanning = false;
+            }
+        }
+
+        function stopScanning() {
+            scanning = false;
+            if (stream) {
+                stream.getTracks().forEach(t => t.stop());
+                stream = null;
+            }
+            scanModal.style.display = 'none';
+        }
+
+        function scanQRCode() {
+            if (!scanning) return;
+            const video = scanVideo;
+            if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+                requestAnimationFrame(scanQRCode);
+                return;
+            }
+            const canvas = document.createElement('canvas');
+            const scale = 0.5;
+            canvas.width = video.videoWidth * scale;
+            canvas.height = video.videoHeight * scale;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+            if (code) {
+                const text = code.data.replace(/\s+/g, '');
+                searchInput.value = text;
+                handleSearch(text);
+                stopScanning();
+            } else {
+                requestAnimationFrame(scanQRCode);
+            }
+        }
+
+        // ============================================================
+        // WALLET LOGIN EVENTS
+        // ============================================================
+        document.addEventListener('wallet-login-success', (e) => {
+            const detail = e.detail;
+            if (detail && detail.walletid) {
+                hasOwnership = true;
+                updateAdminUI();
+                const loginBtn = document.getElementById('login-btn');
+                loginBtn.textContent = detail.name || 'User';
+                loginBtn.onclick = () => window.location.href = '/nft/portfolio.html';
+                showToast(t('login_success'));
+            }
+        });
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        async function init() {
+            await loadLanguage(currentLang);
+            loadItems();
+
+            const info = checkLoginStatus();
+            if (info) {
+                hasOwnership = true;
+                const loginBtn = document.getElementById('login-btn');
+                loginBtn.textContent = info.name || 'User';
+                loginBtn.onclick = () => window.location.href = '/nft/portfolio.html';
+            } else {
+                hasOwnership = false;
+            }
+            updateAdminUI();
+
+            // Make functions globally accessible
+            window.toggleLanguage = toggleLanguage;
+            window.handleLogin = handleLogin;
+            window.prevPage = prevPage;
+            window.nextPage = nextPage;
+            window.goToPage = goToPage;
+            window.toggleShowAll = toggleShowAll;
+            window.viewDetail = viewDetail;
+            window.openAddItem = openAddItem;
+        }
+
+        // Handle resize for QR codes
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            if (resizeTimer) clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (filteredItems.length > 0) {
+                    renderCurrentView();
+                }
+            }, 300);
+        });
+
+        init();
+    </script>
+</body>
+</html>

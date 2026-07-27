@@ -1,0 +1,2932 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>成员详情</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../../image/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ========== 引入钱包道统一登录工具 ========== -->
+    <script src="/wallet-auth.js"></script>
+    <style>
+        /* ... 保持原有样式不变 ... */
+        :root {
+            --primary-color: #1e88e5;
+            --secondary-color: #3498db;
+            --accent-color: #d4af37;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+            background-color: #121212;
+            padding: 20px;
+            padding-top: 80px;
+            color: #121212;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #c00, #8b0000);
+            padding: 5px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 2px solid #d90007;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            flex: 1 1 100%;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #FFF;
+            font-size: 1.5em;
+            letter-spacing: 1px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex: 1 1 100%;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            background: #4cb7db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #3a9bc7;
+        }
+
+        .login-status {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .header {
+                flex-wrap: nowrap;
+                padding: 15px 20px;
+            }
+            .header h1 {
+                flex: 1;
+                margin-bottom: 0;
+                text-align: left;
+                padding-left: 20px;
+            }
+            .nav-buttons {
+                flex: 0 0 auto;
+                justify-content: flex-end;
+                margin-bottom: 0;
+            }
+        }
+
+        .member-container {
+            max-width: 100%;
+            margin: 10px auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, .15);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .header-section {
+            border-bottom: 3px solid #1e88e5;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .member-title {
+            font-size: 2.2rem;
+            color: #0d47a1;
+            margin: 0 0 8px 0;
+            font-weight: 700;
+        }
+
+        .member-id {
+            color: #546e7a;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .detail-item {
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+        }
+
+        .detail-label {
+            color: #1565c0;
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #bbdefb;
+            padding-bottom: 5px;
+        }
+
+        .detail-content {
+            color: #263238;
+            line-height: 1.8;
+            font-size: 1.2rem;
+        }
+
+        .detail-content p {
+            margin: 12px 0;
+        }
+
+        #memberhash {
+            font-family: monospace;
+            word-break: break-all;
+            letter-spacing: .5px;
+            line-height: 1.6;
+            color: #d81b60;
+            font-size: 1rem;
+            background: #fce4ec;
+            padding: 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #1e88e5;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 25px;
+            transition: all .3s;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, .16);
+        }
+
+        .back-button:hover {
+            background: #1565c0;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 8px rgba(0, 0, 0, .2);
+        }
+
+        .action-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            gap: 10px;
+        }
+
+        .action-button {
+            flex: 1;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 10px 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all .3s;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, .2);
+            text-align: center;
+        }
+
+        .action-button:hover {
+            background: #1565c0;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 8px rgba(0, 0, 0, .25);
+        }
+
+        .hidden-row {
+            display: none !important;
+        }
+
+        .upload-section {
+            margin-top: 20px;
+        }
+
+        .upload-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #4caf50;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 25px;
+            transition: all .3s;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            width: auto;
+            text-align: center;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, .16);
+        }
+
+        .upload-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .upload-button:disabled:hover {
+            background: #cccccc;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1.2rem;
+        }
+
+        .file-input {
+            margin-top: 10px;
+        }
+
+        .preview {
+            margin-top: 20px;
+            background: #e3f2fd;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+            padding: 15px;
+        }
+
+        .preview img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .preview p {
+            margin: 10px 0;
+        }
+
+        .upload-form {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #e3f2fd;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+        }
+
+        .upload-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .upload-option {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #bbdefb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all .3s;
+            min-width: 100px;
+        }
+
+        .upload-option.active {
+            background: #bbdefb;
+            border-color: #1e88e5;
+        }
+
+        .upload-content {
+            display: none;
+        }
+
+        .file-input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #4caf50;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all .3s;
+        }
+
+        .file-input-label:hover {
+            background: #388e3c;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .uploaded-content-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .uploaded-item {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+            overflow: hidden;
+        }
+
+        .uploaded-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: pointer;
+        }
+
+        .uploaded-text {
+            padding: 15px;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        .no-content {
+            text-align: center;
+            padding: 30px;
+            color: #78909c;
+            font-size: 1.2rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, .4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, .2);
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            cursor: pointer;
+        }
+
+        .edit-input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #4cb7db;
+            border-radius: 4px;
+            font-size: 1.1rem;
+        }
+
+        .edit-select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #4cb7db;
+            border-radius: 4px;
+            font-size: 1.1rem;
+        }
+
+        .edit-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .save-button {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .save-button:hover {
+            background: #388e3c;
+        }
+
+        .save-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .cancel-edit-button {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .cancel-edit-button:hover {
+            background: #d32f2f;
+        }
+
+        .cancel-edit-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .children-list {
+            margin-top: 10px;
+        }
+
+        .child-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .child-item.deleting {
+            background: #ffebee;
+            border-color: #ffcdd2;
+            opacity: 0.7;
+        }
+
+        .child-name {
+            flex-grow: 1;
+            padding: 4px 8px;
+        }
+
+        .child-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .add-child-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .add-child-input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #4cb7db;
+            border-radius: 4px;
+        }
+
+        .add-child-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .add-child-btn:hover {
+            background: #388e3c;
+        }
+
+        .edit-child-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .edit-child-btn:hover {
+            background: #1976d2;
+        }
+
+        .remove-child-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .remove-child-btn:hover {
+            background: #d32f2f;
+        }
+
+        .undo-remove-child-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .undo-remove-child-btn:hover {
+            background: #388e3c;
+        }
+
+        .spouse-section {
+            margin-bottom: 20px;
+        }
+
+        .spouse-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .spouse-display.deleting {
+            background: #ffebee;
+            border-color: #ffcdd2;
+            opacity: 0.7;
+        }
+
+        .spouse-name {
+            flex-grow: 1;
+            padding: 4px 8px;
+        }
+
+        .spouse-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .add-spouse-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .add-spouse-input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #4cb7db;
+            border-radius: 4px;
+        }
+
+        .add-spouse-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .add-spouse-btn:hover {
+            background: #388e3c;
+        }
+
+        .edit-spouse-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .edit-spouse-btn:hover {
+            background: #1976d2;
+        }
+
+        .remove-spouse-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .remove-spouse-btn:hover {
+            background: #d32f2f;
+        }
+
+        .undo-remove-spouse-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .undo-remove-spouse-btn:hover {
+            background: #388e3c;
+        }
+
+        .no-spouse {
+            color: #999;
+            font-style: italic;
+            padding: 10px;
+            text-align: center;
+            background: #f9f9f9;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        @media (min-width: 768px) {
+            .member-container {
+                padding: 30px;
+                max-width: 800px;
+            }
+            .detail-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .uploaded-content-container {
+                grid-template-columns: 1fr;
+            }
+            .back-button {
+                width: auto;
+            }
+            .member-title {
+                font-size: 3rem;
+            }
+            .detail-label {
+                font-size: 1.8rem;
+            }
+            .detail-content {
+                font-size: 1.3rem;
+            }
+            .header {
+                flex-wrap: nowrap;
+                padding: 15px 20px;
+            }
+            .header h1 {
+                flex: 1;
+                margin-bottom: 0;
+                text-align: left;
+                padding-left: 20px;
+            }
+            .nav-buttons {
+                flex: 0 0 auto;
+                justify-content: flex-end;
+                margin-bottom: 0;
+            }
+        }
+
+        .operation-status {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, .8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 100;
+            animation: fadeIn .3s ease;
+            pointer-events: none;
+        }
+
+        .operation-status::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid rgba(0, 0, 0, .8);
+        }
+
+        .processing-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, .3);
+            border-top: 2px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .button-processing {
+            position: relative;
+            color: transparent !important;
+            pointer-events: none;
+        }
+
+        .button-processing::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, .3);
+            border-top: 2px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .status-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, .7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .status-modal {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .status-modal h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .status-modal .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .status-modal .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4cb7db, #28a745);
+            width: 0%;
+            transition: width .3s ease;
+        }
+
+        .status-modal #queueStatusDetails {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 15px;
+        }
+
+        #addContentBtn {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            position: absolute !important;
+            left: -9999px !important;
+            top: -9999px !important;
+        }
+
+        .custom-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+            padding: 20px 25px;
+            max-width: 320px;
+            text-align: center;
+            z-index: 3000;
+            display: none;
+        }
+
+        .custom-toast .toast-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #d32f2f;
+        }
+
+        .custom-toast .toast-msg {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .custom-toast .toast-close {
+            background: #1e88e5;
+            color: white;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: .95rem;
+        }
+
+        .custom-toast .toast-close:hover {
+            background: #1565c0;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .file-preview-btn {
+            background: #1e88e5;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 8px;
+            font-size: 12px;
+        }
+
+        .file-preview-btn:hover {
+            background: #1565c0;
+        }
+
+        .file-download-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .file-download-btn:hover {
+            background: #388e3c;
+        }
+
+        .content-action-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .content-action-group .confirm-btn-small {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all .3s;
+        }
+
+        .content-action-group .confirm-btn-small:hover {
+            background: #388e3c;
+            transform: translateY(-1px);
+        }
+
+        .content-action-group .cancel-btn-small {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all .3s;
+        }
+
+        .content-action-group .cancel-btn-small:hover {
+            background: #d32f2f;
+            transform: translateY(-1px);
+        }
+
+        .pending-content-item {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #1e88e5;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pending-content-item .pending-content-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .pending-content-item .pending-content-info .file-icon {
+            font-size: 24px;
+        }
+
+        .pending-content-item .pending-content-info .file-name {
+            font-weight: 500;
+            color: #1565c0;
+        }
+
+        .pending-content-item .pending-content-info .file-size {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .pending-content-item .remove-pending-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .pending-content-item .remove-pending-btn:hover {
+            background: #d32f2f;
+        }
+
+        .existing-content-item {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #ddd;
+            transition: all 0.3s;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .existing-content-item.deleting {
+            background: #ffebee;
+            border-color: #ffcdd2;
+            opacity: 0.7;
+        }
+
+        .existing-content-item .content-preview {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .existing-content-item .content-preview img {
+            max-width: 60px;
+            max-height: 60px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .existing-content-item .content-preview .file-icon {
+            font-size: 32px;
+            color: #666;
+        }
+
+        .existing-content-item .content-preview .file-icon.pdf {
+            color: #f44336;
+        }
+
+        .existing-content-item .content-preview .file-info {
+            flex: 1;
+        }
+
+        .existing-content-item .content-preview .file-info .file-name {
+            font-weight: 500;
+        }
+
+        .existing-content-item .content-preview .file-info .file-text-preview {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            max-height: 40px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .existing-content-item .delete-existing-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .existing-content-item .delete-existing-btn:hover {
+            background: #d32f2f;
+        }
+
+        .existing-content-item .delete-existing-btn.undo {
+            background: #4caf50;
+        }
+
+        .existing-content-item .delete-existing-btn.undo:hover {
+            background: #388e3c;
+        }
+
+        .move-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .move-btn:hover {
+            background: #1976d2;
+        }
+
+        .move-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .file-pending-confirm {
+            border: 2px solid #ff9800;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: #fff8e1;
+            margin-top: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .file-pending-confirm .file-name {
+            font-weight: bold;
+            color: #e65100;
+        }
+
+        .file-pending-confirm .file-size {
+            color: #666;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .file-pending-confirm .confirm-btn-group {
+            margin-top: 8px;
+        }
+
+        .file-pending-confirm .confirm-btn-group button {
+            min-width: 80px;
+        }
+
+        .text-pending-confirm {
+            border: 2px solid #ff9800;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: #fff8e1;
+            margin-top: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .text-pending-confirm .text-preview {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 5px 0 10px 0;
+            max-height: 100px;
+            overflow-y: auto;
+            font-size: 13px;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            word-break: break-word;
+        }
+
+        .text-pending-confirm .confirm-btn-group {
+            margin-top: 8px;
+        }
+
+        .text-pending-confirm .confirm-btn-group button {
+            min-width: 80px;
+        }
+
+        .pending-image-preview {
+            max-width: 40px;
+            max-height: 40px;
+            border-radius: 4px;
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1 id="introduce">成员详情</h1>
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="goBackToMemberList()">返回上一页</button>
+            <a href="index_main.html" class="nav-btn">返回首页</a>
+            <button class="nav-btn" onclick="window.location.href = '/NFT_market.html'">NFT交易市场</button>
+        </div>
+    </div>
+
+    <div class="member-container">
+        <div class="header-section">
+            <h1 class="member-title" id="memberName"></h1>
+            <div class="member-id" id="memberNumber"></div>
+            <div class="action-row">
+                <button class="action-button" id="editMemberBtn" onclick="openEditMode()">编辑内容</button>
+                <button class="action-button" onclick="generateFamilyTree()">社团关系</button>
+            </div>
+        </div>
+
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-content" id="basicInfo"></div>
+                <div id="editBasicInfo" style="display: none;"></div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-label">家庭关系</div>
+                <div class="detail-content" id="familyInfo"></div>
+                <div id="editFamilyInfo" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div id="uploadedContent">
+            <button class="upload-button hidden" id="addContentBtn" onclick="openEditMode()" disabled>添加信息</button>
+            <div class="uploaded-content-container" id="uploadedContentContainer">
+                <div class="no-content" id="noContentMessage">暂无其它信息</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 上传内容模态框 -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeUploadModal()">&times;</span>
+            <h3>添加补充信息</h3>
+            <div class="upload-options">
+                <div class="upload-option active" data-type="text" onclick="selectUploadType('text')">
+                    <h4>文本信息</h4>
+                    <p>添加文字描述</p>
+                </div>
+                <div class="upload-option" data-type="image" onclick="selectUploadType('image')">
+                    <h4>图片</h4>
+                    <p>上传照片或图片</p>
+                </div>
+                <div class="upload-option" data-type="pdf" onclick="selectUploadType('pdf')">
+                    <h4>PDF文档</h4>
+                    <p>上传PDF文件</p>
+                </div>
+            </div>
+
+            <div class="upload-content" id="textUpload">
+                <textarea class="text-input" id="textInput" placeholder="输入补充信息内容..."></textarea>
+            </div>
+
+            <div class="upload-content" id="imageUpload" style="display: none;">
+                <div class="file-input-container">
+                    <input type="file" class="file-input" id="imageFileInput" accept="image/*" onchange="handleImageSelect(event)">
+                    <label for="imageFileInput" class="file-input-label">选择图片</label>
+                    <div class="preview" id="imagePreview" style="display: none;">
+                        <img id="previewImage" src="" alt="图片预览">
+                    </div>
+                </div>
+            </div>
+
+            <div class="upload-content" id="pdfUpload" style="display: none;">
+                <div class="file-input-container">
+                    <input type="file" class="file-input" id="pdfFileInput" accept=".pdf,application/pdf" onchange="handlePDFSelect(event)">
+                    <label for="pdfFileInput" class="file-input-label">选择PDF文档</label>
+                    <div class="preview" id="pdfPreview" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="cancel-button" onclick="closeUploadModal()">取消</button>
+                <button class="upload-button" onclick="uploadContent()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全局状态覆盖层 -->
+    <div id="statusOverlay" class="status-overlay" style="display: none;">
+        <div class="status-modal">
+            <h3 id="statusTitle">系统处理中</h3>
+            <div id="statusMessage">正在处理您的请求，请稍候...</div>
+            <div class="progress-bar">
+                <div class="progress" id="statusProgress"></div>
+            </div>
+            <div id="queueStatusDetails" style="font-size: 0.9rem; color: #666; margin-top: 15px;"></div>
+        </div>
+    </div>
+
+    <!-- 自定义提示弹窗 -->
+    <div id="customToast" class="custom-toast">
+        <div class="toast-title">提示</div>
+        <div class="toast-msg"></div>
+        <button class="toast-close" onclick="hideCustomToast()">确定</button>
+    </div>
+
+    <!-- PDF预览模态框 -->
+    <div id="pdfPreviewModal" class="modal" style="z-index: 3000;">
+        <div class="modal-content" style="max-width: 90%; width: 90%; max-height: 90%; overflow: auto;">
+            <span class="close-button" onclick="closePDFPreview()">&times;</span>
+            <h3>PDF预览</h3>
+            <div id="pdfPreviewContent" style="text-align: center; padding: 20px;">
+                <p>加载中...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ 使用 wallet-auth.js 的登录状态 ============
+        function checkLoginStatus() {
+            return checkWalletLoginStatus();
+        }
+
+        function clearUserSession() {
+            clearWalletLogin();
+            hasOwnership = false;
+        }
+
+        function logoutAndRefresh() {
+            clearUserSession();
+            location.reload();
+        }
+
+        // ============ 全局变量 ============
+        var currentMemberInfo = {};
+        var originalMemberData = {};
+        var hasOwnership = false;
+        var isEditMode = false;
+        var pendingContents = [];
+        var contentsToDelete = [];
+        var childrenList = [];
+        var spouseName = '';
+        var childrenToDelete = [];
+        var spouseToDelete = false;
+        var pendingImageFile = null;
+        var pendingPDFFile = null;
+        var pendingTextContent = null;
+        var hasPendingFile = false;
+        var existingContentsOrder = [];
+
+        // ============ 辅助函数 ============
+        function escapeHtml(text) {
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function convertUrlsToLinks(text) {
+            if (!text) return '';
+            var urlRegex = /(https?:\/\/[^\s<]+[^\s<.,;:!?\)])|(www\.[^\s<]+[^\s<.,;:!?\)])/gi;
+            return text.replace(urlRegex, function(url) {
+                var href = url;
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    href = 'https://' + url;
+                }
+                var displayUrl = url;
+                if (displayUrl.length > 50) {
+                    displayUrl = displayUrl.substring(0, 47) + '...';
+                }
+                return '<a href="' + href + '" target="_blank" rel="noopener noreferrer" style="color: #1e88e5; text-decoration: underline;">' +
+                    escapeHtml(displayUrl) + '</a>';
+            });
+        }
+
+        function showCustomToast(title, msg) {
+            var toast = document.getElementById('customToast');
+            toast.querySelector('.toast-title').textContent = title;
+            toast.querySelector('.toast-msg').textContent = msg;
+            toast.style.display = 'block';
+        }
+
+        function hideCustomToast() {
+            document.getElementById('customToast').style.display = 'none';
+        }
+
+        function showOperationStatus(type, button) {
+            var statusText = type === 'save' ? '系统处理中...' : '系统处理中...';
+            var statusElement = document.createElement('div');
+            statusElement.className = 'operation-status';
+            statusElement.innerHTML = '<span class="processing-spinner"></span>' + statusText;
+            button.classList.add('button-processing');
+            button.disabled = true;
+            var rect = button.getBoundingClientRect();
+            statusElement.style.top = (rect.top + window.scrollY - 30) + 'px';
+            statusElement.style.left = (rect.left + rect.width / 2 + window.scrollX) + 'px';
+            document.body.appendChild(statusElement);
+            return { element: statusElement, button: button };
+        }
+
+        function hideOperationStatus(statusObj) {
+            if (statusObj && statusObj.element) {
+                statusObj.element.remove();
+            }
+            if (statusObj && statusObj.button) {
+                statusObj.button.classList.remove('button-processing');
+                statusObj.button.disabled = false;
+            }
+        }
+
+        function goBackToMemberList() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var surname = decodeURIComponent(urlParams.get('surname') || '');
+            var citangNumber = urlParams.get('citang_number') || '';
+            var cardNumber = urlParams.get('card_number') || '';
+            var citangname = decodeURIComponent(urlParams.get('citangname') || '');
+            var backUrl = 'citang_member.html?surname=' + encodeURIComponent(surname) + '&citang_number=' + citangNumber +
+                '&card_number=' + cardNumber + '&citangname=' + encodeURIComponent(citangname);
+            window.location.href = backUrl;
+        }
+
+        // ============ 所有权检查 ============
+        async function checkMemberOwnership() {
+            var loginInfo = checkLoginStatus();
+            if (!loginInfo || !currentMemberInfo.memberHash) {
+                hasOwnership = false;
+                return false;
+            }
+            try {
+                var response = await fetch('/api/user/nfts?wallet=' + loginInfo.walletid);
+                if (!response.ok) {
+                    console.error('检查所有权请求失败:', response.status);
+                    hasOwnership = false;
+                    return false;
+                }
+                var userNFTs = await response.json();
+                var ownsMember = userNFTs.some(function(nft) {
+                    return nft.level === 'member' &&
+                        nft.card_number === currentMemberInfo.cardNumber &&
+                        nft.surname === currentMemberInfo.surname &&
+                        nft.citang_number === currentMemberInfo.citangNumber &&
+                        nft.member_number === currentMemberInfo.memberNumber;
+                });
+                hasOwnership = ownsMember;
+                return ownsMember;
+            } catch (error) {
+                console.error('检查成员所有权失败:', error);
+                showCustomToast('网络错误', '检查权限时出现网络问题');
+                hasOwnership = false;
+                return false;
+            }
+        }
+
+        // ============ 加载成员详情 ============
+        async function loadMemberDetail() {
+            var surname = currentMemberInfo.surname;
+            var citangNumber = currentMemberInfo.citangNumber;
+            var memberNumber = currentMemberInfo.memberNumber;
+            var cardNumber = currentMemberInfo.cardNumber;
+            var membername = currentMemberInfo.membername;
+            var citangname = currentMemberInfo.citangname;
+
+            var apiUrl = '/citang/' + encodeURIComponent(surname) + '/' + citangNumber + '/members' +
+                '?card_number=' + cardNumber +
+                '&citangname=' + encodeURIComponent(citangname) +
+                '&member_number=' + memberNumber +
+                '&member_name=' + encodeURIComponent(membername);
+
+            try {
+                var response = await fetch(apiUrl);
+                if (!response.ok) throw new Error('HTTP错误! 状态码: ' + response.status);
+                var data = await response.json();
+                originalMemberData = Object.assign({}, data);
+                currentMemberInfo.memberHash = data.hash;
+
+                document.getElementById('memberName').textContent = data.name || '未登记';
+                document.getElementById('memberNumber').textContent = '成员编号：' + data.number;
+
+                var basicInfo = document.getElementById('basicInfo');
+                var basicHtml = '<p>性别：<span id="memberGender">' + (data.gender || '未登记') + '</span></p>' +
+                    '<p>出生时间：<span id="memberBirth">' + (data.birth || '未登记') + '</span></p>' +
+                    '<p>出生地点：<span id="memberBirthplace">' + (data.birthplace || '未登记') + '</span></p>';
+                if (data.death_date && data.death_date.trim() !== '' && data.death_date.trim() !== '_') {
+                    basicHtml += '<p>逝世时间：<span id="member_death_date">' + data.death_date + '</span></p>';
+                }
+                if (data.death_place && data.death_place.trim() !== '' && data.death_place.trim() !== '_') {
+                    basicHtml += '<p>逝世地点：<span id="member_death_place">' + data.death_place + '</span></p>';
+                }
+                basicInfo.innerHTML = basicHtml;
+
+                var familyInfo = document.getElementById('familyInfo');
+                var family = data.family || {};
+                var familyHtml = '<p>配偶：' + (family.spouse || '未登记') + '</p>';
+                if (family.child && Array.isArray(family.child) && family.child.length > 0) {
+                    family.child.forEach(function(child) {
+                        familyHtml += '<p>儿女：' + child + '</p>';
+                    });
+                } else {
+                    familyHtml += '<p>无儿女信息</p>';
+                }
+                familyInfo.innerHTML = familyHtml;
+
+                createEditForms(data);
+                var loginInfo = checkLoginStatus();
+                if (loginInfo) {
+                    await checkMemberOwnership();
+                }
+            } catch (error) {
+                console.error('加载失败:', error);
+                showCustomToast('加载失败', '成员信息加载失败: ' + error.message);
+            }
+        }
+
+        // ============ 创建编辑表单 ============
+        function createEditForms(data) {
+            var editBasicInfo = document.getElementById('editBasicInfo');
+            editBasicInfo.innerHTML =
+                '<div class="form-group"><label>姓名（不可更改）：</label><input type="text" class="edit-input" id="editName" value="' +
+                (data.name || '') +
+                '" required readonly style="background-color: #f0f0f0; cursor: not-allowed;"></div>' +
+                '<div class="form-group"><label>性别：</label><select class="edit-select" id="editGender"><option value="男" ' +
+                (data.gender === '男' ? 'selected' : '') + '>男</option><option value="女" ' + (data.gender === '女' ?
+                    'selected' : '') + '>女</option></select></div>' +
+                '<div class="form-group"><label>出生时间：</label><input type="text" class="edit-input" id="editBirth" value="' +
+                (data.birth || '') + '" placeholder="YYYY-MM-DD"></div>' +
+                '<div class="form-group"><label>出生地点：</label><input type="text" class="edit-input" id="editBirthplace" value="' +
+                (data.birthplace || '') + '"></div>' +
+                '<div class="form-group"><label>逝世时间：</label><input type="text" class="edit-input" id="editDeathDate" value="' +
+                (data.death_date || '') + '" placeholder="YYYY-MM-DD"></div>' +
+                '<div class="form-group"><label>逝世地点：</label><input type="text" class="edit-input" id="editDeathPlace" value="' +
+                (data.death_place || '') + '"></div>' +
+                '<div class="edit-buttons"><button type="button" class="save-button" id="saveBasicInfoBtn" onclick="saveBasicInfo()">保存</button><button type="button" class="cancel-edit-button" id="cancelEditBtn" onclick="cancelEditMode()">取消</button></div>';
+
+            var editFamilyInfo = document.getElementById('editFamilyInfo');
+            var family = data.family || {};
+            childrenList = family.child && Array.isArray(family.child) ? family.child.slice() : [];
+            spouseName = family.spouse || '';
+            childrenToDelete = [];
+            spouseToDelete = false;
+            renderFamilyEditForm();
+        }
+
+        function renderFamilyEditForm() {
+            var editFamilyInfo = document.getElementById('editFamilyInfo');
+            editFamilyInfo.innerHTML =
+                '<div class="spouse-section"><label>配偶：</label>' + renderSpouseDisplay() + renderSpouseForm() +
+                '</div><div class="form-group"><label>儿女列表：</label><div class="children-list" id="childrenList">' +
+                renderChildrenListItems() +
+                '</div><div class="add-child-form"><input type="text" class="add-child-input" id="newChildName" placeholder="输入儿女姓名"><button type="button" class="add-child-btn" onclick="addChild()">添加</button></div></div><div class="edit-buttons"><button class="save-button" id="saveFamilyInfoBtn" onclick="saveFamilyInfo()">保存家庭信息</button><button class="cancel-edit-button" id="cancelEditFamilyBtn" onclick="cancelEditMode()">取消</button></div>';
+            setTimeout(function() { bindChildrenListEvents(); }, 0);
+            updateMainButtonsState();
+        }
+
+        function renderSpouseDisplay() {
+            if (spouseToDelete) {
+                return '<div class="spouse-display deleting"><div class="spouse-name" style="text-decoration: line-through;">' +
+                    spouseName +
+                    '</div><div class="spouse-actions"><button type="button" class="undo-remove-spouse-btn" onclick="undoRemoveSpouse()">撤销删除</button></div></div>';
+            }
+            if (!spouseName || spouseName.trim() === '' || spouseName === '_') {
+                return '<div class="no-spouse">暂无配偶信息</div>';
+            }
+            return '<div class="spouse-display"><div class="spouse-name">' + spouseName +
+                '</div><div class="spouse-actions"><button type="button" class="edit-spouse-btn" onclick="editSpouse()">编辑</button><button type="button" class="remove-spouse-btn" onclick="removeSpouse()">删除</button></div></div>';
+        }
+
+        function renderSpouseForm() {
+            if (spouseToDelete) return '';
+            if (spouseName && spouseName.trim() !== '' && spouseName !== '_') return '';
+            return '<div class="add-spouse-form"><input type="text" class="add-spouse-input" id="newSpouseName" placeholder="输入配偶姓名"><button type="button" class="add-spouse-btn" onclick="addSpouse()">添加配偶</button></div>';
+        }
+
+        function renderChildrenListItems() {
+            if (childrenList.length === 0 && childrenToDelete.length === 0) {
+                return '<div style="color: #999; padding: 10px; text-align: center;">暂无儿女信息</div>';
+            }
+            var html = '';
+            childrenList.forEach(function(child, index) {
+                var isMarkedForDelete = childrenToDelete.includes(index);
+                if (isMarkedForDelete) {
+                    html +=
+                        '<div class="child-item deleting" data-index="' + index +
+                        '"><div class="child-name" style="text-decoration: line-through;">' + child +
+                        '</div><div class="child-actions"><button type="button" class="undo-remove-child-btn" data-index="' +
+                        index + '">撤销删除</button></div></div>';
+                } else {
+                    html +=
+                        '<div class="child-item" data-index="' + index +
+                        '"><div class="child-name">' + child +
+                        '</div><div class="child-actions"><button type="button" class="edit-child-btn" data-index="' +
+                        index + '">编辑</button><button type="button" class="remove-child-btn" data-index="' +
+                        index + '">删除</button></div></div>';
+                }
+            });
+            return html;
+        }
+
+        function bindChildrenListEvents() {
+            document.querySelectorAll('.edit-child-btn').forEach(function(button) {
+                var index = parseInt(button.getAttribute('data-index'));
+                button.onclick = function() { editChild(index); };
+            });
+            document.querySelectorAll('.remove-child-btn').forEach(function(button) {
+                var index = parseInt(button.getAttribute('data-index'));
+                button.onclick = function() { removeChild(index); };
+            });
+            document.querySelectorAll('.undo-remove-child-btn').forEach(function(button) {
+                var index = parseInt(button.getAttribute('data-index'));
+                button.onclick = function() { undoRemoveChild(index); };
+            });
+        }
+
+        function addSpouse() {
+            var newSpouseInput = document.getElementById('newSpouseName');
+            var spouseNameValue = newSpouseInput.value.trim();
+            if (!spouseNameValue) { showCustomToast('提示', '请输入配偶姓名'); return; }
+            spouseName = spouseNameValue;
+            spouseToDelete = false;
+            newSpouseInput.value = '';
+            renderFamilyEditForm();
+        }
+
+        function editSpouse() {
+            if (spouseToDelete) { showCustomToast('提示', '配偶已被标记删除，请先撤销删除'); return; }
+            var newName = prompt('修改配偶姓名：', spouseName);
+            if (newName !== null && newName.trim() !== '') {
+                spouseName = newName.trim();
+                renderFamilyEditForm();
+            }
+        }
+
+        function removeSpouse() {
+            if (!spouseName || spouseName.trim() === '' || spouseName === '_') { showCustomToast('提示', '暂无配偶信息可删除');
+                return; }
+            if (spouseToDelete) { showCustomToast('提示', '配偶已被标记删除'); return; }
+            spouseToDelete = true;
+            renderFamilyEditForm();
+        }
+
+        function undoRemoveSpouse() {
+            spouseToDelete = false;
+            renderFamilyEditForm();
+        }
+
+        function addChild() {
+            var newChildInput = document.getElementById('newChildName');
+            var childName = newChildInput.value.trim();
+            if (!childName) { showCustomToast('提示', '请输入儿女姓名'); return; }
+            childrenList.push(childName);
+            newChildInput.value = '';
+            renderFamilyEditForm();
+        }
+
+        function editChild(index) {
+            if (childrenToDelete.includes(index)) { showCustomToast('提示', '此儿女已被标记删除，请先撤销删除'); return; }
+            if (index < 0 || index >= childrenList.length) { showCustomToast('错误', '无效的儿女索引'); return; }
+            var childName = childrenList[index];
+            var newName = prompt('修改儿女姓名：', childName);
+            if (newName !== null && newName.trim() !== '') {
+                childrenList[index] = newName.trim();
+                renderFamilyEditForm();
+            }
+        }
+
+        function removeChild(index) {
+            if (index < 0 || index >= childrenList.length) { showCustomToast('错误', '无效的儿女索引'); return; }
+            if (childrenToDelete.includes(index)) { showCustomToast('提示', '此儿女已被标记删除'); return; }
+            childrenToDelete.push(index);
+            renderFamilyEditForm();
+        }
+
+        function undoRemoveChild(index) {
+            var deleteIndex = childrenToDelete.indexOf(index);
+            if (deleteIndex > -1) {
+                childrenToDelete.splice(deleteIndex, 1);
+                renderFamilyEditForm();
+            } else {
+                showCustomToast('提示', '此儿女未被标记删除');
+            }
+        }
+
+        // ============ 核心：打开编辑模式（钱包道登录） ============
+        function openEditMode() {
+            var info = checkLoginStatus();
+            if (!info) {
+                // 未登录，打开钱包道登录弹窗
+                openWalletLogin().then(function(result) {
+                    if (result && result.walletid) {
+                        console.log('[member_detail] 登录成功，walletid:', result.walletid.substring(0, 16) + '...');
+                        // 登录成功后检查所有权
+                        checkMemberOwnership().then(function(owns) {
+                            if (owns) {
+                                enableEditMode();
+                            } else {
+                                showCustomToast('权限不足', '您未拥有该成员NFT，无法编辑此成员信息');
+                                logoutAndRefresh();
+                            }
+                        });
+                    }
+                }).catch(function(error) {
+                    if (error.message === '用户取消登录') {
+                        // 用户取消登录，立即退出并刷新
+                        console.log('[member_detail] 用户取消登录，自动退出');
+                        logoutAndRefresh();
+                    } else {
+                        console.error('登录失败:', error);
+                        showCustomToast('登录失败：' + error.message, 'error');
+                    }
+                });
+                return;
+            }
+
+            // 已登录，检查所有权
+            checkMemberOwnership().then(function(owns) {
+                if (!owns) {
+                    showCustomToast('权限不足', '您未拥有该成员NFT，无法编辑此成员信息');
+                    logoutAndRefresh();
+                    return;
+                }
+                enableEditMode();
+            });
+        }
+
+        // ============ 启用编辑模式 ============
+        function enableEditMode() {
+            isEditMode = true;
+            hasPendingFile = false;
+            pendingImageFile = null;
+            pendingPDFFile = null;
+            pendingTextContent = null;
+            window.currentExistingContents = null;
+            existingContentsOrder = [];
+
+            document.getElementById('basicInfo').style.display = 'none';
+            document.getElementById('familyInfo').style.display = 'none';
+            document.getElementById('editBasicInfo').style.display = 'block';
+            document.getElementById('editFamilyInfo').style.display = 'block';
+            document.getElementById('editMemberBtn').style.display = 'none';
+
+            var uploadedContent = document.getElementById('uploadedContent');
+            uploadedContent.innerHTML =
+                '<div class="upload-section"><h3>补充信息（添加后请确认添加）</h3><div class="upload-options"><div class="upload-option active" data-type="text" onclick="selectUploadType(\'text\')"><h4>文本信息</h4><p>添加文字描述</p></div><div class="upload-option" data-type="image" onclick="selectUploadType(\'image\')"><h4>图片</h4><p>上传照片或图片</p></div><div class="upload-option" data-type="pdf" onclick="selectUploadType(\'pdf\')"><h4>PDF文档</h4><p>上传PDF文件</p></div></div>' +
+                '<div class="upload-content" id="textUpload"><textarea class="text-input" id="textInput" placeholder="输入补充信息内容..."></textarea><div id="textPendingConfirm" style="display: none;" class="text-pending-confirm"><div style="font-weight: bold; color: #e65100;">📝 待确认的文本：</div><div class="text-preview" id="textPendingPreview"></div><div class="content-action-group"><button type="button" class="confirm-btn-small" onclick="confirmAddText()">✓ 确认添加</button><button type="button" class="cancel-btn-small" onclick="cancelPendingFile(\'text\')">✗ 取消</button></div></div></div>' +
+                '<div class="upload-content" id="imageUpload" style="display: none;"><div class="file-input-container"><input type="file" class="file-input" id="editImageFileInput" accept="image/*" onchange="handleEditImageSelect(event)"><label for="editImageFileInput" class="file-input-label">选择图片</label><div class="preview" id="editImagePreview" style="display: none;"><img id="editPreviewImage" src="" alt="图片预览"></div><div id="imagePendingConfirm" style="display: none;" class="file-pending-confirm"><div><span class="file-name" id="imagePendingName"></span><span class="file-size" id="imagePendingSize"></span></div><div class="content-action-group"><button type="button" class="confirm-btn-small" onclick="confirmAddImage()">✓ 确认添加</button><button type="button" class="cancel-btn-small" onclick="cancelPendingFile(\'image\')">✗ 取消</button></div></div></div></div>' +
+                '<div class="upload-content" id="pdfUpload" style="display: none;"><div class="file-input-container"><input type="file" class="file-input" id="editPDFFileInput" accept=".pdf,application/pdf" onchange="handleEditPDFSelect(event)"><label for="editPDFFileInput" class="file-input-label">选择PDF文档</label><div class="preview" id="editPDFPreview" style="display: none;"></div><div id="pdfPendingConfirm" style="display: none;" class="file-pending-confirm"><div><span class="file-name" id="pdfPendingName"></span><span class="file-size" id="pdfPendingSize"></span></div><div class="content-action-group"><button type="button" class="confirm-btn-small" onclick="confirmAddPDF()">✓ 确认添加</button><button type="button" class="cancel-btn-small" onclick="cancelPendingFile(\'pdf\')">✗ 取消</button></div></div></div></div>' +
+                '<div id="newContentList" style="margin-top: 20px;"><h4>待添加的内容：</h4><div id="pendingContentList" style="margin-bottom: 20px;"></div></div>' +
+                '<div id="existingContentList" style="margin-top: 20px;"><h4>已上传的内容：</h4><div id="uploadedContentEditList"></div></div>' +
+                '<div class="button-group" style="margin-top: 20px;"><button class="save-button" id="saveAllChangesBtn" onclick="saveAllChanges()">保存所有更改</button><button class="cancel-edit-button" id="cancelEditAllBtn" onclick="cancelEditMode()">取消编辑</button></div></div>';
+
+            var textInput = document.getElementById('textInput');
+            if (textInput) {
+                textInput.addEventListener('input', function() {
+                    var text = this.value.trim();
+                    if (text) {
+                        pendingTextContent = text;
+                        showPendingConfirm('text', text);
+                    } else {
+                        if (pendingTextContent) {
+                            pendingTextContent = null;
+                            hidePendingConfirm('text');
+                            hasPendingFile = false;
+                            updateMainButtonsState();
+                        }
+                    }
+                });
+                textInput.addEventListener('paste', function() {
+                    setTimeout(function() {
+                        var text = textInput.value.trim();
+                        if (text) {
+                            pendingTextContent = text;
+                            showPendingConfirm('text', text);
+                        }
+                    }, 100);
+                });
+            }
+
+            updateMainButtonsState();
+            selectUploadType('text');
+            loadUploadedContentForEdit();
+        }
+
+        // ============ 更新按钮状态 ============
+        function updateMainButtonsState() {
+            var saveBtn = document.getElementById('saveAllChangesBtn');
+            var cancelBtn = document.getElementById('cancelEditAllBtn');
+            var saveBasicBtn = document.getElementById('saveBasicInfoBtn');
+            var cancelEditBtn = document.getElementById('cancelEditBtn');
+            var saveFamilyBtn = document.getElementById('saveFamilyInfoBtn');
+            var cancelFamilyBtn = document.getElementById('cancelEditFamilyBtn');
+
+            var disabled = hasPendingFile;
+
+            if (saveBtn) saveBtn.disabled = disabled;
+            if (cancelBtn) cancelBtn.disabled = disabled;
+            if (saveBasicBtn) saveBasicBtn.disabled = disabled;
+            if (cancelEditBtn) cancelEditBtn.disabled = disabled;
+            if (saveFamilyBtn) saveFamilyBtn.disabled = disabled;
+            if (cancelFamilyBtn) cancelFamilyBtn.disabled = disabled;
+
+            if (!disabled && saveBtn) {
+                var hasPending = pendingContents.length > 0;
+                var hasDelete = contentsToDelete.length > 0;
+                var hasFamilyChanges = childrenToDelete.length > 0 || spouseToDelete;
+                saveBtn.disabled = !(hasPending || hasDelete || hasFamilyChanges);
+            }
+        }
+
+        // ============ 待确认内容管理 ============
+        function showPendingConfirm(type, data, extra) {
+            var pendingDiv, nameEl, sizeEl;
+            if (type === 'image') {
+                pendingDiv = document.getElementById('imagePendingConfirm');
+                nameEl = document.getElementById('imagePendingName');
+                sizeEl = document.getElementById('imagePendingSize');
+                if (pendingDiv && nameEl && sizeEl) {
+                    nameEl.textContent = data.name || '图片';
+                    sizeEl.textContent = '(' + extra + ' KB)';
+                    pendingDiv.style.display = 'block';
+                }
+            } else if (type === 'pdf') {
+                pendingDiv = document.getElementById('pdfPendingConfirm');
+                nameEl = document.getElementById('pdfPendingName');
+                sizeEl = document.getElementById('pdfPendingSize');
+                if (pendingDiv && nameEl && sizeEl) {
+                    nameEl.textContent = data.name || 'PDF文档';
+                    sizeEl.textContent = '(' + extra + ' KB)';
+                    pendingDiv.style.display = 'block';
+                }
+            } else if (type === 'text') {
+                pendingDiv = document.getElementById('textPendingConfirm');
+                var previewEl = document.getElementById('textPendingPreview');
+                if (pendingDiv && previewEl) {
+                    previewEl.textContent = data;
+                    pendingDiv.style.display = 'block';
+                }
+            }
+            hasPendingFile = true;
+            updateMainButtonsState();
+        }
+
+        function hidePendingConfirm(type) {
+            var pendingDiv;
+            if (type === 'image') {
+                pendingDiv = document.getElementById('imagePendingConfirm');
+            } else if (type === 'pdf') {
+                pendingDiv = document.getElementById('pdfPendingConfirm');
+            } else if (type === 'text') {
+                pendingDiv = document.getElementById('textPendingConfirm');
+            }
+            if (pendingDiv) {
+                pendingDiv.style.display = 'none';
+            }
+        }
+
+        function cancelPendingFile(type) {
+            if (type === 'image') {
+                pendingImageFile = null;
+                var fileInput = document.getElementById('editImageFileInput');
+                if (fileInput) fileInput.value = '';
+                var preview = document.getElementById('editImagePreview');
+                if (preview) preview.style.display = 'none';
+                var img = document.getElementById('editPreviewImage');
+                if (img) img.src = '';
+                hidePendingConfirm('image');
+            } else if (type === 'pdf') {
+                pendingPDFFile = null;
+                var fileInput2 = document.getElementById('editPDFFileInput');
+                if (fileInput2) fileInput2.value = '';
+                var preview2 = document.getElementById('editPDFPreview');
+                if (preview2) preview2.style.display = 'none';
+                hidePendingConfirm('pdf');
+            } else if (type === 'text') {
+                pendingTextContent = null;
+                var textInput = document.getElementById('textInput');
+                if (textInput) textInput.value = '';
+                hidePendingConfirm('text');
+            }
+            hasPendingFile = false;
+            updateMainButtonsState();
+            showCustomToast('提示', '已取消操作');
+        }
+
+        function confirmAddImage() {
+            var file = pendingImageFile;
+            if (!file) {
+                showCustomToast('提示', '没有待确认的图片');
+                return;
+            }
+            if (!(file instanceof File) && !(file instanceof Blob)) {
+                showCustomToast('错误', '无效的文件对象');
+                return;
+            }
+            pendingContents.push({
+                type: 'image',
+                file: file,
+                filename: file.name,
+                timestamp: Date.now()
+            });
+            pendingImageFile = null;
+            var fileInput = document.getElementById('editImageFileInput');
+            if (fileInput) fileInput.value = '';
+            var preview = document.getElementById('editImagePreview');
+            if (preview) preview.style.display = 'none';
+            var img = document.getElementById('editPreviewImage');
+            if (img) img.src = '';
+            hidePendingConfirm('image');
+            hasPendingFile = false;
+            updateMainButtonsState();
+            renderPendingContents();
+            showCustomToast('提示', '图片已添加到待添加列表');
+        }
+
+        function confirmAddPDF() {
+            var file = pendingPDFFile;
+            if (!file) {
+                showCustomToast('提示', '没有待确认的PDF文件');
+                return;
+            }
+            if (!(file instanceof File) && !(file instanceof Blob)) {
+                showCustomToast('错误', '无效的文件对象');
+                return;
+            }
+            pendingContents.push({
+                type: 'pdf',
+                file: file,
+                filename: file.name,
+                timestamp: Date.now()
+            });
+            pendingPDFFile = null;
+            var fileInput = document.getElementById('editPDFFileInput');
+            if (fileInput) fileInput.value = '';
+            var preview = document.getElementById('editPDFPreview');
+            if (preview) preview.style.display = 'none';
+            hidePendingConfirm('pdf');
+            hasPendingFile = false;
+            updateMainButtonsState();
+            renderPendingContents();
+            showCustomToast('提示', 'PDF已添加到待添加列表');
+        }
+
+        function confirmAddText() {
+            var text = pendingTextContent;
+            if (!text) {
+                showCustomToast('提示', '没有待确认的文本');
+                return;
+            }
+            pendingContents.push({
+                type: 'text',
+                content: text,
+                filename: 'text_' + Date.now() + '.txt',
+                timestamp: Date.now()
+            });
+            pendingTextContent = null;
+            var textInput = document.getElementById('textInput');
+            if (textInput) textInput.value = '';
+            hidePendingConfirm('text');
+            hasPendingFile = false;
+            updateMainButtonsState();
+            renderPendingContents();
+            showCustomToast('提示', '文本已添加到待添加列表');
+        }
+
+        // ============ 上传内容UI ============
+        function selectUploadType(type) {
+            document.querySelectorAll('.upload-option').forEach(function(option) {
+                option.classList.remove('active');
+            });
+            var targetOption = document.querySelector('.upload-option[data-type="' + type + '"]');
+            if (targetOption) targetOption.classList.add('active');
+            document.querySelectorAll('.upload-content').forEach(function(content) {
+                content.style.display = 'none';
+            });
+            var targetContent = document.getElementById(type + 'Upload');
+            if (targetContent) targetContent.style.display = 'block';
+        }
+
+        function handleImageSelect(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 20 * 1024 * 1024) {
+                showCustomToast('提示', '文件大小不能超过20MB');
+                event.target.value = '';
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('imagePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+            window.selectedImageFile = file;
+        }
+
+        function handleEditImageSelect(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 20 * 1024 * 1024) {
+                showCustomToast('提示', '文件大小不能超过20MB');
+                event.target.value = '';
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var previewImg = document.getElementById('editPreviewImage');
+                if (previewImg) {
+                    previewImg.src = e.target.result;
+                    document.getElementById('editImagePreview').style.display = 'block';
+                }
+            };
+            reader.readAsDataURL(file);
+            pendingImageFile = file;
+            showPendingConfirm('image', file, (file.size / 1024).toFixed(2));
+        }
+
+        function handleEditPDFSelect(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 20 * 1024 * 1024) {
+                showCustomToast('提示', 'PDF文件大小不能超过20MB');
+                event.target.value = '';
+                return;
+            }
+            var fileType = file.type;
+            var fileName = file.name.toLowerCase();
+            if (fileType !== 'application/pdf' && !fileName.endsWith('.pdf')) {
+                showCustomToast('提示', '请选择PDF格式的文件');
+                event.target.value = '';
+                return;
+            }
+            var previewDiv = document.getElementById('editPDFPreview');
+            if (previewDiv) {
+                previewDiv.innerHTML =
+                    '<div style="text-align: center; padding: 20px;"><i class="fas fa-file-pdf" style="font-size: 48px; color: #f44336;"></i><p><strong>' +
+                    escapeHtml(file.name) +
+                    '</strong></p><p>PDF文档 (' + (file.size / 1024).toFixed(2) +
+                    ' KB)</p><button type="button" onclick="previewEditPDF()" class="file-preview-btn">预览PDF</button></div>';
+                previewDiv.style.display = 'block';
+            }
+            pendingPDFFile = file;
+            showPendingConfirm('pdf', file, (file.size / 1024).toFixed(2));
+            hasPendingFile = true;
+            updateMainButtonsState();
+        }
+
+        function previewEditPDF() {
+            var file = pendingPDFFile;
+            if (!file) {
+                showCustomToast('提示', '请先选择PDF文件');
+                return;
+            }
+            var url = URL.createObjectURL(file);
+            window.open(url, '_blank');
+        }
+
+        function previewPendingPDF(index) {
+            var content = pendingContents[index];
+            if (!content || !content.file) {
+                showCustomToast('提示', '无法预览该文件');
+                return;
+            }
+            var url = URL.createObjectURL(content.file);
+            window.open(url, '_blank');
+        }
+
+        function handlePDFSelect(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 20 * 1024 * 1024) {
+                showCustomToast('提示', 'PDF文件大小不能超过20MB');
+                event.target.value = '';
+                return;
+            }
+            if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                showCustomToast('提示', '请选择PDF格式的文件');
+                event.target.value = '';
+                return;
+            }
+            var previewDiv = document.getElementById('pdfPreview');
+            previewDiv.innerHTML =
+                '<div style="text-align: center; padding: 20px;"><i class="fas fa-file-pdf" style="font-size: 48px; color: #f44336;"></i><p><strong>' +
+                escapeHtml(file.name) +
+                '</strong></p><p>PDF文档 (' + (file.size / 1024).toFixed(2) + ' KB)</p></div>';
+            previewDiv.style.display = 'block';
+            window.selectedPDFFile = file;
+        }
+
+        // ============ 待添加内容列表 ============
+        function renderPendingContents() {
+            var listContainer = document.getElementById('pendingContentList');
+            if (!listContainer) return;
+
+            listContainer.innerHTML = '';
+            if (pendingContents.length === 0) {
+                listContainer.innerHTML = '<p style="color: #999;">暂无待添加内容</p>';
+                return;
+            }
+
+            pendingContents.forEach(function(content, index) {
+                var itemDiv = document.createElement('div');
+                itemDiv.className = 'pending-content-item';
+
+                var iconMap = { 'image': '🖼️', 'pdf': '📄', 'text': '📃' };
+                var icon = iconMap[content.type] || '📁';
+                var fileSize = content.file ? ' (' + (content.file.size / 1024).toFixed(2) + ' KB)' : '';
+
+                var contentHtml = '';
+                if (content.type === 'text' && content.content) {
+                    var previewText = content.content;
+                    if (previewText.length > 100) {
+                        previewText = previewText.substring(0, 100) + '...';
+                    }
+                    var linkedPreview = convertUrlsToLinks(previewText);
+                    contentHtml =
+                        '<div class="pending-content-info"><span class="file-icon">' + icon +
+                        '</span><div><span class="file-name">' + escapeHtml(content.filename) +
+                        '</span><span class="file-size">' + fileSize +
+                        '</span><div style="font-size: 11px; color: #666; margin-top: 4px;">' + linkedPreview +
+                        '</div></div></div>';
+                } else if (content.type === 'pdf') {
+                    contentHtml =
+                        '<div class="pending-content-info"><span class="file-icon"><i class="fas fa-file-pdf" style="font-size: 24px; color: #f44336;"></i></span><div><span class="file-name">' +
+                        escapeHtml(content.filename) + '</span><span class="file-size">' + fileSize +
+                        '</span><div style="margin-top: 4px;"><button type="button" onclick="previewPendingPDF(' +
+                        index + ')" class="file-preview-btn">预览</button></div></div></div>';
+                } else if (content.type === 'image' && content.file) {
+                    try {
+                        var reader = new FileReader();
+                        reader.onload = function(e) {
+                            var img = itemDiv.querySelector('.pending-image-preview');
+                            if (img) img.src = e.target.result;
+                        };
+                        reader.readAsDataURL(content.file);
+                    } catch (e) {}
+                    contentHtml =
+                        '<div class="pending-content-info"><img class="pending-image-preview" src="" alt="预览"><div><span class="file-name">' +
+                        escapeHtml(content.filename) + '</span><span class="file-size">' + fileSize +
+                        '</span></div></div>';
+                } else {
+                    contentHtml =
+                        '<div class="pending-content-info"><span class="file-icon">' + icon +
+                        '</span><div><span class="file-name">' + escapeHtml(content.filename) +
+                        '</span><span class="file-size">' + fileSize + '</span></div></div>';
+                }
+
+                var moveButtons =
+                    '<div style="display: flex; gap: 5px; flex-wrap: wrap;"><button type="button" onclick="movePendingContentUp(' +
+                    index + ')" ' + (index === 0 ? 'disabled' : '') +
+                    ' class="move-btn">↑ 上移</button><button type="button" onclick="movePendingContentDown(' + index +
+                    ')" ' + (index === pendingContents.length - 1 ? 'disabled' : '') +
+                    ' class="move-btn">↓ 下移</button><button type="button" onclick="removePendingContent(' + index +
+                    ')" style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">移除</button></div>';
+
+                itemDiv.innerHTML = contentHtml + moveButtons;
+                listContainer.appendChild(itemDiv);
+            });
+
+            updateMainButtonsState();
+        }
+
+        function movePendingContentUp(index) {
+            if (index <= 0) return;
+            var temp = pendingContents[index - 1];
+            pendingContents[index - 1] = pendingContents[index];
+            pendingContents[index] = temp;
+            renderPendingContents();
+        }
+
+        function movePendingContentDown(index) {
+            if (index >= pendingContents.length - 1) return;
+            var temp = pendingContents[index + 1];
+            pendingContents[index + 1] = pendingContents[index];
+            pendingContents[index] = temp;
+            renderPendingContents();
+        }
+
+        function removePendingContent(index) {
+            pendingContents.splice(index, 1);
+            renderPendingContents();
+            updateMainButtonsState();
+        }
+
+        // ============ 加载已上传内容（编辑模式） ============
+        async function loadUploadedContentForEdit() {
+            var surname = currentMemberInfo.surname;
+            var citangNumber = currentMemberInfo.citangNumber;
+            var memberNumber = currentMemberInfo.memberNumber;
+            var cardNumber = currentMemberInfo.cardNumber;
+            var citangname = currentMemberInfo.citangname;
+            var membername = currentMemberInfo.membername;
+
+            var apiUrl = '/citang/' + encodeURIComponent(surname) + '/' + citangNumber + '/member/' + memberNumber +
+                '/uploads' +
+                '?card_number=' + cardNumber + '&citangname=' + encodeURIComponent(citangname) + '&member_name=' +
+                encodeURIComponent(membername);
+
+            try {
+                var response = await fetch(apiUrl);
+                var container = document.getElementById('uploadedContentEditList');
+                if (!container) return;
+
+                if (!response.ok) {
+                    container.innerHTML = '<p style="color: #999;">暂无已上传内容</p>';
+                    return;
+                }
+                var contents = await response.json();
+
+                if (!contents || contents.length === 0) {
+                    container.innerHTML = '<p style="color: #999;">暂无已上传内容</p>';
+                    return;
+                }
+
+                var savedOrder = [];
+                try {
+                    var orderResponse = await fetch('/citang/' + encodeURIComponent(surname) + '/' + citangNumber +
+                        '/member/' + memberNumber + '/order' +
+                        '?card_number=' + cardNumber + '&citangname=' + encodeURIComponent(citangname) +
+                        '&member_name=' + encodeURIComponent(membername));
+                    if (orderResponse.ok) {
+                        var orderData = await orderResponse.json();
+                        savedOrder = orderData.order || [];
+                    }
+                } catch (orderError) {
+                    console.log('未找到顺序文件，使用默认顺序');
+                }
+
+                if (savedOrder.length > 0) {
+                    contents.sort(function(a, b) {
+                        var indexA = savedOrder.indexOf(a.timestamp);
+                        var indexB = savedOrder.indexOf(b.timestamp);
+                        if (indexA === -1 && indexB === -1) return 0;
+                        if (indexA === -1) return 1;
+                        if (indexB === -1) return -1;
+                        return indexA - indexB;
+                    });
+                }
+
+                window.currentExistingContents = contents.slice();
+                existingContentsOrder = contents.map(function(c) { return c.timestamp; });
+
+                function renderExistingContents() {
+                    container.innerHTML = '';
+                    window.currentExistingContents.forEach(function(content, idx) {
+                        var itemDiv = document.createElement('div');
+                        itemDiv.className = 'existing-content-item';
+                        itemDiv.dataset.timestamp = content.timestamp;
+
+                        var iconMap = { 'image': '🖼️', 'pdf': '📄', 'text': '📃' };
+                        var typeLabel = iconMap[content.type] || '📁 文件';
+                        var fileName = content.filename || 'file_' + content.timestamp;
+
+                        var contentPreview = '';
+                        if (content.type === 'image') {
+                            contentPreview =
+                                '<div class="content-preview"><img src="' + content.path +
+                                '" alt="预览" onerror="this.style.display=\'none\'"><div class="file-info"><span class="file-name">' +
+                                typeLabel + ': ' + escapeHtml(fileName) + '</span></div></div>';
+                        } else if (content.type === 'pdf') {
+                            contentPreview =
+                                '<div class="content-preview"><span class="file-icon pdf"><i class="fas fa-file-pdf"></i></span><div class="file-info"><span class="file-name">' +
+                                typeLabel + ': ' + escapeHtml(fileName) +
+                                '</span><div class="file-text-preview"><button type="button" onclick="viewFile(\'' +
+                                content.path + '\')" class="file-preview-btn">预览</button><button type="button" onclick="downloadFile(\'' +
+                                content.path + '\', \'' + escapeHtml(fileName) +
+                                '\')" class="file-download-btn">下载</button></div></div></div>';
+                        } else if (content.type === 'text') {
+                            var fullText = content.content || '';
+                            var textPreview = fullText.length > 200 ? fullText.substring(0, 200) + '...' : fullText;
+                            var linkedPreview = convertUrlsToLinks(textPreview);
+                            contentPreview =
+                                '<div class="content-preview"><span class="file-icon">' + typeLabel +
+                                '</span><div class="file-info"><span class="file-name">' + escapeHtml(fileName) +
+                                '</span><div class="file-text-preview">' + linkedPreview +
+                                '</div></div></div>';
+                        } else {
+                            contentPreview =
+                                '<div class="content-preview"><span class="file-icon"><i class="fas fa-file"></i></span><div class="file-info"><span class="file-name">' +
+                                typeLabel + ': ' + escapeHtml(fileName) +
+                                '</span><div class="file-text-preview"><button type="button" onclick="downloadFile(\'' +
+                                content.path + '\', \'' + escapeHtml(fileName) +
+                                '\')" class="file-download-btn">下载</button></div></div></div>';
+                        }
+
+                        var isMarkedForDelete = contentsToDelete.includes(String(content.timestamp));
+                        var moveButtons =
+                            '<div style="display: flex; gap: 5px; flex-wrap: wrap;"><button type="button" onclick="moveExistingContentUp(' +
+                            idx + ')" ' + (idx === 0 ? 'disabled' : '') +
+                            ' class="move-btn">↑ 上移</button><button type="button" onclick="moveExistingContentDown(' +
+                            idx + ')" ' + (idx === window.currentExistingContents.length - 1 ? 'disabled' : '') +
+                            ' class="move-btn">↓ 下移</button><button type="button" class="delete-existing-btn ' +
+                            (isMarkedForDelete ? 'undo' : '') + '" data-timestamp="' + content.timestamp +
+                            '" onclick="markContentForDelete(this)">' + (isMarkedForDelete ? '撤销删除' : '删除') +
+                            '</button></div>';
+
+                        itemDiv.innerHTML = contentPreview + moveButtons;
+                        if (isMarkedForDelete) {
+                            itemDiv.classList.add('deleting');
+                        }
+                        container.appendChild(itemDiv);
+                    });
+                }
+
+                renderExistingContents();
+                window.renderExistingContents = renderExistingContents;
+
+            } catch (error) {
+                console.error('加载已上传内容失败:', error);
+                var container2 = document.getElementById('uploadedContentEditList');
+                if (container2) {
+                    container2.innerHTML = '<p style="color: #f44336;">加载失败</p>';
+                }
+            }
+        }
+
+        function moveExistingContentUp(index) {
+            if (!window.currentExistingContents || index <= 0) return;
+            var temp = window.currentExistingContents[index - 1];
+            window.currentExistingContents[index - 1] = window.currentExistingContents[index];
+            window.currentExistingContents[index] = temp;
+            existingContentsOrder = window.currentExistingContents.map(function(c) { return c.timestamp; });
+            if (window.renderExistingContents) {
+                window.renderExistingContents();
+                contentsToDelete.forEach(function(timestamp) {
+                    var container = document.getElementById('uploadedContentEditList');
+                    var item = container.querySelector('[data-timestamp="' + timestamp + '"]');
+                    if (item) {
+                        item.classList.add('deleting');
+                        var button = item.querySelector('.delete-existing-btn');
+                        if (button) {
+                            button.textContent = '撤销删除';
+                            button.classList.add('undo');
+                        }
+                    }
+                });
+            }
+        }
+
+        function moveExistingContentDown(index) {
+            if (!window.currentExistingContents || index >= window.currentExistingContents.length - 1) return;
+            var temp = window.currentExistingContents[index + 1];
+            window.currentExistingContents[index + 1] = window.currentExistingContents[index];
+            window.currentExistingContents[index] = temp;
+            existingContentsOrder = window.currentExistingContents.map(function(c) { return c.timestamp; });
+            if (window.renderExistingContents) {
+                window.renderExistingContents();
+                contentsToDelete.forEach(function(timestamp) {
+                    var container = document.getElementById('uploadedContentEditList');
+                    var item = container.querySelector('[data-timestamp="' + timestamp + '"]');
+                    if (item) {
+                        item.classList.add('deleting');
+                        var button = item.querySelector('.delete-existing-btn');
+                        if (button) {
+                            button.textContent = '撤销删除';
+                            button.classList.add('undo');
+                        }
+                    }
+                });
+            }
+        }
+
+        function markContentForDelete(button) {
+            var timestamp = button.dataset.timestamp;
+            var itemDiv = button.closest('.existing-content-item');
+            if (!itemDiv) return;
+
+            if (contentsToDelete.includes(timestamp)) {
+                contentsToDelete = contentsToDelete.filter(function(t) { return t !== timestamp; });
+                itemDiv.classList.remove('deleting');
+                button.textContent = '删除';
+                button.classList.remove('undo');
+            } else {
+                contentsToDelete.push(timestamp);
+                itemDiv.classList.add('deleting');
+                button.textContent = '撤销删除';
+                button.classList.add('undo');
+            }
+            updateMainButtonsState();
+        }
+
+        function viewFile(filePath) {
+            window.open(filePath, '_blank');
+        }
+
+        function downloadFile(filePath, fileName) {
+            var a = document.createElement('a');
+            a.href = filePath;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // ============ 保存功能 ============
+        async function saveBasicInfoSilently() {
+            var now = {
+                name: document.getElementById('editName').value.trim(),
+                gender: document.getElementById('editGender').value,
+                birth: document.getElementById('editBirth').value.trim() || '_',
+                birthplace: document.getElementById('editBirthplace').value.trim() || '_',
+                death_date: document.getElementById('editDeathDate').value.trim() || '_',
+                death_place: document.getElementById('editDeathPlace').value.trim() || '_'
+            };
+            var patch = {};
+            for (var key in now) {
+                if (JSON.stringify(originalMemberData[key]) !== JSON.stringify(now[key])) {
+                    patch[key] = now[key];
+                }
+            }
+            delete patch.name;
+            if (Object.keys(patch).length === 0) return false;
+            var surname = currentMemberInfo.surname;
+            var citangNumber = currentMemberInfo.citangNumber;
+            var memberNumber = currentMemberInfo.memberNumber;
+            var cardNumber = currentMemberInfo.cardNumber;
+            var citangname = currentMemberInfo.citangname;
+            var membername = currentMemberInfo.membername;
+            var filePath = 'nft/data/' + cardNumber + '_' + surname + '/' + citangNumber + '_' + citangname + '/' +
+                memberNumber + '_' + membername + '/' + memberNumber + '_' + membername + '.json';
+            var updatedData = Object.assign({}, originalMemberData, patch);
+            var response = await fetch('/api/member/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    filePath: filePath,
+                    memberData: updatedData,
+                    card_number: cardNumber,
+                    surname: surname,
+                    citang_number: citangNumber,
+                    citang_name: citangname,
+                    member_number: memberNumber,
+                    member_name: membername
+                })
+            });
+            var result = await response.json();
+            if (result.success) {
+                originalMemberData = updatedData;
+                return true;
+            } else {
+                throw new Error('基本信息保存失败');
+            }
+        }
+
+        async function saveFamilyInfoSilently() {
+            var finalChildrenList = childrenList.filter(function(child, index) { return !childrenToDelete.includes(index); });
+            var finalSpouseName = spouseToDelete ? '_' : (spouseName || '_');
+            var now = { family: { spouse: finalSpouseName, child: finalChildrenList } };
+            var patch = {};
+            if (JSON.stringify(originalMemberData.family) !== JSON.stringify(now.family)) {
+                patch.family = now.family;
+            }
+            if (Object.keys(patch).length === 0) return false;
+            var surname = currentMemberInfo.surname;
+            var citangNumber = currentMemberInfo.citangNumber;
+            var memberNumber = currentMemberInfo.memberNumber;
+            var cardNumber = currentMemberInfo.cardNumber;
+            var citangname = currentMemberInfo.citangname;
+            var membername = currentMemberInfo.membername;
+            var filePath = 'nft/data/' + cardNumber + '_' + surname + '/' + citangNumber + '_' + citangname + '/' +
+                memberNumber + '_' + membername + '/' + memberNumber + '_' + membername + '.json';
+            var updatedData = Object.assign({}, originalMemberData, patch);
+            var response = await fetch('/api/member/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    filePath: filePath,
+                    memberData: updatedData,
+                    card_number: cardNumber,
+                    surname: surname,
+                    citang_number: citangNumber,
+                    citang_name: citangname,
+                    member_number: memberNumber,
+                    member_name: membername
+                })
+            });
+            var result = await response.json();
+            if (result.success) {
+                originalMemberData = updatedData;
+                return true;
+            } else {
+                throw new Error('家庭信息保存失败');
+            }
+        }
+
+        async function uploadPendingContents() {
+            var surname = currentMemberInfo.surname;
+            var citangNumber = currentMemberInfo.citangNumber;
+            var memberNumber = currentMemberInfo.memberNumber;
+            var cardNumber = currentMemberInfo.cardNumber;
+            var citangname = currentMemberInfo.citangname;
+            var membername = currentMemberInfo.membername;
+
+            if (pendingContents.length === 0) return 0;
+
+            var formData = new FormData();
+            var contentsData = [];
+
+            for (var i = 0; i < pendingContents.length; i++) {
+                var content = pendingContents[i];
+                if (content.file && (content.type === 'image' || content.type === 'pdf')) {
+                    if (content.file instanceof File || content.file instanceof Blob) {
+                        formData.append('files', content.file);
+                    } else {
+                        console.warn('文件对象无效，跳过:', content.filename);
+                        continue;
+                    }
+                }
+                contentsData.push({
+                    type: content.type,
+                    content: content.content || '',
+                    filename: content.filename,
+                    timestamp: content.timestamp
+                });
+            }
+
+            formData.append('card_number', cardNumber);
+            formData.append('surname', surname);
+            formData.append('citang_number', citangNumber);
+            formData.append('citang_name', citangname);
+            formData.append('member_number', memberNumber);
+            formData.append('member_name', membername);
+            formData.append('contents', JSON.stringify(contentsData));
+
+            var finalOrder = [];
+            if (window.currentExistingContents && window.currentExistingContents.length > 0) {
+                finalOrder = window.currentExistingContents
+                    .filter(function(c) { return !contentsToDelete.includes(c.timestamp); })
+                    .map(function(c) { return c.timestamp; });
+            }
+            var newTimestamps = pendingContents.map(function(c) { return c.timestamp; });
+            finalOrder = finalOrder.concat(newTimestamps);
+
+            if (finalOrder.length > 0) {
+                formData.append('content_order', JSON.stringify(finalOrder));
+            }
+
+            var response = await fetch('/api/member/content/batch-upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            var result = await response.json();
+            if (result.success) {
+                var uploadedCount = result.uploaded || 0;
+                pendingContents = [];
+                return uploadedCount;
+            } else {
+                throw new Error(result.error || '内容上传失败');
+            }
+        }
+
+        async function deleteMarkedContents() {
+            if (contentsToDelete.length === 0) return 0;
+
+            var surname = currentMemberInfo.surname;
+            var citangNumber = currentMemberInfo.citangNumber;
+            var memberNumber = currentMemberInfo.memberNumber;
+            var cardNumber = currentMemberInfo.cardNumber;
+            var citangname = currentMemberInfo.citangname;
+            var membername = currentMemberInfo.membername;
+
+            var response = await fetch('/api/member/content/batch-delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    card_number: cardNumber,
+                    surname: surname,
+                    citang_number: citangNumber,
+                    citang_name: citangname,
+                    member_number: memberNumber,
+                    member_name: membername,
+                    timestamps: contentsToDelete
+                })
+            });
+
+            var result = await response.json();
+            if (result.success) {
+                var deletedCount = result.deletedCount || 0;
+                if (window.currentExistingContents) {
+                    window.currentExistingContents = window.currentExistingContents.filter(
+                        function(c) { return !contentsToDelete.includes(c.timestamp); }
+                    );
+                    existingContentsOrder = window.currentExistingContents.map(function(c) { return c.timestamp; });
+                }
+                contentsToDelete = [];
+                return deletedCount;
+            } else {
+                throw new Error(result.error || '内容删除失败');
+            }
+        }
+
+        async function saveAllChanges() {
+            if (hasPendingFile) {
+                showCustomToast('提示', '请先确认或取消待添加的内容');
+                return;
+            }
+
+            var loginInfo = checkLoginStatus();
+            if (!loginInfo || !hasOwnership) {
+                showCustomToast('权限不足', '您未拥有该成员NFT，无法编辑此成员信息');
+                return;
+            }
+
+            var saveBtn = document.getElementById('saveAllChangesBtn');
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.textContent = '保存中...';
+            }
+
+            try {
+                var basicChanged = false;
+                var familyChanged = false;
+                var contentResults = { uploaded: 0, deleted: 0 };
+
+                try {
+                    basicChanged = await saveBasicInfoSilently();
+                } catch (e) {
+                    console.warn('基本信息保存失败，继续:', e);
+                }
+
+                try {
+                    familyChanged = await saveFamilyInfoSilently();
+                } catch (e) {
+                    console.warn('家庭信息保存失败，继续:', e);
+                }
+
+                if (pendingContents.length > 0) {
+                    try {
+                        contentResults.uploaded = await uploadPendingContents();
+                    } catch (e) {
+                        console.warn('内容上传失败，继续:', e);
+                    }
+                }
+
+                if (contentsToDelete.length > 0) {
+                    try {
+                        contentResults.deleted = await deleteMarkedContents();
+                    } catch (e) {
+                        console.warn('内容删除失败，继续:', e);
+                    }
+                }
+
+                var message = '保存完成';
+                if (basicChanged || familyChanged) message += '，成员信息已更新';
+                if (contentResults.uploaded > 0) message += '，新增' + contentResults.uploaded + '个内容';
+                if (contentResults.deleted > 0) message += '，删除' + contentResults.deleted + '个内容';
+
+                showCustomToast('提示', message);
+                setTimeout(function() {
+                    logoutAndRefresh();
+                }, 1000);
+
+            } catch (error) {
+                console.error('保存所有更改失败:', error);
+                showCustomToast('保存失败', '保存失败：' + error.message);
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = '保存所有更改';
+                }
+            }
+        }
+
+        function cancelEditMode() {
+            if (hasPendingFile) {
+                showCustomToast('提示', '请先确认或取消待添加的内容');
+                return;
+            }
+            logoutAndRefresh();
+        }
+
+        async function saveBasicInfo() {
+            if (hasPendingFile) {
+                showCustomToast('提示', '请先确认或取消待添加的内容');
+                return;
+            }
+
+            var loginInfo = checkLoginStatus();
+            if (!loginInfo || !hasOwnership) {
+                showCustomToast('权限不足', '您未拥有该成员NFT，无法编辑此成员信息');
+                return;
+            }
+
+            try {
+                var result = await saveBasicInfoSilently();
+                if (result) {
+                    showCustomToast('提示', '基本信息已更新');
+                } else {
+                    showCustomToast('提示', '基本信息无改动');
+                }
+                setTimeout(function() {
+                    logoutAndRefresh();
+                }, 800);
+            } catch (e) {
+                showCustomToast('保存失败', '保存失败：' + e.message);
+                setTimeout(function() {
+                    logoutAndRefresh();
+                }, 800);
+            }
+        }
+
+        async function saveFamilyInfo() {
+            if (hasPendingFile) {
+                showCustomToast('提示', '请先确认或取消待添加的内容');
+                return;
+            }
+
+            var loginInfo = checkLoginStatus();
+            if (!loginInfo || !hasOwnership) {
+                showCustomToast('权限不足', '您未拥有该成员NFT，无法编辑此成员信息');
+                return;
+            }
+
+            try {
+                var result = await saveFamilyInfoSilently();
+                if (result) {
+                    showCustomToast('提示', '家庭信息已更新');
+                } else {
+                    showCustomToast('提示', '家庭信息无改动');
+                }
+                setTimeout(function() {
+                    logoutAndRefresh();
+                }, 800);
+            } catch (e) {
+                showCustomToast('保存失败', '保存失败：' + e.message);
+                setTimeout(function() {
+                    logoutAndRefresh();
+                }, 800);
+            }
+        }
+
+        // ============ 加载已上传内容（展示模式） ============
+        async function loadUploadedContent() {
+            var surname = currentMemberInfo.surname;
+            var citangNumber = currentMemberInfo.citangNumber;
+            var memberNumber = currentMemberInfo.memberNumber;
+            var cardNumber = currentMemberInfo.cardNumber;
+            var membername = currentMemberInfo.membername;
+            var citangname = currentMemberInfo.citangname;
+
+            var apiUrl = '/citang/' + encodeURIComponent(surname) + '/' + citangNumber + '/member/' + memberNumber +
+                '/uploads' +
+                '?card_number=' + cardNumber + '&citangname=' + encodeURIComponent(citangname) + '&member_name=' +
+                encodeURIComponent(membername);
+            try {
+                var response = await fetch(apiUrl);
+                if (!response.ok) return;
+                var contents = await response.json();
+                var container = document.getElementById('uploadedContentContainer');
+                container.innerHTML = '';
+                if (!contents || contents.length === 0) {
+                    container.innerHTML = '<div class="no-content">暂无其它信息</div>';
+                    return;
+                }
+
+                try {
+                    var orderResponse = await fetch('/citang/' + encodeURIComponent(surname) + '/' + citangNumber +
+                        '/member/' + memberNumber + '/order' +
+                        '?card_number=' + cardNumber + '&citangname=' + encodeURIComponent(citangname) +
+                        '&member_name=' + encodeURIComponent(membername));
+                    if (orderResponse.ok) {
+                        var orderData = await orderResponse.json();
+                        var orderArray = orderData.order || [];
+                        if (orderArray.length > 0) {
+                            contents.sort(function(a, b) {
+                                var indexA = orderArray.indexOf(a.timestamp);
+                                var indexB = orderArray.indexOf(b.timestamp);
+                                if (indexA === -1) return 1;
+                                if (indexB === -1) return -1;
+                                return indexA - indexB;
+                            });
+                        }
+                    }
+                } catch (orderError) {
+                    console.log('未找到顺序文件，使用默认顺序');
+                }
+
+                contents.forEach(function(content) {
+                    var item = document.createElement('div');
+                    item.className = 'uploaded-item';
+                    if (content.type === 'image') {
+                        item.innerHTML =
+                            '<img src="' + content.path +
+                            '" alt="补充图片" class="uploaded-image" style="cursor: pointer;" onclick="viewFile(\'' +
+                            content.path + '\')">';
+                    } else if (content.type === 'pdf') {
+                        var fileName = content.filename || 'file_' + content.timestamp;
+                        item.innerHTML =
+                            '<div class="uploaded-text" style="display: flex; align-items: center; gap: 15px; padding: 15px;"><i class="fas fa-file-pdf" style="font-size: 48px; color: #f44336;"></i><div><p><strong>' +
+                            escapeHtml(fileName) +
+                            '</strong></p><button onclick="viewFile(\'' + content.path +
+                            '\')" class="file-preview-btn">预览</button><button onclick="downloadFile(\'' +
+                            content.path + '\', \'' + escapeHtml(fileName) +
+                            '\')" class="file-download-btn">下载</button></div></div>';
+                    } else if (content.type === 'text') {
+                        var linkedContent = convertUrlsToLinks(content.content || '');
+                        item.innerHTML = '<div class="uploaded-text"><p style="word-break: break-word;">' +
+                            linkedContent + '</p></div>';
+                    } else {
+                        var fileName2 = content.filename || 'file_' + content.timestamp;
+                        item.innerHTML =
+                            '<div class="uploaded-text" style="display: flex; align-items: center; gap: 15px; padding: 15px;"><i class="fas fa-file" style="font-size: 48px; color: #666;"></i><div><p><strong>' +
+                            escapeHtml(fileName2) +
+                            '</strong></p><button onclick="downloadFile(\'' + content.path + '\', \'' + escapeHtml(
+                                fileName2) + '\')" class="file-download-btn">下载</button></div></div>';
+                    }
+                    container.appendChild(item);
+                });
+            } catch (error) {
+                console.error('加载补充信息失败:', error);
+                var container2 = document.getElementById('uploadedContentContainer');
+                container2.innerHTML = '<div class="no-content">加载失败</div>';
+            }
+        }
+
+        // ============ 其他功能 ============
+        function generateFamilyTree() {
+            var surname = currentMemberInfo.surname;
+            var citangNumber = currentMemberInfo.citangNumber;
+            var memberNumber = currentMemberInfo.memberNumber;
+            var cardNumber = currentMemberInfo.cardNumber;
+            var membername = currentMemberInfo.membername;
+            var citangname = currentMemberInfo.citangname;
+            window.location.href = 'jiazushu.html?surname=' + encodeURIComponent(surname) + '&citang_number=' +
+                citangNumber + '&member_number=' + memberNumber + '&card_number=' + cardNumber + '&citangname=' +
+                encodeURIComponent(citangname) + '&membername=' + encodeURIComponent(membername);
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').style.display = 'none';
+        }
+
+        function uploadContent() {
+            document.getElementById('uploadModal').style.display = 'none';
+        }
+
+        function closePDFPreview() {
+            document.getElementById('pdfPreviewModal').style.display = 'none';
+        }
+
+        // ============ 初始化 ============
+        async function init() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var surname = decodeURIComponent(urlParams.get('surname'));
+            var citangNumber = urlParams.get('citang_number');
+            var memberNumber = decodeURIComponent(urlParams.get('member_number'));
+            var cardNumber = urlParams.get('card_number');
+            var citangname = urlParams.get('citangname');
+            var membername = urlParams.get('membername');
+
+            var titleElement = document.getElementById('introduce');
+            if (surname && citangNumber && memberNumber) {
+                titleElement.innerText = surname + '.' + citangname + '.' + membername;
+            } else {
+                titleElement.innerText = '成员详情';
+            }
+
+            currentMemberInfo = {
+                surname: surname,
+                citangNumber: citangNumber,
+                memberNumber: memberNumber,
+                cardNumber: cardNumber,
+                membername: membername,
+                citangname: citangname
+            };
+
+            await loadMemberDetail();
+            await loadUploadedContent();
+        }
+
+        // ============ 监听登录成功事件 ============
+        document.addEventListener('wallet-login-success', function(event) {
+            var detail = event.detail;
+            if (detail && detail.walletid) {
+                console.log('[member_detail] 登录成功，walletid:', detail.walletid.substring(0, 16) + '...');
+                // 重新检查所有权并启用编辑模式
+                checkMemberOwnership().then(function(owns) {
+                    if (owns) {
+                        enableEditMode();
+                    } else {
+                        showCustomToast('权限不足', '您未拥有该成员NFT，无法编辑此成员信息');
+                        logoutAndRefresh();
+                    }
+                });
+            }
+        });
+
+        // ============ 关闭弹窗 ============
+        window.onclick = function(event) {
+            var toast = document.getElementById('customToast');
+            if (event.target === toast) hideCustomToast();
+            var statusOverlay = document.getElementById('statusOverlay');
+            if (event.target === statusOverlay) hideStatusOverlay();
+            var uploadModal = document.getElementById('uploadModal');
+            if (event.target === uploadModal) closeUploadModal();
+            var pdfPreviewModal = document.getElementById('pdfPreviewModal');
+            if (event.target === pdfPreviewModal) closePDFPreview();
+        }
+
+        function hideStatusOverlay() {
+            document.getElementById('statusOverlay').style.display = 'none';
+        }
+
+        // ============ 页面加载 ============
+        document.addEventListener('DOMContentLoaded', function() { init(); });
+    </script>
+</body>
+
+</html>

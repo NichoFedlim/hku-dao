@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <link rel="shortcut icon" type="image/x-icon" href="image/favicon.png" />
+    <title data-i18n="detail_title">Detail – HKU DAO</title>
+
+    <!-- QR libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="js/qrcode.min.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Wallet auth -->
+    <script src="/wallet-auth.js"></script>
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+        /* ===== DETAIL PAGE STYLES ===== */
+        .detail-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* ===== BREADCRUMB ===== */
+        .breadcrumb-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin: 10px 0 20px;
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+        }
+        .breadcrumb-bar a {
+            color: var(--hku-green);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .breadcrumb-bar a:hover { text-decoration: underline; }
+        .breadcrumb-bar .separator { color: #aaa; }
+        .breadcrumb-bar .current { color: #888; }
+
+        /* ===== DETAIL HEADER ===== */
+        .detail-header {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 24px;
+            border-left: 6px solid var(--hku-gold);
+        }
+        .detail-header .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .detail-header .title-section h1 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin: 0 0 4px 0;
+        }
+        .detail-header .title-section .subtitle {
+            color: #888;
+            font-size: 0.95rem;
+        }
+        .detail-header .title-section .type-badge {
+            display: inline-block;
+            background: var(--hku-gold);
+            color: var(--primary);
+            padding: 2px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .detail-header .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .detail-header .action-buttons .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+        .detail-header .action-buttons .btn-edit {
+            background: var(--hku-gold);
+            color: var(--primary);
+        }
+        .detail-header .action-buttons .btn-edit:hover {
+            background: #b8922a;
+            transform: translateY(-2px);
+        }
+        .detail-header .action-buttons .btn-edit:disabled {
+            background: #ccc;
+            color: #888;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .detail-header .action-buttons .btn-back {
+            background: #f0f0f0;
+            color: #555;
+        }
+        .detail-header .action-buttons .btn-back:hover {
+            background: #e0e0e0;
+        }
+        .detail-header .action-buttons .btn-save {
+            background: #28a745;
+            color: white;
+        }
+        .detail-header .action-buttons .btn-save:hover {
+            background: #218838;
+        }
+        .detail-header .action-buttons .btn-save:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .detail-header .action-buttons .btn-cancel {
+            background: #dc3545;
+            color: white;
+        }
+        .detail-header .action-buttons .btn-cancel:hover {
+            background: #c82333;
+        }
+
+        /* ===== NFT INFO CARD ===== */
+        .nft-info-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            align-items: center;
+        }
+        .nft-info-card .qr-section {
+            flex: 0 0 auto;
+            text-align: center;
+        }
+        .nft-info-card .qr-section .qr-wrapper {
+            background: white;
+            padding: 6px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: inline-block;
+        }
+        .nft-info-card .qr-section .qr-wrapper .qrcode {
+            width: 140px;
+            height: 140px;
+            display: block;
+        }
+        .nft-info-card .qr-section .qr-label {
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 4px;
+        }
+        .nft-info-card .hash-section {
+            flex: 1;
+            min-width: 200px;
+        }
+        .nft-info-card .hash-section .hash-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .nft-info-card .hash-section .hash-value {
+            font-family: monospace;
+            font-size: 0.75rem;
+            word-break: break-all;
+            background: #f5f7fb;
+            padding: 8px 12px;
+            border-radius: 8px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .nft-info-card .hash-section .price-display {
+            margin-top: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--hku-gold);
+        }
+
+        /* ===== CONTENT SECTIONS ===== */
+        .content-section {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px 24px;
+            margin-bottom: 20px;
+        }
+        .content-section .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .content-section .section-title .edit-indicator {
+            font-size: 0.8rem;
+            color: var(--hku-gold);
+            font-weight: 400;
+        }
+        .content-section .content-body {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #444;
+        }
+        .content-section .content-body .empty-text {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        /* ===== EDIT MODE ===== */
+        .edit-mode .content-body {
+            display: none;
+        }
+        .edit-mode .edit-form {
+            display: block !important;
+        }
+        .edit-form {
+            display: none;
+        }
+        .edit-form .form-group {
+            margin-bottom: 16px;
+        }
+        .edit-form .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+        .edit-form .form-group textarea,
+        .edit-form .form-group input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+        .edit-form .form-group textarea:focus,
+        .edit-form .form-group input[type="text"]:focus {
+            outline: none;
+            border-color: var(--hku-gold);
+            box-shadow: 0 0 0 2px rgba(204, 159, 46, 0.15);
+        }
+        .edit-form .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* ===== UPLOAD SECTION ===== */
+        .upload-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .upload-section .upload-options {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .upload-section .upload-option {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.85rem;
+            background: white;
+        }
+        .upload-section .upload-option:hover {
+            border-color: var(--hku-gold);
+        }
+        .upload-section .upload-option.active {
+            border-color: var(--hku-gold);
+            background: #fff8e8;
+        }
+        .upload-section .upload-content {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .upload-section .upload-content.active {
+            display: block;
+        }
+        .upload-section .file-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .upload-section .file-input-wrapper input[type="file"] {
+            display: none;
+        }
+        .upload-section .file-input-wrapper .file-label {
+            padding: 8px 16px;
+            background: var(--hku-green);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+        .upload-section .file-input-wrapper .file-label:hover {
+            background: #002244;
+        }
+        .upload-section .file-input-wrapper .file-name {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .upload-section .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        /* ===== ATTACHMENTS LIST ===== */
+        .attachments-list {
+            margin-top: 12px;
+        }
+        .attachment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            transition: var(--transition);
+        }
+        .attachment-item:hover {
+            background: #f0f0f0;
+        }
+        .attachment-item .attach-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .attachment-item .attach-info .attach-icon {
+            font-size: 1.2rem;
+            color: var(--hku-gold);
+        }
+        .attachment-item .attach-info .attach-name {
+            font-size: 0.9rem;
+            color: #333;
+            word-break: break-all;
+        }
+        .attachment-item .attach-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .attachment-item .attach-actions .btn-sm {
+            padding: 4px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: var(--transition);
+        }
+        .attachment-item .attach-actions .btn-view {
+            background: var(--hku-gold);
+            color: var(--primary);
+        }
+        .attachment-item .attach-actions .btn-view:hover {
+            background: #b8922a;
+        }
+        .attachment-item .attach-actions .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        .attachment-item .attach-actions .btn-delete:hover {
+            background: #c82333;
+        }
+
+        /* ===== LOADING ===== */
+        .loading-spinner {
+            text-align: center;
+            padding: 60px;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--hku-gold);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== TOAST OVERRIDES ===== */
+        .custom-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            padding: 20px 30px;
+            max-width: 400px;
+            text-align: center;
+            z-index: 3000;
+            display: none;
+        }
+        .custom-toast .toast-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #d32f2f;
+        }
+        .custom-toast .toast-msg {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 16px;
+        }
+        .custom-toast .toast-close {
+            background: var(--hku-gold);
+            color: var(--primary);
+            border: none;
+            padding: 6px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .detail-header .top-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .detail-header .title-section h1 {
+                font-size: 1.5rem;
+            }
+            .nft-info-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .nft-info-card .hash-section {
+                text-align: center;
+            }
+            .nft-info-card .qr-section .qr-wrapper .qrcode {
+                width: 120px;
+                height: 120px;
+            }
+            .content-section {
+                padding: 16px;
+            }
+            .upload-section .upload-options {
+                flex-direction: column;
+            }
+        }
+        @media (max-width: 480px) {
+            .detail-header .action-buttons .btn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+                width: 100%;
+            }
+            .detail-header .action-buttons {
+                flex-direction: column;
+            }
+            .breadcrumb-bar {
+                font-size: 0.8rem;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="header-inner container">
+            <h1 class="logo" onclick="window.location.href='/'">港大道 Gang Da Dao</h1>
+            <nav class="nav">
+                <button class="nav-btn" data-i18n="nav_market" onclick="window.location.href='/nft/NFT_market.html'">NFT Market</button>
+                <button class="nav-btn" data-i18n="nav_mainpage" onclick="window.location.href='/nft/index_main.html'">Main Page</button>
+                <button class="nav-btn" data-i18n="nav_categories" onclick="window.location.href='/nft/categories.html'">Categories</button>
+                <button class="nav-btn" id="lang-switch" onclick="toggleLanguage()">中文</button>
+                <button class="nav-btn" id="login-btn" onclick="handleLogin()" data-i18n="nav_login">Login</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container detail-container">
+        <!-- ===== BREADCRUMB ===== -->
+        <div class="breadcrumb-bar" id="breadcrumb">
+            <a href="/nft/categories.html" data-i18n="categories">Categories</a>
+            <span class="separator">›</span>
+            <a href="#" id="breadcrumb-parent" data-i18n="items">Items</a>
+            <span class="separator">›</span>
+            <span class="current" id="breadcrumb-current" data-i18n="loading_data">Loading...</span>
+        </div>
+
+        <!-- ===== DETAIL HEADER ===== -->
+        <div class="detail-header" id="detail-header">
+            <div class="top-row">
+                <div class="title-section">
+                    <h1 id="detail-title">Loading...</h1>
+                    <div class="subtitle">
+                        <span id="detail-id">#0</span>
+                        <span class="type-badge" id="detail-type-badge">Category</span>
+                    </div>
+                </div>
+                <div class="action-buttons" id="action-buttons">
+                    <button class="btn btn-back" onclick="goBack()" data-i18n="back">← Back</button>
+                    <button class="btn btn-edit" id="edit-btn" onclick="toggleEditMode()" data-i18n="edit">Edit</button>
+                    <button class="btn btn-save" id="save-btn" style="display:none;" onclick="saveChanges()" data-i18n="save">Save</button>
+                    <button class="btn btn-cancel" id="cancel-btn" style="display:none;" onclick="cancelEdit()" data-i18n="cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== NFT INFO CARD ===== -->
+        <div class="nft-info-card" id="nft-info-card">
+            <div class="qr-section">
+                <div class="qr-wrapper">
+                    <div class="qrcode" id="detail-qrcode"></div>
+                </div>
+                <div class="qr-label" data-i18n="scan_me">Scan me</div>
+            </div>
+            <div class="hash-section">
+                <div class="hash-label" data-i18n="nft_hash">NFT Hash</div>
+                <div class="hash-value" id="detail-hash">Loading...</div>
+                <div class="price-display" id="detail-price"></div>
+            </div>
+        </div>
+
+        <!-- ===== CONTENT SECTIONS (View Mode) ===== -->
+        <div id="view-mode">
+            <!-- Description -->
+            <div class="content-section" id="description-section">
+                <div class="section-title" data-i18n="description">Description</div>
+                <div class="content-body" id="description-display">
+                    <span class="empty-text" data-i18n="no_description">No description available.</span>
+                </div>
+            </div>
+
+            <!-- Details -->
+            <div class="content-section" id="details-section">
+                <div class="section-title" data-i18n="details">Details</div>
+                <div class="content-body" id="details-display">
+                    <span class="empty-text" data-i18n="no_details">No additional details.</span>
+                </div>
+            </div>
+
+            <!-- Attachments -->
+            <div class="content-section" id="attachments-section">
+                <div class="section-title" data-i18n="attachments">Attachments</div>
+                <div class="content-body" id="attachments-display">
+                    <span class="empty-text" data-i18n="no_attachments">No attachments.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== EDIT MODE (hidden by default) ===== -->
+        <div id="edit-mode" style="display:none;">
+            <!-- Edit Description -->
+            <div class="content-section">
+                <div class="section-title">
+                    <span data-i18n="edit_description">Edit Description</span>
+                    <span class="edit-indicator">✏️</span>
+                </div>
+                <div class="edit-form" style="display:block;">
+                    <div class="form-group">
+                        <label data-i18n="description_label">Description</label>
+                        <textarea id="edit-description" placeholder="Enter description..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Details -->
+            <div class="content-section">
+                <div class="section-title">
+                    <span data-i18n="edit_details">Edit Details</span>
+                    <span class="edit-indicator">✏️</span>
+                </div>
+                <div class="edit-form" style="display:block;">
+                    <div class="form-group">
+                        <label data-i18n="details_label">Additional Details</label>
+                        <textarea id="edit-details" placeholder="Enter additional details..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Attachments -->
+            <div class="content-section">
+                <div class="section-title">
+                    <span data-i18n="upload_attachments">Upload Attachments</span>
+                    <span class="edit-indicator">📎</span>
+                </div>
+                <div class="edit-form" style="display:block;">
+                    <div class="upload-section">
+                        <div class="upload-options">
+                            <div class="upload-option active" data-type="text" onclick="selectUploadType('text')">
+                                <i class="fas fa-file-alt"></i> <span data-i18n="text">Text</span>
+                            </div>
+                            <div class="upload-option" data-type="image" onclick="selectUploadType('image')">
+                                <i class="fas fa-image"></i> <span data-i18n="image">Image</span>
+                            </div>
+                            <div class="upload-option" data-type="pdf" onclick="selectUploadType('pdf')">
+                                <i class="fas fa-file-pdf"></i> <span data-i18n="pdf">PDF</span>
+                            </div>
+                        </div>
+
+                        <!-- Text upload -->
+                        <div class="upload-content active" id="upload-text">
+                            <div class="form-group">
+                                <textarea id="upload-text-input" placeholder="Enter text content..." rows="3"></textarea>
+                            </div>
+                            <button class="btn btn-save" style="width:auto; padding:8px 20px;" onclick="uploadText()" data-i18n="add_text">Add Text</button>
+                        </div>
+
+                        <!-- Image upload -->
+                        <div class="upload-content" id="upload-image">
+                            <div class="file-input-wrapper">
+                                <label class="file-label" for="image-file-input" data-i18n="choose_image">Choose Image</label>
+                                <input type="file" id="image-file-input" accept="image/*" onchange="handleFileSelect('image')" />
+                                <span class="file-name" id="image-file-name" data-i18n="no_file">No file chosen</span>
+                            </div>
+                            <div id="image-preview" style="margin-top:8px; display:none;">
+                                <img id="image-preview-img" class="preview-image" alt="Preview" />
+                            </div>
+                            <button class="btn btn-save" style="width:auto; padding:8px 20px; margin-top:8px;" onclick="uploadImage()" data-i18n="upload_image">Upload Image</button>
+                        </div>
+
+                        <!-- PDF upload -->
+                        <div class="upload-content" id="upload-pdf">
+                            <div class="file-input-wrapper">
+                                <label class="file-label" for="pdf-file-input" data-i18n="choose_pdf">Choose PDF</label>
+                                <input type="file" id="pdf-file-input" accept=".pdf" onchange="handleFileSelect('pdf')" />
+                                <span class="file-name" id="pdf-file-name" data-i18n="no_file">No file chosen</span>
+                            </div>
+                            <button class="btn btn-save" style="width:auto; padding:8px 20px; margin-top:8px;" onclick="uploadPDF()" data-i18n="upload_pdf">Upload PDF</button>
+                        </div>
+                    </div>
+
+                    <!-- Pending uploads -->
+                    <div id="pending-uploads" style="margin-top:16px;">
+                        <h4 style="color:#666; font-size:0.9rem; margin-bottom:8px;" data-i18n="pending_uploads">Pending Uploads</h4>
+                        <div id="pending-list" style="font-size:0.9rem; color:#888;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ===== CUSTOM TOAST ===== -->
+    <div class="custom-toast" id="customToast">
+        <div class="toast-title" id="toast-title">Success</div>
+        <div class="toast-msg" id="toast-msg">Operation completed.</div>
+        <button class="toast-close" onclick="hideToast()">OK</button>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <p data-i18n="footer_text">© 2026 Gang Da Dao · Built on RBAS Blockchain</p>
+    </footer>
+
+    <script>
+        // ============================================================
+        // I18N SYSTEM
+        // ============================================================
+        const LOCALES = {
+            en: '/nft/locales/en.json',
+            zh: '/nft/locales/zh.json'
+        };
+        let currentLang = localStorage.getItem('hku_lang') || 'en';
+        let translations = {};
+
+        async function loadLanguage(lang) {
+            try {
+                const res = await fetch(LOCALES[lang]);
+                if (!res.ok) throw new Error('Failed to load locale');
+                translations = await res.json();
+                currentLang = lang;
+                localStorage.setItem('hku_lang', lang);
+                applyTranslations();
+                const toggle = document.getElementById('lang-switch');
+                if (toggle) toggle.textContent = lang === 'zh' ? 'English' : '中文';
+            } catch (e) {
+                console.warn('i18n error, using fallback', e);
+                translations = {};
+            }
+        }
+
+        function t(key, fallback = key) { return translations[key] || fallback; }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.textContent = t(key);
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                el.placeholder = t(key);
+            });
+            document.title = t('detail_title') || 'Detail';
+        }
+
+        window.toggleLanguage = function() {
+            const next = currentLang === 'zh' ? 'en' : 'zh';
+            loadLanguage(next);
+        };
+
+        // ============================================================
+        // WALLET AUTH
+        // ============================================================
+        function checkLoginStatus() {
+            if (typeof checkWalletLoginStatus === 'function') {
+                return checkWalletLoginStatus();
+            }
+            return null;
+        }
+
+        function openWalletLoginModal() {
+            if (typeof openWalletLogin === 'function') {
+                return openWalletLogin();
+            }
+            return Promise.reject(new Error('wallet-auth not loaded'));
+        }
+
+        window.handleLogin = async function() {
+            const info = checkLoginStatus();
+            if (info) {
+                window.location.href = '/nft/portfolio.html';
+                return;
+            }
+            try {
+                const result = await openWalletLoginModal();
+                if (result && result.walletid) {
+                    const loginBtn = document.getElementById('login-btn');
+                    loginBtn.textContent = result.name || 'User';
+                    loginBtn.onclick = () => window.location.href = '/nft/portfolio.html';
+                    showToast(t('login_success'));
+                    // Check ownership after login
+                    checkOwnership();
+                }
+            } catch (e) {
+                if (e.message !== '用户取消登录') {
+                    showToast(t('login_error') + ': ' + e.message, 'error');
+                }
+            }
+        };
+
+        // ============================================================
+        // TOAST
+        // ============================================================
+        function showToast(title, msg) {
+            document.getElementById('toast-title').textContent = title || 'Success';
+            document.getElementById('toast-msg').textContent = msg || 'Operation completed.';
+            document.getElementById('customToast').style.display = 'block';
+        }
+
+        function hideToast() {
+            document.getElementById('customToast').style.display = 'none';
+        }
+
+        // ============================================================
+        // STATE
+        // ============================================================
+        let detailData = {};
+        let originalData = {};
+        let itemType = 'item'; // 'category', 'item', 'subitem'
+        let itemId = null;
+        let isEditMode = false;
+        let hasOwnership = false;
+        let pendingUploads = [];
+        let selectedFile = null;
+        let selectedFileType = '';
+
+        // ============================================================
+        // LOAD DETAIL DATA
+        // ============================================================
+        const MOCK_DETAIL_DATA = {
+            // Category level details
+            'category_1': {
+                id: 1,
+                name: 'Architecture',
+                name_zh: '建筑学院',
+                type: 'category',
+                hash: '0xABC123DEF4567890ABC123DEF4567890ABC123DEF4567890ABC123DEF456789',
+                shortlink: 'https://hku.hk/architecture',
+                price: 100,
+                description: 'The Faculty of Architecture at HKU offers programs in Architecture, Landscape Architecture, Urban Planning, and Real Estate.',
+                description_zh: '港大建筑学院提供建筑学、景观建筑、城市规划及房地产等课程。',
+                details: 'Founded in 1912. Located at the Main Campus.',
+                details_zh: '成立于1912年。位于主校园。',
+                attachments: [
+                    { id: 1, type: 'image', name: 'campus.jpg', url: '/images/campus.jpg' },
+                    { id: 2, type: 'pdf', name: 'brochure.pdf', url: '/docs/brochure.pdf' }
+                ]
+            },
+            'category_2': {
+                id: 2,
+                name: 'Arts',
+                name_zh: '文学院',
+                type: 'category',
+                hash: '0xB2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6',
+                shortlink: 'https://hku.hk/arts',
+                price: 120,
+                description: 'The Faculty of Arts offers a wide range of humanities and language programs.',
+                description_zh: '文学院提供广泛的人文及语言课程。',
+                details: 'Established in 1912. Includes Schools of Chinese, English, Humanities, and Modern Languages.',
+                details_zh: '成立于1912年。包括中文学院、英文学院、人文学院及现代语言学院。',
+                attachments: []
+            },
+            // Item level details (departments)
+            'item_101': {
+                id: 101,
+                name: 'Architecture',
+                name_zh: '建筑学系',
+                type: 'item',
+                parent: 'Architecture',
+                parent_zh: '建筑学院',
+                hash: '0x111222333444555666777888999000111222333444555666777888999000',
+                shortlink: 'https://hku.hk/arch',
+                price: 50,
+                description: 'The Department of Architecture offers professional education in architectural design, history, and theory.',
+                description_zh: '建筑学系提供建筑设计、历史及理论的专业教育。',
+                details: 'Programs: BA(Arch), MArch, PhD. Research areas include sustainable design.',
+                details_zh: '课程：建筑学士、建筑硕士、博士。研究方向包括可持续设计。',
+                attachments: []
+            }
+            // Add more categories as needed...
+        };
+
+        function loadDetail() {
+            const params = new URLSearchParams(window.location.search);
+            const type = params.get('type') || 'item';
+            const id = params.get('id');
+
+            itemType = type;
+            itemId = id;
+
+            if (!id) {
+                showToast('Error', 'Missing item ID');
+                return;
+            }
+
+            // Determine which key to use for mock data
+            const key = `${type}_${id}`;
+            const data = MOCK_DETAIL_DATA[key];
+
+            if (!data) {
+                // Try to find in mock items data
+                showToast('Loading', 'Fetching data...');
+                // For demo, create fallback data
+                detailData = {
+                    id: parseInt(id),
+                    name: `Item ${id}`,
+                    name_zh: `项目 ${id}`,
+                    type: type,
+                    hash: `0x${Math.random().toString(16).substring(2, 18)}${Math.random().toString(16).substring(2, 18)}`,
+                    shortlink: '',
+                    price: Math.floor(Math.random() * 100) + 10,
+                    description: 'Sample description. Edit this content.',
+                    description_zh: '示例描述。编辑此内容。',
+                    details: 'Additional details go here.',
+                    details_zh: '其他详细信息在此。',
+                    attachments: []
+                };
+            } else {
+                detailData = { ...data };
+            }
+
+            originalData = { ...detailData };
+            renderDetail();
+            checkOwnership();
+        }
+
+        // ============================================================
+        // RENDER DETAIL
+        // ============================================================
+        function renderDetail() {
+            const displayName = currentLang === 'zh' ? (detailData.name_zh || detailData.name) : detailData.name;
+            const displayDesc = currentLang === 'zh' ? (detailData.description_zh || detailData.description) : detailData
+            .description;
+            const displayDetails = currentLang === 'zh' ? (detailData.details_zh || detailData.details) : detailData.details;
+
+            document.getElementById('detail-title').textContent = displayName;
+            document.getElementById('detail-id').textContent = `#${detailData.id}`;
+            document.getElementById('detail-type-badge').textContent = t(detailData.type || 'item') || detailData.type || 'Item';
+
+            // Breadcrumb
+            let parentName = '';
+            let parentLink = '';
+            if (detailData.type === 'category') {
+                parentName = t('categories');
+                parentLink = '/nft/categories.html';
+            } else if (detailData.type === 'item') {
+                parentName = detailData.parent ? (currentLang === 'zh' ? (detailData.parent_zh || detailData.parent) : detailData.parent) : t('items');
+                parentLink = detailData.parent ? `/nft/items.html?level=category&id=${detailData.id}` : '/nft/categories.html';
+            } else {
+                parentName = t('items');
+                parentLink = '/nft/categories.html';
+            }
+            document.getElementById('breadcrumb-parent').textContent = parentName;
+            document.getElementById('breadcrumb-parent').href = parentLink;
+            document.getElementById('breadcrumb-current').textContent = displayName;
+
+            // Hash
+            if (detailData.hash) {
+                const hashParts = detailData.hash.match(/.{1,16}/g);
+                document.getElementById('detail-hash').innerHTML = hashParts ? hashParts.join('<br>') : detailData.hash;
+            } else {
+                document.getElementById('detail-hash').textContent = 'No hash available';
+            }
+
+            // Price
+            if (detailData.price) {
+                document.getElementById('detail-price').textContent = `💰 ${detailData.price} root coins`;
+            } else {
+                document.getElementById('detail-price').textContent = '';
+            }
+
+            // Description
+            document.getElementById('description-display').innerHTML = displayDesc || '<span class="empty-text">' + t(
+                'no_description') + '</span>';
+
+            // Details
+            document.getElementById('details-display').innerHTML = displayDetails || '<span class="empty-text">' + t(
+                'no_details') + '</span>';
+
+            // Attachments
+            renderAttachments();
+
+            // QR Code
+            const qrContent = detailData.shortlink?.trim() || detailData.hash?.trim() || 'https://hku.hk';
+            const qrContainer = document.getElementById('detail-qrcode');
+            if (qrContainer) {
+                qrContainer.innerHTML = '';
+                const size = window.innerWidth <= 480 ? 120 : 140;
+                new QRCode(qrContainer, {
+                    text: qrContent,
+                    width: size,
+                    height: size,
+                    colorDark: '#003153',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.L
+                });
+                const canvas = qrContainer.querySelector('canvas');
+                if (canvas) {
+                    canvas.style.width = '100%';
+                    canvas.style.height = '100%';
+                    canvas.style.display = 'block';
+                }
+            }
+
+            // Set edit form values
+            document.getElementById('edit-description').value = detailData.description || '';
+            document.getElementById('edit-details').value = detailData.details || '';
+
+            // Update edit button visibility
+            const editBtn = document.getElementById('edit-btn');
+            if (hasOwnership) {
+                editBtn.disabled = false;
+                editBtn.textContent = t('edit');
+            } else {
+                editBtn.disabled = true;
+                editBtn.textContent = t('login_to_edit');
+            }
+        }
+
+        function renderAttachments() {
+            const container = document.getElementById('attachments-display');
+            const attachments = detailData.attachments || [];
+
+            if (attachments.length === 0) {
+                container.innerHTML = '<span class="empty-text">' + t('no_attachments') + '</span>';
+                return;
+            }
+
+            container.innerHTML = '<div class="attachments-list">' +
+                attachments.map(att => `
+                    <div class="attachment-item">
+                        <div class="attach-info">
+                            <span class="attach-icon">
+                                ${att.type === 'image' ? '<i class="fas fa-image"></i>' :
+                                  att.type === 'pdf' ? '<i class="fas fa-file-pdf"></i>' :
+                                  '<i class="fas fa-file"></i>'}
+                            </span>
+                            <span class="attach-name">${att.name}</span>
+                        </div>
+                        <div class="attach-actions">
+                            <button class="btn-sm btn-view" onclick="viewAttachment('${att.url}')" data-i18n="view">View</button>
+                            ${hasOwnership ? `<button class="btn-sm btn-delete" onclick="deleteAttachment(${att.id})" data-i18n="delete">Delete</button>` : ''}
+                        </div>
+                    </div>
+                `).join('') +
+                '</div>';
+        }
+
+        // ============================================================
+        // OWNERSHIP CHECK
+        // ============================================================
+        async function checkOwnership() {
+            const info = checkLoginStatus();
+            if (!info) {
+                hasOwnership = false;
+                updateEditUI();
+                return;
+            }
+
+            try {
+                // In production: fetch user's NFTs and check ownership
+                // For demo, we check if the user is logged in
+                const response = await fetch(`/api/user/nfts?wallet=${info.walletid}`);
+                if (response.ok) {
+                    const userNFTs = await response.json();
+                    // Check if user owns this specific NFT
+                    hasOwnership = userNFTs.some(nft =>
+                        nft.level === detailData.type &&
+                        nft.id === detailData.id
+                    ) || true; // For demo, allow editing if logged in
+                } else {
+                    // For demo, allow editing if logged in
+                    hasOwnership = true;
+                }
+            } catch (e) {
+                console.warn('Ownership check failed, allowing edit for demo', e);
+                hasOwnership = true;
+            }
+
+            updateEditUI();
+        }
+
+        function updateEditUI() {
+            const editBtn = document.getElementById('edit-btn');
+            if (hasOwnership) {
+                editBtn.disabled = false;
+                editBtn.textContent = t('edit');
+            } else {
+                editBtn.disabled = true;
+                editBtn.textContent = t('login_to_edit');
+            }
+        }
+
+        // ============================================================
+        // EDIT MODE
+        // ============================================================
+        function toggleEditMode() {
+            if (!hasOwnership) {
+                showToast(t('permission_denied'), t('login_to_edit'));
+                handleLogin();
+                return;
+            }
+
+            isEditMode = !isEditMode;
+
+            if (isEditMode) {
+                // Enter edit mode
+                document.getElementById('view-mode').style.display = 'none';
+                document.getElementById('edit-mode').style.display = 'block';
+                document.getElementById('edit-btn').style.display = 'none';
+                document.getElementById('save-btn').style.display = 'inline-block';
+                document.getElementById('cancel-btn').style.display = 'inline-block';
+
+                // Set form values from current data
+                document.getElementById('edit-description').value = detailData.description || '';
+                document.getElementById('edit-details').value = detailData.details || '';
+            } else {
+                // Exit edit mode (cancel)
+                cancelEdit();
+            }
+        }
+
+        function cancelEdit() {
+            isEditMode = false;
+            document.getElementById('view-mode').style.display = 'block';
+            document.getElementById('edit-mode').style.display = 'none';
+            document.getElementById('edit-btn').style.display = 'inline-block';
+            document.getElementById('save-btn').style.display = 'none';
+            document.getElementById('cancel-btn').style.display = 'none';
+
+            // Reset form values
+            document.getElementById('edit-description').value = detailData.description || '';
+            document.getElementById('edit-details').value = detailData.details || '';
+            pendingUploads = [];
+            document.getElementById('pending-list').innerHTML = '';
+        }
+
+        // ============================================================
+        // SAVE CHANGES
+        // ============================================================
+        async function saveChanges() {
+            if (!hasOwnership) {
+                showToast(t('permission_denied'), t('login_to_edit'));
+                return;
+            }
+
+            const newDescription = document.getElementById('edit-description').value.trim();
+            const newDetails = document.getElementById('edit-details').value.trim();
+
+            // Update data
+            detailData.description = newDescription;
+            detailData.details = newDetails;
+
+            // In production: save to server
+            // const response = await fetch('/api/detail/update', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({
+            //         type: itemType,
+            //         id: itemId,
+            //         description: newDescription,
+            //         details: newDetails,
+            //         wallet: checkLoginStatus()?.walletid
+            //     })
+            // });
+
+            // Update display
+            const displayDesc = currentLang === 'zh' ? (detailData.description_zh || detailData.description) : detailData
+            .description;
+            const displayDetails = currentLang === 'zh' ? (detailData.details_zh || detailData.details) : detailData.details;
+
+            document.getElementById('description-display').innerHTML = displayDesc || '<span class="empty-text">' + t(
+                'no_description') + '</span>';
+            document.getElementById('details-display').innerHTML = displayDetails || '<span class="empty-text">' + t(
+                'no_details') + '</span>';
+
+            showToast(t('success'), t('changes_saved'));
+
+            // Exit edit mode
+            cancelEdit();
+
+            // Reload data from server in production
+            // loadDetail();
+        }
+
+        // ============================================================
+        // UPLOAD FUNCTIONS
+        // ============================================================
+        function selectUploadType(type) {
+            document.querySelectorAll('.upload-option').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.upload-option[data-type="${type}"]`).classList.add('active');
+
+            document.querySelectorAll('.upload-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(`upload-${type}`).classList.add('active');
+
+            // Reset file selection
+            selectedFile = null;
+            selectedFileType = '';
+            document.getElementById('image-file-name').textContent = t('no_file');
+            document.getElementById('pdf-file-name').textContent = t('no_file');
+            document.getElementById('image-preview').style.display = 'none';
+        }
+
+        function handleFileSelect(type) {
+            const input = document.getElementById(type === 'image' ? 'image-file-input' : 'pdf-file-input');
+            const file = input.files[0];
+
+            if (!file) {
+                selectedFile = null;
+                selectedFileType = '';
+                document.getElementById(`${type}-file-name`).textContent = t('no_file');
+                return;
+            }
+
+            selectedFile = file;
+            selectedFileType = type;
+
+            document.getElementById(`${type}-file-name`).textContent = file.name;
+
+            if (type === 'image') {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('image-preview-img').src = e.target.result;
+                    document.getElementById('image-preview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function uploadText() {
+            const text = document.getElementById('upload-text-input').value.trim();
+            if (!text) {
+                showToast(t('error'), t('enter_text'));
+                return;
+            }
+
+            // Add to pending uploads
+            pendingUploads.push({
+                type: 'text',
+                content: text,
+                timestamp: Date.now()
+            });
+
+            document.getElementById('upload-text-input').value = '';
+            renderPendingUploads();
+            showToast(t('success'), t('text_added_pending'));
+        }
+
+        function uploadImage() {
+            if (!selectedFile || selectedFileType !== 'image') {
+                showToast(t('error'), t('select_image'));
+                return;
+            }
+
+            pendingUploads.push({
+                type: 'image',
+                file: selectedFile,
+                name: selectedFile.name,
+                timestamp: Date.now()
+            });
+
+            selectedFile = null;
+            selectedFileType = '';
+            document.getElementById('image-file-input').value = '';
+            document.getElementById('image-file-name').textContent = t('no_file');
+            document.getElementById('image-preview').style.display = 'none';
+
+            renderPendingUploads();
+            showToast(t('success'), t('image_added_pending'));
+        }
+
+        function uploadPDF() {
+            if (!selectedFile || selectedFileType !== 'pdf') {
+                showToast(t('error'), t('select_pdf'));
+                return;
+            }
+
+            pendingUploads.push({
+                type: 'pdf',
+                file: selectedFile,
+                name: selectedFile.name,
+                timestamp: Date.now()
+            });
+
+            selectedFile = null;
+            selectedFileType = '';
+            document.getElementById('pdf-file-input').value = '';
+            document.getElementById('pdf-file-name').textContent = t('no_file');
+
+            renderPendingUploads();
+            showToast(t('success'), t('pdf_added_pending'));
+        }
+
+        function renderPendingUploads() {
+            const container = document.getElementById('pending-list');
+            if (pendingUploads.length === 0) {
+                container.innerHTML = '<span style="color:#aaa;">' + t('no_pending_uploads') + '</span>';
+                return;
+            }
+
+            container.innerHTML = pendingUploads.map((item, index) => `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px; background:#f8f9fa; border-radius:4px; margin-bottom:4px;">
+                    <span>
+                        ${item.type === 'text' ? '📝' : item.type === 'image' ? '🖼️' : '📄'}
+                        ${item.type === 'text' ? (item.content.substring(0, 30) + (item.content.length > 30 ? '...' : '')) : item.name}
+                    </span>
+                    <button onclick="removePendingUpload(${index})" style="background:#dc3545; color:white; border:none; padding:2px 10px; border-radius:4px; cursor:pointer; font-size:0.75rem;">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function removePendingUpload(index) {
+            pendingUploads.splice(index, 1);
+            renderPendingUploads();
+        }
+
+        // ============================================================
+        // ATTACHMENT ACTIONS
+        // ============================================================
+        function viewAttachment(url) {
+            window.open(url, '_blank');
+        }
+
+        function deleteAttachment(id) {
+            if (confirm(t('confirm_delete'))) {
+                // In production: delete from server
+                detailData.attachments = detailData.attachments.filter(att => att.id !== id);
+                renderAttachments();
+                showToast(t('success'), t('attachment_deleted'));
+            }
+        }
+
+        // ============================================================
+        // NAVIGATION
+        // ============================================================
+        function goBack() {
+            window.history.back();
+        }
+
+        // ============================================================
+        // RESIZE HANDLER FOR QR
+        // ============================================================
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            if (resizeTimer) clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (detailData && detailData.hash) {
+                    const qrContainer = document.getElementById('detail-qrcode');
+                    if (qrContainer) {
+                        const size = window.innerWidth <= 480 ? 120 : 140;
+                        const qrContent = detailData.shortlink?.trim() || detailData.hash?.trim() || 'https://hku.hk';
+                        qrContainer.innerHTML = '';
+                        new QRCode(qrContainer, {
+                            text: qrContent,
+                            width: size,
+                            height: size,
+                            colorDark: '#003153',
+                            colorLight: '#ffffff',
+                            correctLevel: QRCode.CorrectLevel.L
+                        });
+                        const canvas = qrContainer.querySelector('canvas');
+                        if (canvas) {
+                            canvas.style.width = '100%';
+                            canvas.style.height = '100%';
+                            canvas.style.display = 'block';
+                        }
+                    }
+                }
+            }, 300);
+        });
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        async function init() {
+            await loadLanguage(currentLang);
+            loadDetail();
+
+            const info = checkLoginStatus();
+            if (info) {
+                const loginBtn = document.getElementById('login-btn');
+                loginBtn.textContent = info.name || 'User';
+                loginBtn.onclick = () => window.location.href = '/nft/portfolio.html';
+            }
+
+            // Listen for wallet login
+            document.addEventListener('wallet-login-success', (e) => {
+                const detail = e.detail;
+                if (detail && detail.walletid) {
+                    const loginBtn = document.getElementById('login-btn');
+                    loginBtn.textContent = detail.name || 'User';
+                    loginBtn.onclick = () => window.location.href = '/nft/portfolio.html';
+                    checkOwnership();
+                    showToast(t('login_success'));
+                }
+            });
+
+            // Make functions globally accessible
+            window.toggleLanguage = toggleLanguage;
+            window.handleLogin = handleLogin;
+            window.goBack = goBack;
+            window.toggleEditMode = toggleEditMode;
+            window.cancelEdit = cancelEdit;
+            window.saveChanges = saveChanges;
+            window.selectUploadType = selectUploadType;
+            window.handleFileSelect = handleFileSelect;
+            window.uploadText = uploadText;
+            window.uploadImage = uploadImage;
+            window.uploadPDF = uploadPDF;
+            window.removePendingUpload = removePendingUpload;
+            window.viewAttachment = viewAttachment;
+            window.deleteAttachment = deleteAttachment;
+            window.hideToast = hideToast;
+        }
+
+        init();
+    </script>
+</body>
+</html>

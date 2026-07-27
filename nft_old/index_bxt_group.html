@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <link rel="shortcut icon" type="image/x-icon" href="image/favicon.png">
+    <script src="js/qrcode.min.js"></script>
+    <title>百姓道 - 年级分组展示 | 移动端优化</title>
+<style>
+
+            * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #121212;
+            padding-top: 80px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #c00, #8b0000);
+            padding: 5px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 2px solid #d90007;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            flex: 1 1 100%;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #FFF;
+            font-size: 1.5em;
+            letter-spacing: 1px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex: 1 1 100%;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            background: #4cb7db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #3a9bc7;
+        }
+
+        .nav-btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        @media (min-width: 768px) {
+            .header {
+                flex-wrap: nowrap;
+                padding: 15px 20px;
+            }
+
+            .header h1 {
+                flex: 1;
+                margin-bottom: 0;
+                text-align: left;
+                padding-left: 20px;
+            }
+
+            .nav-buttons {
+                flex: 0 0 auto;
+                justify-content: flex-end;
+                margin-bottom: 0;
+            }
+        }
+
+        .group-info {
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            color: #333;
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .group-title {
+            font-size: 1.2rem;
+            color: #910209;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .member-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 24px;
+            padding: 0 20px 20px;
+        }
+
+        /* 卡片样式 - 正方形，浅黄色底 */
+        .card {
+            width: 100%;
+            max-width: 300px;
+            aspect-ratio: 1 / 1;
+            background: #fffef5;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin: 0 auto;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid #f0e2b6;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            width: 100%;
+            height: 100%;
+        }
+
+        .card-layout {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .card-layout::before {
+            position: absolute;
+            bottom: 3px;
+            right: 5px;
+            font-size: 50px;
+            opacity: 0.15;
+            color: #d4af37;
+            font-family: serif;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* 卡片主体 - 统一浅黄色底，上下分栏 */
+        .card-top-section {
+            flex: 9;
+            min-height: 0;
+            display: flex;
+            flex-direction: row;
+            padding: 8px;
+            gap: 10px;
+            background: #fffef5;
+            overflow: hidden;
+        }
+
+        /* 左侧区域 - 统一浅黄色 */
+        .card-left {
+            flex: 1;
+            background: #fffef5;
+            padding: 0 8px 10px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            border-radius: 12px;
+            min-height: 0;
+        }
+
+        /* 右侧区域 - 统一浅黄色 */
+        .card-right {
+            flex: 1;
+            background: #fffef5;
+            padding: 10px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            border-left: 1px solid #e8d5a8;
+            border-radius: 1px;
+            gap: 12px;
+            min-height: 0;
+        }
+
+        /* 卡片底部区域 */
+        .card-bottom-section {
+            flex: 1;
+            min-height: 0;
+            padding: 8px 12px;
+            background: #fffef5;
+            border-top: 2px solid #e8d5a8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* PCPS校徽 */
+        .pcps-logo-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #fff3e0;
+            padding: 1px;
+            object-fit: contain;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            margin: 0px 0;
+            transition: transform 0.2s;
+        }
+
+        .pcps-logo-img:hover {
+            transform: scale(1.02);
+        }
+
+        /* 年级照片 */
+        .grade-photo {
+            width: 100px;
+            height: 60px;
+            border-radius: 1px;
+            object-fit: cover;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            background: #ede3c9;
+        }
+
+        .grade-photo-placeholder {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background: #ede3c9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8b7a5c;
+            font-size: 10px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* 1973标识 - 深色文字 */
+        .year-logo-img {
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            object-fit: contain;
+            filter: none;
+            opacity: 0.85;
+            margin: 5px 0;
+            transition: transform 0.2s;
+        }
+
+        .year-logo-img:hover {
+            transform: scale(1.02);
+        }
+
+        /* 年级名称 - 深色文字 */
+        .grade-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3d2a1a;
+            text-align: center;
+            letter-spacing: 3px;
+            text-shadow: none;
+            font-family: "KaiTi", "楷体", "Microsoft YaHei", serif;
+            margin: 0px 0 0px;
+            word-break: keep-all;
+        }
+
+        /* 二维码包装器 */
+        .qr-wrapper {
+            background: white;
+            padding: 5px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .qrcode {
+            width: 120px;
+            height: 120px;
+            display: block;
+        }
+
+        /* NFT显示区域 - 深色文字 */
+        .nft-display {
+            background: #fff5e0;
+            border-radius: 8px;
+            padding: 1px 1px;
+            font-family: monospace;
+            font-size: 11px;
+            line-height: 1.4;
+            color: #3a2c1f;
+            word-break: break-all;
+            text-align: center;
+            border: 1px solid #e2cfaa;
+            max-height: 130px;
+            overflow-y: auto;
+            width: 100%;
+            margin-top: 0px;
+        }
+
+        /* 姓氏徽章 - 深色底配浅色字或浅色底深色字 */
+        .surname-badge {
+            background: #e8d5a8;
+            color: #4a2a10;
+            font-size: 0.9rem;
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 30px;
+            letter-spacing: 1px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+
+        .button-section {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* NFT交易按钮 - 黑色文字 */
+        .nft-transaction-btn {
+            background: linear-gradient(135deg, #b8860b, #8b6508);
+            color: #000000;
+            border: none;
+            padding: 1px 1px;
+            padding-left: 30px;
+            padding-right: 30px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+        }
+
+        .nft-transaction-btn:hover {
+            background: linear-gradient(135deg, #9a6e0a, #6b4f06);
+            transform: scale(0.98);
+            color: #000000;
+        }
+
+        .card-number-tag {
+            font-size: 0.7rem;
+            background: #e8d5a8;
+            padding: 4px 10px;
+            border-radius: 30px;
+            color: #4a2a10;
+            font-weight: 600;
+        }
+
+        .loading-container {
+            text-align: center;
+            padding: 40px;
+            color: #3498db;
+            font-size: 18px;
+            grid-column: 1 / -1;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #777;
+            font-size: 0.9rem;
+            background-color: #121212;
+        }
+
+        .retry-btn {
+            background: #4cb7db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 15px;
+        }
+
+        /* ========= 移动端核心优化: 二维码放大并覆盖底色 ========= */
+        @media (max-width: 768px) {
+            .member-grid {
+                grid-template-columns: 1fr;
+                padding: 0 12px;
+            }
+
+            .card {
+                max-width: 100%;
+                aspect-ratio: 1 / 1;
+                overflow: visible;
+            }
+
+            .card-top-section {
+                padding: 8px;
+                gap: 10px;
+            }
+
+            .card-left {
+                padding: 0 8px 10px 8px;
+                gap: 12px;
+            }
+
+            .card-right {
+                padding: 10px 8px;
+                gap: 14px;
+                justify-content: flex-start;
+            }
+
+            .pcps-logo-img {
+                width: 130px;
+                height: 130px;
+            }
+
+            .grade-photo,
+            .grade-photo-placeholder {
+                width: 130px;
+                height: 75px;
+            }
+
+            .year-logo-img {
+                width: 140px;
+                margin: 4px 0;
+            }
+
+            .grade-name {
+                font-size: 2rem;
+                letter-spacing: 2px;
+            }
+
+            .card-bottom-section {
+                padding: 8px 12px;
+            }
+
+            .surname-badge {
+                font-size: 0.85rem;
+                padding: 5px 10px;
+            }
+
+            .nft-transaction-btn {
+                padding: 5px 8px;
+                font-size: 0.68rem;
+                color: #000000;
+            }
+
+            .card-number-tag {
+                font-size: 0.68rem;
+                padding: 4px 8px;
+            }
+        }
+
+        /* 小屏手机 (≤480px) - 二维码完全填充并覆盖底色 */
+        @media (max-width: 480px) {
+            .card-top-section {
+                padding: 8px;
+                gap: 10px;
+            }
+
+            .card-left {
+                padding: 0 6px 8px 6px;
+                gap: 10px;
+            }
+
+            .card-right {
+                padding: 0;
+                gap: 8px;
+            }
+
+            .qr-wrapper {
+                padding: 0;
+                background: white;
+                border-radius: 12px 12px 0 0;
+                width: 100%;
+                min-height: 160px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin: 0;
+                margin-top: 10px;
+                margin-bottom: 5px;
+            }
+
+            .qrcode {
+                width: 100% !important;
+                height: auto !important;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 10px;
+            }
+
+            .qr-wrapper canvas,
+            .qr-wrapper img {
+                width: 160px !important;
+                height: 160px !important;
+                max-width: 160px;
+                max-height: 160px;
+                display: block;
+                margin: 0 auto;
+            }
+
+            .qr-wrapper > div:not(.qrcode) {
+                width: 160px !important;
+                height: 160px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background: #f0f0f0;
+                color: #999;
+                font-size: 12px;
+                text-align: center;
+                margin: 0 auto;
+            }
+
+            .pcps-logo-img {
+                width: 150px;
+                height: 150px;
+            }
+
+            .grade-photo,
+            .grade-photo-placeholder {
+                width: 140px;
+                height: 90px;
+            }
+
+            .year-logo-img {
+                width: 100px;
+            }
+
+            .grade-name {
+                padding-top: 15px;
+                font-size: 2rem;
+                letter-spacing: 1px;
+            }
+
+            .nft-display {
+                font-size: 11px;
+                max-height: 90px;
+                padding: 6px 8px;
+                margin: 0 6px 6px 6px;
+                border-radius: 8px;
+            }
+
+            .card-bottom-section {
+                padding: 6px 8px;
+            }
+
+            .surname-badge {
+                font-size: 0.75rem;
+                padding: 4px 8px;
+            }
+
+            .nft-transaction-btn {
+                padding: 4px 6px;
+                padding-left: 30px;
+                padding-right: 30px;
+                font-size: 26px;
+                color: #000000;
+            }
+
+            .card-number-tag {
+                font-size: 0.6rem;
+                padding: 3px 6px;
+            }
+        }
+
+        /* 横屏模式优化 */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .card {
+                max-width: 460px;
+                margin: 0 auto;
+            }
+
+            .qr-wrapper canvas,
+            .qr-wrapper img {
+                width: 140px !important;
+                height: 140px !important;
+            }
+        }
+</style>
+
+
+</head>
+
+<body>
+    <div class="header">
+        <h1>培正年级分组展示</h1>
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="goBackToXingshi()">返回上一页</button>
+            <a href="index_main.html" class="nav-btn">返回首页</a>
+            <button class="nav-btn" onclick="window.location.href = '/NFT_market.html'">NFT交易市场</button>
+        </div>
+    </div>
+
+    <div class="group-info">
+        <div class="group-header">
+            <button class="nav-btn" id="prev-btn" onclick="loadPreviousGroup()">上一组</button>
+            <h2 class="group-title" id="group-title">加载中...</h2>
+            <button class="nav-btn" id="next-btn" onclick="loadNextGroup()">下一组</button>
+        </div>
+    </div>
+
+    <div class="member-grid" id="nft-cards-container">
+        <div class="loading-container">
+            <div class="loader"></div>
+            <p style="margin-top:20px;color:#3498db;font-size:18px;">正在加载年级数据...</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>数据来源于多种AI模型，包括Kimi、豆包、DeepSeek</p>
+    </div>
+
+    <script>
+        let currentStart = 1;
+        let allSurnamesData = [];
+        let TOTAL_SURNAMES = 0;
+        let gradeImageCache = {};
+
+        function goBackToXingshi() {
+            window.location.href = 'xingshi.html';
+        }
+
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function formatNft(nft) {
+            if (!nft) return '暂无NFT数据';
+            return nft.match(/.{1,16}/g).join('<br>');
+        }
+
+        async function loadAllSurnamesFromAPI() {
+            const response = await fetch('/api/surnames/list');
+            if (!response.ok) throw new Error(`API错误: ${response.status}`);
+            const result = await response.json();
+            if (!result.success) throw new Error(result.error || '获取列表失败');
+            return result.data;
+        }
+
+        async function preloadGradeImage(card_number, surname) {
+            const key = `${card_number}_${surname}`;
+            if (gradeImageCache[key] !== undefined) return gradeImageCache[key];
+            const imageUrl = `/nft/data/${card_number}_${surname}/contents/grade_log.png`;
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2000);
+                const response = await fetch(imageUrl, { method: 'HEAD', signal: controller.signal });
+                clearTimeout(timeoutId);
+                gradeImageCache[key] = response.ok ? imageUrl : null;
+                return gradeImageCache[key];
+            } catch {
+                gradeImageCache[key] = null;
+                return null;
+            }
+        }
+
+        async function loadSurnamesData(start) {
+            currentStart = start;
+            if (allSurnamesData.length === 0) {
+                const container = document.getElementById('nft-cards-container');
+                container.innerHTML = `<div class="loading-container"><div class="loader"></div><p>正在扫描年级目录...</p></div>`;
+                try {
+                    allSurnamesData = await loadAllSurnamesFromAPI();
+                    TOTAL_SURNAMES = allSurnamesData.length;
+                    await Promise.allSettled(allSurnamesData.map(item => preloadGradeImage(item.card_number, item.name)));
+                } catch (error) {
+                    container.innerHTML = `<div style="text-align:center;padding:40px;"><h3>加载失败</h3><p>${error.message}</p><button class="retry-btn" onclick="location.reload()">重试</button></div>`;
+                    return;
+                }
+            }
+            const end = Math.min(start + 8, TOTAL_SURNAMES);
+            document.getElementById('group-title').textContent = `编号 ${start}-${end}`;
+            updateNavigationButtons(start);
+            renderCards(allSurnamesData.slice(start - 1, end));
+        }
+
+        function updateNavigationButtons(start) {
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            prevBtn.disabled = start <= 1;
+            const maxStart = Math.floor((TOTAL_SURNAMES - 1) / 9) * 9 + 1;
+            nextBtn.disabled = start >= maxStart;
+        }
+
+        function loadPreviousGroup() {
+            if (currentStart > 9) loadSurnamesData(currentStart - 9);
+            else if (currentStart > 1) loadSurnamesData(1);
+        }
+
+        function loadNextGroup() {
+            const nextStart = currentStart + 9;
+            if (nextStart <= TOTAL_SURNAMES) loadSurnamesData(nextStart);
+        }
+
+        // 根据设备获取最适合的二维码尺寸
+        function getResponsiveQrSize() {
+            if (window.innerWidth <= 480) return 160;  // 小屏手机160px
+            if (window.innerWidth <= 768) return 150;  // 平板150px
+            return 120;  // 桌面120px
+        }
+
+        async function renderCards(surnames) {
+            const container = document.getElementById('nft-cards-container');
+            if (surnames.length === 0) {
+                container.innerHTML = `<div style="text-align:center;padding:40px;"><h3>暂无数据</h3></div>`;
+                return;
+            }
+
+            const qrSize = getResponsiveQrSize();
+
+            const cardsHtml = await Promise.all(surnames.map(async (card, idx) => {
+                const qrContent = card.shortlink?.trim() || card.nft?.trim() || '';
+                const gradeImgUrl = await preloadGradeImage(card.card_number, card.name);
+                const safeName = escapeHtml(card.name);
+                const nftDisplay = card.nft ? formatNft(card.nft) : '暂无NFT信息';
+                const yearLogoUrl = `/image/1973_log.png`;
+
+                return `
+                <div class="card">
+                    <a href="name.html?name=${encodeURIComponent(card.name)}&card_number=${card.card_number}" class="card-link">
+                        <div class="card-layout">
+                            <div class="card-top-section">
+                                <div class="card-left">
+                                    <img src="/image/pcps_log.png" class="pcps-logo-img" alt="培正" onerror="this.style.display='none'">
+                                    ${gradeImgUrl ?
+                        `<img class="grade-photo" src="${gradeImgUrl}" alt="${safeName}" loading="lazy" 
+                                              onerror="this.classList.add('grade-photo-placeholder'); this.onerror=null; this.parentElement.innerHTML='<div class=\'grade-photo-placeholder\'>暂无图片</div>'">` :
+                        `<div class="grade-photo-placeholder"></div>`
+                    }
+                                    <img src="${yearLogoUrl}" class="year-logo-img" alt="1973" onerror="this.style.display='none'">
+                                    <div class="grade-name">${safeName}</div>
+                                </div>
+                                <div class="card-right">
+                                    <div class="qr-wrapper">
+                                        <div class="qrcode" id="qr-${idx}" data-qr-content="${encodeURIComponent(qrContent)}" data-qr-size="${qrSize}"></div>
+                                    </div>
+                                    <div class="nft-display">${nftDisplay}</div>
+                                </div>
+                            </div>
+                            <div class="card-bottom-section">
+                              
+                                <div class="button-section">
+                                    <button class="nft-transaction-btn" onclick="handleTransactionClick(event,'${encodeURIComponent(card.name)}',${card.card_number})">
+                                        培正DAO-NFT
+                                    </button>
+                               
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>`;
+            }));
+
+            container.innerHTML = cardsHtml.join('');
+
+            // 生成二维码
+            surnames.forEach((card, idx) => {
+                setTimeout(() => {
+                    const qrDom = document.getElementById(`qr-${idx}`);
+                    if (qrDom) {
+                        let qrText = card.shortlink?.trim() || card.nft?.trim() || '';
+                        let targetSize = parseInt(qrDom.getAttribute('data-qr-size'));
+                        if (isNaN(targetSize) || targetSize <= 0) {
+                            targetSize = getResponsiveQrSize();
+                        }
+                        if (qrText) {
+                            qrDom.innerHTML = '';
+                            new QRCode(qrDom, {
+                                text: qrText,
+                                width: targetSize,
+                                height: targetSize,
+                                colorDark: '#000000',
+                                colorLight: '#ffffff',
+                                correctLevel: QRCode.CorrectLevel.L
+                            });
+                            // 确保canvas强制宽高与设定一致
+                            const canvasElem = qrDom.querySelector('canvas');
+                            if (canvasElem) {
+                                canvasElem.style.width = `${targetSize}px`;
+                                canvasElem.style.height = `${targetSize}px`;
+                                canvasElem.style.maxWidth = `${targetSize}px`;
+                                canvasElem.style.margin = '0 auto';
+                                canvasElem.style.display = 'block';
+                            }
+                        } else {
+                            qrDom.innerHTML = `<div style="width:${targetSize}px;height:${targetSize}px;display:flex;align-items:center;justify-content:center;background:#f0f0f0;color:#999;font-size:12px;text-align:center;">无码</div>`;
+                        }
+                    }
+                }, idx * 20);
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function handleTransactionClick(e, name, cardNumber) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.location.href = `/ti_log.html?name=${name}&card_number=${cardNumber}`;
+        }
+
+        // 响应窗口尺寸变化
+        let resizeTimer;
+        window.addEventListener('resize', function () {
+            if (resizeTimer) clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (allSurnamesData.length > 0 && document.getElementById('nft-cards-container').innerHTML.includes('card')) {
+                    const start = currentStart;
+                    const endSlice = Math.min(start + 9, TOTAL_SURNAMES);
+                    renderCards(allSurnamesData.slice(start - 1, endSlice));
+                }
+            }, 200);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const startParam = getQueryParam('start');
+            const start = startParam ? Math.max(1, parseInt(startParam)) : 1;
+            loadSurnamesData(Math.floor((start - 1) / 9) * 9 + 1);
+        });
+    </script>
+</body>
+
+</html>

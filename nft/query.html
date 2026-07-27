@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>链信息验证</title>
+    <style>
+        body {
+            font-family: "幼圆", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .box {
+            background-color: #4cb7db;
+            width: 1000px;
+            height: 1000px;
+
+        }
+
+        .container {
+            max-width: 1000px;
+            min-width: 360px;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #4cb7db;
+            /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
+            margin: 0px auto 0;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+
+        p {
+            margin: 10px 0;
+            font-size: 2em;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 30px 0;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        #qr-code {
+            margin-top: 20px;
+            width: 300px;
+            height: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <div class="container">
+            <h1>链信息验证</h1>
+            <p id="chain-element"></p>
+            <div id="qr-code"></div>
+            <a href="javascript:history.back();" class="button">返回</a>
+        </div>
+    </div>
+
+
+    <!-- 通过本地路径引入 qrcode.js -->
+    <script src="js/qrcode.min.js"></script>
+    <script>
+
+        function formatChain(chain) {
+            const lineLength = 16; // 每行显示 16 位
+            let formattedChain = "";
+            for (let i = 0; i < chain.length; i += lineLength) {
+                formattedChain += chain.substring(i, i + lineLength) + "<br>";
+            }
+            return formattedChain;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const chain = decodeURIComponent(urlParams.get('chain'));
+
+        // 格式化链信息，每行显示 16 位
+        const formattedChain = formatChain(chain);
+
+        // 显示格式化后的链信息
+        document.getElementById('chain-element').innerHTML = `完整的链信息：<br>${formattedChain}`;
+
+        // 使用 qrcode.js 生成二维码
+        const qrCodeDiv = document.getElementById('qr-code');
+        const qr = new QRCode(qrCodeDiv, {
+            text: chain,
+            width: 300,
+            height: 300,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.L
+        });
+    </script>
+</body>
+
+</html>

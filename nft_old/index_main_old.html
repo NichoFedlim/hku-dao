@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <link rel="shortcut icon" type="image/x-icon" href="image/favicon.png">
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="js/qrcode.min.js"></script>
+    <title>港大道</title>
+    <style>
+        :root {
+            --primary-color: #c00;
+            --secondary-color: #3498db;
+            --accent-color: #d4af37;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f8f9fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+            padding-top: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 0px 0;
+            background: linear-gradient(135deg, var(--primary-color), #8b0000);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="rgba(255,255,255,0.05)" d="M0,0 L100,0 L100,100 Z"/></svg>');
+            background-size: 100% 100%;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-top: 25px;
+            margin-bottom: 5px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            margin: 10px 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .header h1::after {
+            content: "";
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--accent-color);
+            margin: 15px auto;
+            border-radius: 2px;
+        }
+
+        .bxt {
+            font-size: 1.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .header .subtitle {
+                font-size: 1rem;
+                margin-bottom: 10px;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .header .subtitle {
+                font-size: 1.2rem;
+                font-weight: 300;
+                letter-spacing: 2px;
+                margin-top: 5px;
+                margin-bottom: 5px;
+                opacity: 0.9;
+                text-transform: uppercase;
+                position: relative;
+            }
+        }
+
+        .nav {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        /* 修改按钮样式 - 固定大小 */
+        .btn {
+            display: inline-block;
+            background-color: #0088aa;
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+            font-weight: 600;
+            width: 180px;
+            height: 70px;
+            text-align: center;
+            line-height: 38px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background: #2980b9;
+        }
+
+        .content {
+            background: white;
+            padding: 0px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #f0f0f0;
+            position: relative;
+        }
+
+        h2::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 120px;
+            height: 3px;
+            background: var(--accent-color);
+            border-radius: 3px;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+            font-size: 1.5rem;
+            margin-bottom: 0;
+            font-weight: 500;
+        }
+
+        .highlight {
+            background: linear-gradient(to right, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.05));
+            padding: 10px;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent-color);
+            margin: 5px 0;
+        }
+
+        /* 图片区域样式 */
+        .image-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin: 10px 0;
+            justify-content: center;
+        }
+
+        .image-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .image-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .image-caption {
+            padding: 1px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+            font-size: 2.2rem;
+            color: #fa1c08;
+            font-weight: 600;
+        }
+
+        .image-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+            overflow: hidden;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .image-container:hover img {
+            transform: scale(1.05);
+        }
+
+        .image-description {
+            padding: 20px;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        /* ========== 培正道卡片样式 - 保持布局不变 ========== */
+        .peizheng-card-section {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+            padding: 0 20px;
+            overflow: visible;
+        }
+
+        .peizheng-card {
+            width: 100%;
+            max-width: 300px;
+            aspect-ratio: 1 / 1;
+            background: #fffef5;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin: 0 auto;
+            overflow: hidden;
+            border: 1px solid #f0e2b6;
+            cursor: pointer;
+        }
+
+        .peizheng-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .peizheng-card-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .peizheng-card-layout {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .peizheng-card-top-section {
+            flex: 9;
+            min-height: 0;
+            display: flex;
+            flex-direction: row;
+            padding: 8px;
+            gap: 10px;
+            background: #fffef5;
+            overflow: hidden;
+        }
+
+        .peizheng-card-left {
+            flex: 0.8;
+            background: #fffef5;
+            padding: 0 8px 10px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            border-radius: 12px;
+            min-height: 0;
+        }
+
+        .peizheng-card-right {
+            flex: 1.2;
+            background: #fffef5;
+            padding: 10px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            border-left: 1px solid #e8d5a8;
+            border-radius: 1px;
+            gap: 12px;
+            min-height: 0;
+        }
+
+        .peizheng-card-bottom-section {
+            flex: 1;
+            min-height: 0;
+            padding: 8px 12px;
+            background: #fffef5;
+            border-top: 2px solid #e8d5a8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .peizheng-pcps-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #fff3e0;
+            padding: 1px;
+            object-fit: contain;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .peizheng-pcps-logo:hover {
+            transform: scale(1.02);
+        }
+
+        .peizheng-year-logo {
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            object-fit: contain;
+            filter: none;
+            opacity: 0.85;
+            margin: 5px 0;
+            transition: transform 0.2s;
+        }
+
+        .peizheng-year-logo:hover {
+            transform: scale(1.02);
+        }
+
+        .peizheng-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3d2a1a;
+            text-align: center;
+            letter-spacing: 3px;
+            text-shadow: none;
+            font-family: "KaiTi", "楷体", "Microsoft YaHei", serif;
+            margin: 0px 0 0px;
+            word-break: keep-all;
+        }
+
+        .peizheng-qr-wrapper {
+            background: white;
+            padding: 5px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .peizheng-qrcode {
+            width: 120px;
+            height: 120px;
+            display: block;
+        }
+
+        .peizheng-nft-display {
+            background: #fff5e0;
+            border-radius: 8px;
+            padding: 1px 1px;
+            font-family: monospace;
+            font-size: 10px;
+            line-height: 1.4;
+            color: #3a2c1f;
+            word-break: break-all;
+            text-align: center;
+            border: 1px solid #e2cfaa;
+            max-height: 130px;
+            overflow-y: auto;
+            width: 100%;
+            margin-top: 7px;
+        }
+
+        .peizheng-nft-transaction-btn {
+            background: linear-gradient(135deg, #b8860b, #8b6508);
+            color: #000000;
+            border: none;
+            padding: 1px 1px;
+            padding-left: 30px;
+            padding-right: 30px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+        }
+
+        .peizheng-nft-transaction-btn:hover {
+            background: linear-gradient(135deg, #9a6e0a, #6b4f06);
+            transform: scale(0.98);
+            color: #000000;
+        }
+
+        /* ========== 移动端适配 - 整体缩放，不改变布局 ========== */
+        @media (max-width: 768px) {
+            .peizheng-card {
+                max-width: 300px;
+                aspect-ratio: 1 / 1;
+                overflow: hidden;
+                /* 整体缩小到80%，适应手机屏幕 */
+                transform: scale(0.8);
+                transform-origin: center center;
+            }
+
+            .peizheng-card:hover {
+                transform: scale(0.8) translateY(-4px);
+            }
+
+            /* 内部布局完全保持不变，不修改任何内边距、尺寸、字体 */
+            .peizheng-card-top-section {
+                padding: 8px;
+                gap: 10px;
+            }
+
+            .peizheng-card-left {
+                padding: 0 8px 10px 8px;
+                gap: 12px;
+            }
+
+            .peizheng-card-right {
+                padding: 10px 8px;
+                gap: 12px;
+            }
+
+            .peizheng-pcps-logo {
+                width: 100px;
+                height: 100px;
+            }
+
+            .peizheng-year-logo {
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            .peizheng-name {
+                font-size: 1.5rem;
+                letter-spacing: 3px;
+            }
+
+            .peizheng-qrcode {
+                width: 120px;
+                height: 120px;
+            }
+
+            .peizheng-nft-display {
+                font-size: 11px;
+                max-height: 130px;
+            }
+
+            .peizheng-nft-transaction-btn {
+                font-size: 1.8rem;
+                padding-left: 30px;
+                padding-right: 30px;
+            }
+
+            .peizheng-card-bottom-section {
+                padding: 8px 12px;
+            }
+        }
+
+        /* 针对更小屏幕进一步缩小 */
+        @media (max-width: 420px) {
+            .peizheng-card {
+                transform: scale(0.68);
+                transform-origin: center center;
+            }
+
+            .peizheng-card:hover {
+                transform: scale(0.68) translateY(-4px);
+            }
+        }
+
+        @media (max-width: 360px) {
+            .peizheng-card {
+                transform: scale(0.58);
+                transform-origin: center center;
+            }
+
+            .peizheng-card:hover {
+                transform: scale(0.58) translateY(-4px);
+            }
+        }
+
+        .platform-values {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .value-card {
+            background: #fafafa;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: 1px solid #eee;
+        }
+
+        .value-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent-color);
+        }
+
+        .value-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .value-card h3 i {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+
+        .footer a {
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .scan-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scan-container {
+            width: 90%;
+            max-width: 900px;
+            background: #0a1929;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            border: 2px solid #0096C7;
+            box-shadow: 0 0 40px rgba(0, 150, 199, 0.5);
+        }
+
+        .scan-container h3 {
+            color: #89f8e8;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        #scan-video {
+            width: 100%;
+            border-radius: 10px;
+            margin: 15px 0;
+            background: #000;
+            border: 2px solid #0088aa;
+        }
+
+        .close-scan {
+            background: linear-gradient(45deg, #d84360, #910209);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .close-scan:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(145, 2, 9, 0.6);
+        }
+
+        #scan-result {
+            margin-top: 15px;
+            color: #89f8e8;
+            font-size: 1.2rem;
+            min-height: 30px;
+        }
+
+        .input-section {
+            padding: 5px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .section-intro {
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        h4 {
+            margin: 1.8rem 0 0.8rem;
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            font-weight: 600;
+            border-left: 3px solid var(--accent-color);
+            padding-left: 0.5rem;
+        }
+
+        .core-concepts,
+        .platform-features {
+            margin-left: 1rem;
+            line-height: 1.8;
+            font-size: 1.6rem;
+        }
+
+        .nft-ecosystem li {
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+
+        .vision {
+            font-size: 1.7rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2px;
+            }
+
+            .nav {
+                flex-direction: row;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .bxt {
+                font-size: 1.3rem;
+            }
+
+            .btn {
+                width: 100px;
+                height: 60px;
+                font-size: 1.2rem;
+                padding: 5px 5px;
+                line-height: 36px;
+            }
+
+            .content {
+                padding: 25px 15px;
+            }
+
+            h2 {
+                font-size: 1.6rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+
+            .image-section {
+                flex-direction: column;
+            }
+
+            .image-caption {
+                font-size: 1.4rem;
+            }
+
+            .vision {
+                font-size: 1.0rem;
+            }
+
+            .platform-features {
+                font-size: 1.0rem;
+            }
+
+            .core-concepts {
+                font-size: 1.0rem;
+            }
+
+            .section-intro {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* 加载动画 */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+        }
+
+        .retry-btn {
+            background: #4cb7db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 15px;
+        }
+
+        .retry-btn:hover {
+            background: #3a9bc7;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>港大道</h1>
+    </div>
+
+    <div class="container">
+        <!-- 移除了历届级社按钮，卡片显示在此位置 -->
+        <div class="nav">
+            <!-- 培正道卡片 - 移到按钮位置 -->
+            <div class="peizheng-card-section" id="peizheng-card-container" style="margin: 0;">
+                <div class="peizheng-card" id="peizheng-card" style="display: none;" onclick="window.location.href='/xingshi.html'">
+                    <div class="peizheng-card-layout">
+                        <div class="peizheng-card-top-section">
+                            <div class="peizheng-card-left">
+                                <img src="/image/pcps_log.png" class="peizheng-pcps-logo" alt="港大" onerror="this.style.display='none'">
+                                <img src="/image/1973_log.png" class="peizheng-year-logo" alt="1973" onerror="this.style.display='none'">
+                                <div id="peizheng-name" class="peizheng-name">港大道</div>
+                            </div>
+                            <div class="peizheng-card-right">
+                                <div class="peizheng-qr-wrapper">
+                                    <div id="peizheng-qrcode" class="peizheng-qrcode"></div>
+                                </div>
+                                <div id="peizheng-nft-display" class="peizheng-nft-display"></div>
+                            </div>
+                        </div>
+                        <div class="peizheng-card-bottom-section">
+                            <div class="button-section">
+                                <button class="peizheng-nft-transaction-btn" onclick="handlePeizhengTransaction(event)">
+                                    港大DAO-NFT
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="peizheng-loading" class="loading-container" style="text-align: center; padding: 40px; display: none;">
+                    <div class="loader"></div>
+                    <p style="margin-top:20px;color:#3498db;font-size:18px;">正在加载港大道数据...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="search-status" style="
+            padding: 0px 15px; 
+            background: #f0f0f0; 
+            color: #333; 
+            font-size: 0.9rem;
+            text-align: center;
+        "></div>
+
+        <div class="search-container">
+            <form id="search-form">
+                <input type="text" placeholder="搜索姓氏" id="search-input" style="display: none;">
+            </form>
+        </div>
+
+        <main class="content">
+            <div class="highlight">
+                <p class="section-intro">
+                    <!-- <strong>香港培正中学:</strong> 晚清政局不稳，国难深重，兴学救国，势之所趋。 培正便是在这背景下，中国第一所由华人信徒自行筹建，不依赖外国传道会的本色化学校。 -->
+                </p>
+            </div>
+
+            <div class="image-section">
+                <div class="image-card">
+                    <div class="image-caption">学校</div>
+                    <div class="image-container">
+                        <img src="./image/banner3.png" alt="照片">
+                    </div>
+                    <div class="image-caption">校徽</div>
+                    <div class="image-container">
+                        <img src="./image/pcps_log.png" alt="">
+                    </div>
+                 
+                    <div class="image-description">
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="footer">
+        </div>
+    </div>
+
+    <!-- 扫码模态框 -->
+    <div class="scan-modal" id="scan-modal">
+        <div class="scan-container">
+            <h3>扫描姓氏NFT二维码</h3>
+            <video id="scan-video" playsinline></video>
+            <div id="scan-result">准备扫描...</div>
+            <button class="close-scan" id="close-scan">关闭扫描</button>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript代码保持不变
+        let nftCardsData = [];
+
+        function debounce(func, wait = 100) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        async function fetchNftCards() {
+            try {
+                const response = await fetch('/nft-cards');
+                nftCardsData = await response.json();
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                const nameParam = urlParams.get('name');
+                const cardNumberParam = urlParams.get('card_number');
+                const nftParam = urlParams.get('nft');
+
+                if (nameParam || cardNumberParam || nftParam) {
+                    let query = nameParam || cardNumberParam || nftParam;
+                    document.getElementById('search-input').value = query;
+                    searchNftCards(query);
+                }
+            } catch (error) {
+                console.error('Error loading NFT cards:', error);
+            }
+        }
+
+        const searchNftCards = debounce(function (query) {
+            const statusElement = document.getElementById('search-status');
+
+            if (!query) {
+                statusElement.textContent = '显示全部姓氏NFT';
+                return;
+            }
+
+            statusElement.textContent = `搜索: "${query}"`;
+
+            const results = nftCardsData.filter(card => {
+                if (card.name.toLowerCase().includes(query.toLowerCase())) return true;
+                if (card.card_number.toString() === query) return true;
+                const cleanNFT = card.nft.replace(/\s+/g, '');
+                if (cleanNFT.includes(query.replace(/\s+/g, ''))) return true;
+                return false;
+            });
+
+            if (results.length === 1) {
+                statusElement.innerHTML = `找到1个匹配结果，自动跳转到 <strong>${results[0].name}</strong> 姓氏...`;
+                setTimeout(() => {
+                    window.location.href = `/introduce/baijx/name.html?name=${encodeURIComponent(results[0].name)}&card_number=${results[0].card_number}`;
+                }, 10);
+            }
+        }, 30);
+
+        let scanning = false;
+        let stream = null;
+        const scanModal = document.getElementById('scan-modal');
+        const scanVideo = document.getElementById('scan-video');
+        const scanResult = document.getElementById('scan-result');
+        let notEnoughDataCount = 0;
+        const MAX_NOT_ENOUGH_DATA_COUNT = 10;
+        let scanCanvas = null;
+
+        document.getElementById('scan-btn')?.addEventListener('click', () => {
+            scanModal.style.display = 'flex';
+            startScanning();
+        });
+
+        document.getElementById('close-scan').addEventListener('click', () => {
+            stopScanning();
+            scanModal.style.display = 'none';
+        });
+
+        async function startScanning() {
+            try {
+                scanning = true;
+                scanResult.textContent = '正在准备高清摄像头...';
+
+                const highResConstraints = {
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 4096, max: 4096 },
+                        height: { ideal: 2160, max: 2160 },
+                        advanced: [{ focusMode: 'continuous' }]
+                    }
+                };
+
+                const midResConstraints = {
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1920, min: 1280 },
+                        height: { ideal: 1080, min: 720 },
+                        advanced: [{ focusMode: 'continuous' }]
+                    }
+                };
+
+                const basicConstraints = {
+                    video: {
+                        facingMode: 'environment',
+                        width: { min: 640, ideal: 1280 },
+                        height: { min: 480, ideal: 720 }
+                    }
+                };
+
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia(highResConstraints);
+                    const settings = stream.getVideoTracks()[0].getSettings();
+                    console.log(`获得高清分辨率: ${settings.width}x${settings.height}`);
+                } catch (highResError) {
+                    console.log('无法获取4K分辨率，尝试1080p...');
+                    try {
+                        stream = await navigator.mediaDevices.getUserMedia(midResConstraints);
+                        const settings = stream.getVideoTracks()[0].getSettings();
+                        console.log(`获得中等分辨率: ${settings.width}x${settings.height}`);
+                    } catch (midResError) {
+                        console.log('无法获取1080p分辨率，使用默认分辨率...');
+                        stream = await navigator.mediaDevices.getUserMedia(basicConstraints);
+                        const settings = stream.getVideoTracks()[0].getSettings();
+                        console.log(`获得基本分辨率: ${settings.width}x${settings.height}`);
+                    }
+                }
+
+                const track = stream.getVideoTracks()[0];
+                const settings = track.getSettings();
+                scanResult.textContent = `摄像头已启用 (${settings.width}x${settings.height})`;
+                console.log(`获得分辨率: ${settings.width}x${settings.height}`);
+
+                scanVideo.srcObject = stream;
+                await scanVideo.play();
+
+                try {
+                    if ('applyConstraints' in track) {
+                        await track.applyConstraints({
+                            advanced: [{ focusMode: 'continuous' }]
+                        });
+                        console.log('连续自动对焦已启用');
+                    }
+                } catch (focusError) {
+                    console.log('无法设置自动对焦:', focusError);
+                }
+
+                requestAnimationFrame(scanQRCode);
+
+            } catch (error) {
+                scanResult.textContent = `摄像头错误: ${error.message}`;
+                scanning = false;
+            }
+        }
+
+        function stopScanning() {
+            scanning = false;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+        }
+
+        function scanQRCode() {
+            if (!scanning) return;
+
+            try {
+                if (scanVideo.readyState !== scanVideo.HAVE_ENOUGH_DATA) {
+                    notEnoughDataCount++;
+
+                    if (notEnoughDataCount > MAX_NOT_ENOUGH_DATA_COUNT) {
+                        scanResult.textContent = '无法获取视频数据，请检查摄像头权限或调整位置';
+                        scanning = false;
+                        return;
+                    }
+
+                    requestAnimationFrame(scanQRCode);
+                    return;
+                }
+
+                notEnoughDataCount = 0;
+
+                if (!scanCanvas) {
+                    scanCanvas = document.createElement('canvas');
+                }
+
+                const scale = 0.5;
+                scanCanvas.width = scanVideo.videoWidth * scale;
+                scanCanvas.height = scanVideo.videoHeight * scale;
+
+                const ctx = scanCanvas.getContext('2d');
+                ctx.drawImage(scanVideo, 0, 0, scanCanvas.width, scanCanvas.height);
+
+                const imageData = ctx.getImageData(0, 0, scanCanvas.width, scanCanvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: 'dontInvert',
+                });
+
+                if (code) {
+                    let scannedText = code.data;
+                    scannedText = scannedText.replace(/\s+/g, '');
+
+                    const searchInput = document.getElementById('search-input');
+                    searchInput.value = scannedText;
+                    searchNftCards(scannedText);
+
+                    stopScanning();
+                    scanModal.style.display = 'none';
+                } else {
+                    scanResult.textContent = `扫描中... (${scanCanvas.width}x${scanCanvas.height})`;
+                    requestAnimationFrame(scanQRCode);
+                }
+            } catch (err) {
+                console.error('扫描出错:', err);
+                scanResult.textContent = `扫描错误: ${err.message}`;
+                scanning = false;
+            }
+        }
+
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            searchNftCards(query);
+        });
+
+        fetchNftCards();
+
+        window.addEventListener('resize', debounce(() => {
+            document.body.style.transform = 'translateZ(0)';
+            requestAnimationFrame(() => {
+                document.body.style.transform = 'none';
+            });
+        }, 200));
+
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === '/') {
+                e.preventDefault();
+                document.getElementById('search-input').focus();
+            }
+
+            if (e.key === 'Escape' && scanModal.style.display === 'flex') {
+                stopScanning();
+                scanModal.style.display = 'none';
+            }
+        });
+
+        const searchInput = document.getElementById('search-input');
+        searchInput.addEventListener('focus', () => {
+            searchInput.placeholder = "输入姓氏、编号或NFT码...";
+        });
+
+        searchInput.addEventListener('blur', () => {
+            searchInput.placeholder = "输入姓氏、编号或NFT码...";
+        });
+        
+        function goBack() {
+            window.history.back();
+        }
+
+        // ========== 培正道卡片数据加载 ==========
+        let peizhengData = null;
+
+        // 格式化NFT显示
+        function formatNftDisplay(nft) {
+            if (!nft) return '暂无NFT数据';
+            return nft.match(/.{1,16}/g).join('<br>');
+        }
+
+        // 获取响应式二维码尺寸
+        function getResponsiveQrSize() {
+            if (window.innerWidth <= 480) return 130;
+            if (window.innerWidth <= 768) return 120;
+            return 120;
+        }
+
+        // 加载培正道数据
+        async function loadPeizhengData() {
+            const cardContainer = document.getElementById('peizheng-card');
+            const loadingDiv = document.getElementById('peizheng-loading');
+            
+            try {
+                loadingDiv.style.display = 'block';
+                cardContainer.style.display = 'none';
+                
+                // 读取 peizheng.json
+                const response = await fetch('/nft/data/peizheng.json');
+                if (!response.ok) {
+                    throw new Error('无法加载培正道数据');
+                }
+                peizhengData = await response.json();
+                
+                // 更新卡片内容
+                const nameElement = document.getElementById('peizheng-name');
+                const nftDisplayElement = document.getElementById('peizheng-nft-display');
+                
+                nameElement.textContent = peizhengData.name || '港大道';
+                nftDisplayElement.innerHTML = formatNftDisplay(peizhengData.hash);
+                
+                // 生成二维码
+                const qrSize = getResponsiveQrSize();
+                const qrContent = peizhengData.shortlink?.trim() || peizhengData.hash?.trim() || '';
+                const qrContainer = document.getElementById('peizheng-qrcode');
+                
+                if (qrContent) {
+                    qrContainer.innerHTML = '';
+                    new QRCode(qrContainer, {
+                        text: qrContent,
+                        width: qrSize,
+                        height: qrSize,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+                    const canvasElem = qrContainer.querySelector('canvas');
+                    if (canvasElem) {
+                        canvasElem.style.width = `${qrSize}px`;
+                        canvasElem.style.height = `${qrSize}px`;
+                        canvasElem.style.maxWidth = `${qrSize}px`;
+                        canvasElem.style.margin = '0 auto';
+                        canvasElem.style.display = 'block';
+                    }
+                } else {
+                    qrContainer.innerHTML = `<div style="width:${qrSize}px;height:${qrSize}px;display:flex;align-items:center;justify-content:center;background:#f0f0f0;color:#999;font-size:12px;text-align:center;">无码</div>`;
+                }
+                
+                loadingDiv.style.display = 'none';
+                cardContainer.style.display = 'block';
+                
+            } catch (error) {
+                console.error('加载培正道数据失败:', error);
+                loadingDiv.innerHTML = `<div style="text-align:center;padding:40px;"><h3>加载失败</h3><p>${error.message}</p><button class="retry-btn" onclick="loadPeizhengData()" style="margin-top:20px;padding:10px 20px;background:#5bc0de;color:#fff;border:none;border-radius:5px;cursor:pointer;">重试</button></div>`;
+            }
+        }
+
+        // 处理培正道NFT交易按钮点击 - 跳转到 peizheng_ti_log.html
+        function handlePeizhengTransaction(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            // 跳转到 peizheng_ti_log.html
+            window.location.href = 'xingshi.html';
+        }
+
+        // 响应窗口尺寸变化重新生成二维码
+        let peizhengResizeTimer;
+        window.addEventListener('resize', function() {
+            if (peizhengResizeTimer) clearTimeout(peizhengResizeTimer);
+            peizhengResizeTimer = setTimeout(() => {
+                if (peizhengData && document.getElementById('peizheng-card').style.display !== 'none') {
+                    const qrSize = getResponsiveQrSize();
+                    const qrContent = peizhengData.shortlink?.trim() || peizhengData.hash?.trim() || '';
+                    const qrContainer = document.getElementById('peizheng-qrcode');
+                    if (qrContent && qrContainer) {
+                        qrContainer.innerHTML = '';
+                        new QRCode(qrContainer, {
+                            text: qrContent,
+                            width: qrSize,
+                            height: qrSize,
+                            colorDark: '#000000',
+                            colorLight: '#ffffff',
+                            correctLevel: QRCode.CorrectLevel.L
+                        });
+                        const canvasElem = qrContainer.querySelector('canvas');
+                        if (canvasElem) {
+                            canvasElem.style.width = `${qrSize}px`;
+                            canvasElem.style.height = `${qrSize}px`;
+                            canvasElem.style.maxWidth = `${qrSize}px`;
+                        }
+                    }
+                }
+            }, 200);
+        });
+
+        // 页面加载完成后加载培正道数据
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPeizhengData();
+        });
+    </script>
+</body>
+
+</html>

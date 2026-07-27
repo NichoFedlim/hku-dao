@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>百姓道 · 登录</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      font-family: "Microsoft YaHei", sans-serif;
+      display: flex;
+      height: 100vh;
+      align-items: center;
+      justify-content: center
+    }
+
+    .box {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
+      padding: 40px;
+      width: 320px;
+      text-align: center
+    }
+
+    h2 {
+      margin-bottom: 25px;
+      color: #c00
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 15px
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #910209;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer
+    }
+
+    button:disabled {
+      background: #999
+    }
+
+    .err {
+      color: #d93025;
+      font-size: 14px;
+      margin-top: 10px
+    }
+
+    .succ {
+      color: #188038;
+      font-size: 14px;
+      margin-top: 10px
+    }
+
+    .logout-btn {
+      background: #666;
+      margin-top: 15px
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <h2 id="title">百姓道登录</h2>
+    <div id="panel">
+      <input id="account" type="text" placeholder="手机号 例：+8613812345600" />
+      <input id="password" type="password" placeholder="密码" />
+      <button id="btn" onclick="login()">登 录</button>
+    </div>
+    <button id="logoutBtn" class="logout-btn" style="display:none" onclick="logout()">退出登录</button>
+    <div id="tip"></div>
+  </div>
+
+  <script>
+    const WALLET_API = 'http://localhost:5008/login';
+    function logout() {
+      ['bxd_wallet', 'bxd_account', 'bxd_name', 'bxd_ts_result'].forEach(k => localStorage.removeItem(k));
+      location.reload();
+    }
+    function checkLogin() {
+      if (localStorage.getItem('bxd_wallet')) {
+        document.getElementById('title').textContent = '已登录';
+        document.getElementById('panel').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'block';
+        setTimeout(() => location.href = 'user.html', 600);
+      }
+    }
+    checkLogin();
+
+    async function login() {
+      const tip = document.getElementById('tip'), btn = document.getElementById('btn');
+      const account = document.getElementById('account').value.trim();
+      const password = document.getElementById('password').value.trim();
+      if (!account || !password) { tip.innerHTML = '<p class="err">请填写完整</p>'; return; }
+      tip.innerHTML = ''; btn.disabled = true;
+      try {
+        const r = await fetch(WALLET_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ account, password }) });
+        const j = await r.json();
+        if (!j.ok) { tip.innerHTML = `<p class="err">${j.msg}</p>`; return; }
+        localStorage.setItem('bxd_wallet', j.wallet);
+        localStorage.setItem('bxd_account', account);
+        localStorage.setItem('bxd_name', j.name);
+        localStorage.setItem('bxd_ts_result', j.ts_result);
+        tip.innerHTML = `<p class="succ">登录成功！钱包：${j.wallet}</p>`;
+        setTimeout(() => location.href = 'user.html', 800);
+      } catch (e) { tip.innerHTML = '<p class="err">网络错误</p>'; }
+      finally { btn.disabled = false; }
+    }
+  </script>
+</body>
+
+</html>
