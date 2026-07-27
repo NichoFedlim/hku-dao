@@ -1,6 +1,12 @@
 // ============================================================
-// I18N SYSTEM
+// ti_log.js – Transaction Log Logic
 // ============================================================
+
+// ===== USE MOCK DATA FOR DEVELOPMENT =====
+const USE_MOCK_DATA = true; // Set to false when backend is ready
+
+
+// ===== I18N =====
 const LOCALES = {
     en: '/nft/locales/en.json',
     zh: '/nft/locales/zh.json'
@@ -32,10 +38,6 @@ function applyTranslations() {
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         el.textContent = t(key);
-    });
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-        const key = el.getAttribute('data-i18n-placeholder');
-        el.placeholder = t(key);
     });
     document.title = t('log_title') || 'Transaction Log';
 }
@@ -150,24 +152,24 @@ function jsSHA256(input) {
 }
 
 // ============================================================
-// FORMATTING FUNCTIONS
+// FORMATTING
 // ============================================================
 function formatChainShort(chain) {
-    const displayLength = 4;
-    return chain ? chain.slice(0, displayLength) + '...' : '未知';
+    if (!chain) return '—';
+    return chain.slice(0, 6) + '…' + chain.slice(-4);
 }
 
 function formatWalletShort(wallet) {
-    if (!wallet) return '未知';
-    if (wallet.length <= 8) return wallet;
-    return wallet.slice(0, 4) + '***' + wallet.slice(-4);
+    if (!wallet) return '—';
+    if (wallet.length <= 10) return wallet;
+    return wallet.slice(0, 4) + '…' + wallet.slice(-4);
 }
 
 // ============================================================
-// AUTH CODE FUNCTIONS
+// AUTH CODE
 // ============================================================
 function calculateAuthCode(log) {
-    const displayData = 
+    const displayData =
         `${log.thread}\t` +
         `${log.time}\t` +
         `￥${log.price}\t` +
@@ -178,94 +180,276 @@ function calculateAuthCode(log) {
     return jsSHA256(displayData);
 }
 
+let currentAuthCode = '';
+
 function showFullAuthCode(fullCode) {
+    currentAuthCode = fullCode;
     document.getElementById('authCodeFullText').textContent = fullCode;
     document.getElementById('authCodeModal').style.display = 'block';
+    // Reset copy button
+    const btn = document.getElementById('copyAuthBtn');
+    btn.textContent = t('copy') || 'Copy to Clipboard';
+    btn.classList.remove('copied');
+    document.body.style.overflow = 'hidden';
 }
 
 function closeAuthCodeModal() {
     document.getElementById('authCodeModal').style.display = 'none';
+    document.body.style.overflow = '';
 }
 
 function copyAuthCode() {
-    const authCodeText = document.getElementById('authCodeFullText').textContent;
-    navigator.clipboard.writeText(authCodeText).then(() => {
-        alert('认证码已复制到剪贴板！');
-    }).catch(err => {
-        console.error('复制失败:', err);
-        alert('复制失败，请手动复制');
+    const text = document.getElementById('authCodeFullText').textContent;
+    const btn = document.getElementById('copyAuthBtn');
+
+    navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = '✅ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.textContent = t('copy') || 'Copy to Clipboard';
+            btn.classList.remove('copied');
+        }, 2000);
+    }).catch(() => {
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        btn.textContent = '✅ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.textContent = t('copy') || 'Copy to Clipboard';
+            btn.classList.remove('copied');
+        }, 2000);
+    });
+}
+// ============================================================
+// MOCK DATA GENERATOR
+// ============================================================
+function generateMockTransactions() {
+    const now = new Date();
+    const mockWallets = [
+        '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b',
+        '0x9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b',
+        '0x5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4',
+        '0x3f4e5d6c7b8a9f0e1d2c3b4a5f6e7d8c9b0a1f2'
+    ];
+    const names = ['Architecture', 'Engineering', 'Medicine', 'Law', 'Business', 'Science'];
+
+    const mockLogs = [];
+    const numThreads = 12;
+
+    for (let i = 1; i <= numThreads; i++) {
+        const date = new Date(now);
+        date.setDate(now.getDate() - Math.floor(Math.random() * 30));
+        date.setHours(Math.floor(Math.random() * 24), Math.floor(Math.random() * 60), 0);
+
+        const seller = mockWallets[Math.floor(Math.random() * mockWallets.length)];
+        let buyer = mockWallets[Math.floor(Math.random() * mockWallets.length)];
+        // Ensure buyer !== seller
+        while (buyer === seller) {
+            buyer = mockWallets[Math.floor(Math.random() * mockWallets.length)];
+        }
+
+        const price = Math.floor(Math.random() * 500) + 50;
+
+        // Generate chain hash (64 hex chars)
+        const chain = Array.from({ length: 64 }, () =>
+            '0123456789ABCDEF'[Math.floor(Math.random() * 16)]
+        ).join('');
+
+        const nextChain = Array.from({ length: 64 }, () =>
+            '0123456789ABCDEF'[Math.floor(Math.random() * 16)]
+        ).join('');
+
+        mockLogs.push({
+            thread: i,
+            time: date.toISOString().replace('T', ' ').slice(0, 16),
+            price: price,
+            seller: seller,
+            buyer: buyer,
+            chain: chain,
+            next_chain: nextChain
+        });
+    }
+
+    // Sort by thread
+    mockLogs.sort((a, b) => a.thread - b.thread);
+
+    return {
+        log: mockLogs,
+        nft_holder: {
+            wallet: '0xa1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4',
+            telephone: '+852 9123 4567',
+            email: 'holder@hku.hk',
+            other: 'Current NFT holder'
+        }
+    };
+}
+
+// ============================================================
+// DATA LOADING – Unified (with Mock Fallback)
+// ============================================================
+async function fetchData() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const level = urlParams.get('level') || 'surname';
+    const id = urlParams.get('id');
+    const name = decodeURIComponent(urlParams.get('name') || '');
+    const cardNumber = urlParams.get('card_number');
+
+    const loadingEl = document.getElementById('loading-state');
+    const tableWrapper = document.getElementById('table-wrapper');
+    const emptyEl = document.getElementById('empty-state');
+    const errorEl = document.getElementById('error-state');
+    const totalEl = document.getElementById('log-total');
+    const badgeEl = document.getElementById('log-level-badge');
+
+    loadingEl.style.display = 'block';
+    tableWrapper.style.display = 'none';
+    emptyEl.style.display = 'none';
+    errorEl.style.display = 'none';
+
+    let levelDisplay = '';
+
+    // Determine level display name
+    if (level === 'surname' || level === 'category') {
+        levelDisplay = 'Category';
+    } else if (level === 'citang' || level === 'subcategory') {
+        levelDisplay = 'Subcategory';
+    } else if (level === 'member' || level === 'item') {
+        levelDisplay = 'Item';
+    } else {
+        levelDisplay = 'All';
+    }
+    badgeEl.textContent = `Level: ${levelDisplay}`;
+
+    try {
+        let data = null;
+
+        // Try to fetch from API first
+        if (!USE_MOCK_DATA) {
+            let endpoint = '';
+            if (level === 'surname' && cardNumber) {
+                endpoint = `/ti-log/${cardNumber}?surname=${encodeURIComponent(name)}`;
+            } else if (level === 'citang' && id) {
+                endpoint = `/api/citang/log?citang_id=${id}`;
+            } else if (level === 'member' && id) {
+                endpoint = `/api/member/log?member_id=${id}`;
+            } else if (cardNumber) {
+                endpoint = `/ti-log/${cardNumber}?surname=${encodeURIComponent(name)}`;
+            } else {
+                throw new Error('Missing parameters');
+            }
+
+            const response = await fetch(endpoint);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            data = await response.json();
+        } else {
+            // Use mock data
+            console.log('📦 Using mock transaction data for development');
+            data = generateMockTransactions();
+
+            // Show notice
+            const notice = document.createElement('div');
+            notice.style.cssText = 'text-align:center;padding:8px;background:#fff3cd;color:#856404;border-radius:4px;margin-bottom:12px;font-size:0.9rem;';
+            notice.textContent = '⚠️ Using mock data (backend API not available)';
+            const header = document.querySelector('.log-header');
+            header.insertAdjacentElement('afterend', notice);
+        }
+
+        const logs = data.log || [];
+
+        if (logs.length === 0) {
+            loadingEl.style.display = 'none';
+            emptyEl.style.display = 'block';
+            return;
+        }
+
+        loadingEl.style.display = 'none';
+        tableWrapper.style.display = 'block';
+        renderTransactions(logs);
+        totalEl.textContent = `Total: ${logs.length} records`;
+
+    } catch (err) {
+        console.error('Failed to load log:', err);
+        loadingEl.style.display = 'none';
+
+        // If using mock data and failed, still show mock
+        if (USE_MOCK_DATA) {
+            console.log('🔄 Attempting mock data fallback...');
+            try {
+                const mockData = generateMockTransactions();
+                const logs = mockData.log || [];
+                if (logs.length > 0) {
+                    tableWrapper.style.display = 'block';
+                    renderTransactions(logs);
+                    totalEl.textContent = `Total: ${logs.length} records (mock)`;
+                    return;
+                }
+            } catch (mockErr) {
+                console.error('Mock fallback failed:', mockErr);
+            }
+        }
+
+        showError(err.message);
+    }
+}
+
+function showError(message) {
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('error-state').style.display = 'block';
+    document.getElementById('error-message').textContent = message;
+}
+
+function renderTransactions(logs) {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+
+    const sorted = [...logs].sort((a, b) => (a.thread || 0) - (b.thread || 0));
+
+    sorted.forEach(log => {
+        const authCode = calculateAuthCode(log);
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td>${log.thread || '—'}</td>
+            <td>${log.time || '—'}</td>
+            <td>￥${log.price || 0}</td>
+            <td>${formatWalletShort(log.seller)}</td>
+            <td>${formatWalletShort(log.buyer)}</td>
+            <td><span class="hash-short">${formatChainShort(log.chain)}</span></td>
+            <td>
+                <button class="auth-code-btn" onclick="showFullAuthCode('${authCode}')">
+                    ${formatChainShort(authCode)}
+                </button>
+                <button class="view-btn" onclick="showFullAuthCode('${authCode}')">View</button>
+            </td>
+        `;
+
+        tbody.appendChild(row);
     });
 }
 
 // ============================================================
-// NAVIGATION FUNCTIONS
+// NAVIGATION
 // ============================================================
 function goBack() {
     window.history.back();
 }
 
-function goToPreviousPage() {
-    window.history.back();
-}
-
-function goToHomePage() {
-    window.location.href = 'index_main.html';
-}
-
 // ============================================================
-// DATA LOADING
+// KEYBOARD SHORTCUTS
 // ============================================================
-async function fetchData() {
-    try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const name = decodeURIComponent(urlParams.get('name') || '');
-        const card_number = urlParams.get('card_number');
-        
-        if (!card_number) throw new Error('缺少 card_number');
-
-        // Fetch data
-        const logResp = await fetch(`/ti-log/${card_number}?surname=${encodeURIComponent(name)}`);
-        if (!logResp.ok) throw new Error('读取日志接口失败');
-        const { log, nft_holder } = await logResp.json();
-
-        // Render transaction table
-        loadTransactions(log);
-    } catch (err) {
-        console.error(err);
-        document.querySelector('.transaction-count').textContent = '数据加载失败';
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('authCodeModal');
+        if (modal.style.display === 'block') {
+            closeAuthCodeModal();
+        }
     }
-}
-
-function loadTransactions(logs) {
-    const tableBody = document.getElementById('transaction-table').getElementsByTagName('tbody')[0];
-    tableBody.innerHTML = '';
-
-    document.getElementById('transaction-count').textContent = `共 ${logs.length} 条记录`;
-    
-    const sortedLogs = [...logs].sort((a, b) => parseInt(a.thread) - parseInt(b.thread));
-    
-    sortedLogs.forEach(log => {
-        const authCode = calculateAuthCode(log);
-        
-        const row = tableBody.insertRow();
-        row.innerHTML = `
-            <td>${log.thread}</td>
-            <td>${log.time}</td>
-            <td>￥${log.price}</td>
-            <td>${formatWalletShort(log.seller)}</td>
-            <td>${formatWalletShort(log.buyer)}</td>
-            <td>${formatChainShort(log.chain)}</td>
-            <td>
-                <a href="javascript:void(0);" 
-                   class="auth-code-clickable"
-                   onclick="showFullAuthCode('${authCode}')">
-                    ${formatChainShort(authCode)}
-                </a>
-                <button onclick="showFullAuthCode('${authCode}')">查看</button>
-            </td>
-        `;
-    });
-}
+});
 
 // ============================================================
 // INIT
@@ -276,16 +460,14 @@ async function init() {
     fetchData();
 }
 
-// Make functions globally accessible for inline onclick handlers
+// Make functions globally accessible
 window.toggleLanguage = toggleLanguage;
 window.goBack = goBack;
-window.goToPreviousPage = goToPreviousPage;
-window.goToHomePage = goToHomePage;
 window.showFullAuthCode = showFullAuthCode;
 window.closeAuthCodeModal = closeAuthCodeModal;
 window.copyAuthCode = copyAuthCode;
 
-// Modal click outside to close
+// Click outside modal to close
 window.onclick = function(event) {
     const modal = document.getElementById('authCodeModal');
     if (event.target === modal) {

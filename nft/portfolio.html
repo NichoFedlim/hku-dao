@@ -3,37 +3,501 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title data-i18n="portfolio_title">My NFTs</title>
+    <title data-i18n="portfolio_title">My NFTs – HKU DAO</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="shortcut icon" href="image/favicon.png" />
-    
+
     <!-- External Dependencies -->
     <script src="js/qrcode.min.js"></script>
-    
+    <script src="/wallet-auth.js"></script>
+
     <!-- Styles -->
-    <link rel="stylesheet" href="css/portfolio.css" />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+         /* ===== PORTFOLIO-SPECIFIC STYLES ===== */
+        .user-info {
+            background: #e8f5e8;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .user-info .info-item {
+            flex: 1;
+            min-width: 150px;
+        }
+        .user-info .info-item strong {
+            display: block;
+            color: #555;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .user-info .info-item span {
+            font-size: 1rem;
+            color: var(--primary);
+            word-break: break-all;
+        }
+
+        .member-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+            padding: 0 10px 20px;
+        }
+
+        /* ===== CATEGORY TITLE – ORIGINAL STYLE ===== */
+        .category-section {
+            margin: 20px 15px;
+        }
+        .category-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            border-left: 4px solid #910209;
+            padding-left: 10px;
+        }
+
+        /* ===== NFT CARD - HORIZONTAL RECTANGULAR ===== */
+        .card-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+        }
+
+        /* Card body - horizontal layout */
+        .card-body {
+            display: flex;
+            flex-direction: row;
+            padding: 16px 20px;
+            gap: 16px;
+            align-items: stretch;
+            min-height: 180px;
+            background: linear-gradient(135deg, #e8f4f8 0%, #d4e9f0 100%);
+        }
+
+        /* Left side - text info */
+        .card-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4px 0;
+            min-width: 0;
+        }
+        .card-info .card-number-tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #666;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 2px 10px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 4px;
+            align-self: flex-start;
+        }
+        .card-info .card-main-name {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #003153;
+            margin: 2px 0;
+            line-height: 1.2;
+        }
+        .card-info .card-sub-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a4a6b;
+            margin: 1px 0;
+            line-height: 1.2;
+        }
+        .card-info .card-details {
+            font-size: 0.78rem;
+            color: #555;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+        .card-info .card-details span {
+            display: inline-block;
+            margin-right: 12px;
+        }
+        .card-info .card-details .label {
+            color: #888;
+            font-weight: 400;
+        }
+
+        /* Right side - QR code + hash */
+        .card-qr-section {
+            flex: 0 0 130px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .card-qr-section .qr-wrapper {
+            background: #ffffff;
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-qr-section .qr-wrapper .qrcode {
+            width: 100px;
+            height: 100px;
+            display: block;
+        }
+        .card-qr-section .qr-wrapper .qrcode canvas,
+        .card-qr-section .qr-wrapper .qrcode img {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+        }
+        .card-qr-section .nft-hash {
+            font-family: monospace;
+            font-size: 0.5rem;
+            line-height: 1.3;
+            word-break: break-all;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 4px 8px;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 100px;
+            max-height: 40px;
+            overflow-y: auto;
+            color: #555;
+        }
+
+        /* ===== CARD FOOTER ===== */
+        .card-footer-actions {
+            padding: 10px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e8edf2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .card-footer-actions .price-display {
+            font-weight: 600;
+            color: #003153;
+            font-size: 0.9rem;
+        }
+        .card-footer-actions .price-display .rc {
+            color: #cc9f2e;
+        }
+        .card-footer-actions .btn-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .card-footer-actions .btn-group .price-input {
+            width: 90px;
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+        .card-footer-actions .btn-group .price-input:focus {
+            border-color: #cc9f2e;
+            outline: none;
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-sm-sell {
+            background: #28a745;
+            color: white;
+        }
+        .btn-sm-sell:hover {
+            background: #218838;
+        }
+        .btn-sm-cancel {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-sm-cancel:hover {
+            background: #c82333;
+        }
+        .btn-sm-transaction {
+            background: #4cb7db;
+            color: white;
+        }
+        .btn-sm-transaction:hover {
+            background: #3aa3c7;
+        }
+        .btn-sm:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .price-info-tag {
+            background: #fff3cd;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            color: #856404;
+            border-left: 3px solid #ffc107;
+        }
+        .price-info-tag .value {
+            font-weight: 700;
+            color: #e83e8c;
+        }
+
+        /* ===== LOADING / EMPTY ===== */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #3498db;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .loading-indicator {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 0.9rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 20px;
+            border: 1px solid #e0e0e0;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4cb7db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 95%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover { color: black; }
+        .confirm-info-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+        .detail-row {
+            display: flex;
+            margin-bottom: 8px;
+            padding: 6px 8px;
+            background: white;
+            border-radius: 4px;
+        }
+        .detail-row .label {
+            font-weight: bold;
+            min-width: 80px;
+            color: #555;
+        }
+        .detail-row .value {
+            color: #333;
+        }
+        .price-section {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #ffeaa7;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        .confirm-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .confirm-btn:hover { background: #218838; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .member-grid {
+                grid-template-columns: 1fr;
+            }
+            .card-body {
+                flex-direction: row;
+                padding: 14px 16px;
+                gap: 12px;
+                min-height: 160px;
+            }
+            .card-info .card-main-name {
+                font-size: 1.3rem;
+            }
+            .card-info .card-sub-name {
+                font-size: 0.95rem;
+            }
+            .card-qr-section {
+                flex: 0 0 100px;
+            }
+            .card-qr-section .qr-wrapper .qrcode {
+                width: 80px;
+                height: 80px;
+            }
+            .card-qr-section .nft-hash {
+                max-width: 80px;
+                font-size: 0.45rem;
+            }
+            .card-footer-actions {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            .card-footer-actions .btn-group {
+                justify-content: center;
+            }
+            .card-footer-actions .btn-group .price-input {
+                width: 70px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card-body {
+                flex-direction: column;
+                align-items: center;
+                min-height: auto;
+                padding: 16px;
+            }
+            .card-info {
+                align-items: center;
+                text-align: center;
+            }
+            .card-info .card-number-tag {
+                align-self: center;
+            }
+            .card-qr-section {
+                flex: 0 0 auto;
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+            }
+            .card-qr-section .qr-wrapper .qrcode {
+                width: 80px;
+                height: 80px;
+            }
+            .card-qr-section .nft-hash {
+                max-width: 100px;
+                font-size: 0.5rem;
+            }
+            .card-footer-actions .btn-group {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .card-footer-actions .btn-group .price-input {
+                width: 80px;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <!-- ===== HEADER ===== -->
     <header class="header">
         <div class="header-inner container">
-            <h1 class="logo" onclick="window.location.href='/'">Gang Da Dao</h1>
+            <h1 class="logo" onclick="window.location.href='/'">港大道 - Gang Da Dao</h1>
             <nav class="nav">
                 <button class="nav-btn" data-i18n="nav_market" onclick="window.location.href='/nft/NFT_market.html'">NFT Market</button>
                 <button class="nav-btn" data-i18n="nav_categories" onclick="window.location.href='/nft/categories.html'">Categories</button>
                 <button class="nav-btn" id="lang-switch" onclick="toggleLanguage()">中文</button>
-                <button class="nav-btn" onclick="logout()" data-i18n="logout">Logout</button>
+                <button class="nav-btn" onclick="performLogout()" data-i18n="logout">Logout</button>
             </nav>
         </div>
     </header>
 
     <!-- ===== USER INFO ===== -->
-    <div class="user-info">
-        <h3 data-i18n="user_info">User Info</h3>
-        <div><strong data-i18n="name_label">Name:</strong> <span id="displayUserName"></span></div>
-        <div><strong data-i18n="phone_label">Phone:</strong> <span id="displayPhone"></span></div>
-        <div><strong data-i18n="wallet_label">Wallet:</strong> <span id="displayWallet"></span></div>
+    <div class="user-info" id="user-info">
+        <div class="info-item">
+            <strong data-i18n="name_label">Name</strong>
+            <span id="displayUserName">Loading...</span>
+        </div>
+        <div class="info-item">
+            <strong data-i18n="phone_label">Phone</strong>
+            <span id="displayPhone">Loading...</span>
+        </div>
+        <div class="info-item">
+            <strong data-i18n="wallet_label">Wallet</strong>
+            <span id="displayWallet">Loading...</span>
+        </div>
+        <div class="info-item" style="flex:0 0 auto;">
+            <strong data-i18n="nft_count">NFTs Owned</strong>
+            <span id="displayNftCount">0</span>
+        </div>
     </div>
 
     <!-- ===== NFT CONTENT ===== -->
@@ -114,9 +578,777 @@
         </div>
     </div>
 
-    <!-- ===== SCRIPTS ===== -->
-    <script src="js/qrcode.min.js"></script>
-    <script src="js/portfolio.js"></script>
+    <!-- ============================================================ -->
+    <!-- ======================== JAVASCRIPT =========================== -->
+    <!-- ============================================================ -->
+    <script>
+        // ============================================================
+        // I18N SYSTEM
+        // ============================================================
+        const LOCALES = {
+            en: '/nft/locales/en.json',
+            zh: '/nft/locales/zh.json'
+        };
+        let currentLang = localStorage.getItem('hku_lang') || 'en';
+        let translations = {};
+
+        async function loadLanguage(lang) {
+            try {
+                const res = await fetch(LOCALES[lang]);
+                if (!res.ok) throw new Error('Failed to load locale');
+                translations = await res.json();
+                currentLang = lang;
+                localStorage.setItem('hku_lang', lang);
+                applyTranslations();
+                const toggle = document.getElementById('lang-switch');
+                if (toggle) toggle.textContent = lang === 'zh' ? 'English' : '中文';
+            } catch (e) {
+                console.warn('i18n error, using fallback', e);
+                translations = {};
+            }
+        }
+
+        function t(key, fallback = key) { return translations[key] || fallback; }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.textContent = t(key);
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                el.placeholder = t(key);
+            });
+            document.title = t('portfolio_title') || 'My NFTs';
+        }
+
+        window.toggleLanguage = function() {
+            const next = currentLang === 'zh' ? 'en' : 'zh';
+            loadLanguage(next);
+        };
+
+        // ============================================================
+        // WALLET AUTH
+        // ============================================================
+        function checkLoginStatus() {
+            if (typeof checkWalletLoginStatus === 'function') {
+                return checkWalletLoginStatus();
+            }
+            // Fallback to localStorage
+            const wallet = localStorage.getItem('wallet');
+            const name = localStorage.getItem('name');
+            const phone = localStorage.getItem('phone');
+            if (wallet && name) {
+                return { walletid: wallet, name: name, phone: phone };
+            }
+            return null;
+        }
+
+        function clearWalletSession() {
+            // Clear localStorage
+            localStorage.removeItem('wallet');
+            localStorage.removeItem('name');
+            localStorage.removeItem('phone');
+            localStorage.removeItem('account');
+            // Clear wallet-auth session if available
+            if (typeof clearWalletLogin === 'function') {
+                clearWalletLogin();
+            }
+        }
+
+        // ============================================================
+        // LOGOUT – Properly clears all sessions
+        // ============================================================
+        function performLogout() {
+            const confirmMsg = translations.logout_confirm || 'Are you sure you want to logout?';
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+
+            try {
+                // Clear all sessions
+                clearWalletSession();
+
+                // Clear any cached data
+                userNFTs = [];
+                onSaleNFTs = [];
+                pendingSellNFT = null;
+
+                // Show toast message
+                showToast(t('logout_success') || 'Logged out successfully');
+
+                // Redirect to market page after short delay
+                setTimeout(() => {
+                    window.location.href = '/nft/NFT_market.html';
+                }, 800);
+
+            } catch (error) {
+                console.error('Logout error:', error);
+                showToast(t('logout_error') || 'Logout failed', 'error');
+            }
+        }
+
+        // ============================================================
+        // TOAST
+        // ============================================================
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+                background:${type === 'error' ? '#f44336' : type === 'warning' ? '#ff9800' : '#4CAF50'};
+                color:white; padding:12px 24px; border-radius:30px;
+                font-weight:500; box-shadow:0 4px 12px rgba(0,0,0,0.2);
+                z-index:3000; transition:opacity 0.3s;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============================================================
+        // PORTFOLIO LOGIC
+        // ============================================================
+        let userNFTs = [];
+        let onSaleNFTs = [];
+        let pendingSellNFT = null;
+        let currentPriceInputId = '';
+
+        const itemsPerPage = 12;
+        const USE_MOCK_DATA = true; // Set to false when backend is ready
+        let isLoading = false;
+        let allLoaded = false;
+
+        // ===== LOAD USER NFTs =====
+        async function loadUserNFTs() {
+            const loginInfo = checkLoginStatus();
+
+            if (!loginInfo) {
+                // Not logged in – redirect to market
+                showToast(t('please_login'), 'warning');
+                setTimeout(() => {
+                    window.location.href = '/nft/NFT_market.html';
+                }, 500);
+                return;
+            }
+
+            // Update user info
+            document.getElementById('displayUserName').textContent = loginInfo.name || 'Unknown';
+            document.getElementById('displayWallet').textContent = loginInfo.walletid || loginInfo.wallet || 'Unknown';
+            document.getElementById('displayPhone').textContent = loginInfo.phone || 'Not set';
+
+            try {
+                document.getElementById('nft-content').innerHTML = `<div class="loading">${t('loading_portfolio')}</div>`;
+
+                // Fetch user's NFTs
+                let wallet = loginInfo.walletid || loginInfo.wallet;
+                let response;
+
+                // Try to fetch from API
+                if (!USE_MOCK_DATA) {
+                    response = await fetch(`/api/user/nfts?wallet=${wallet}`);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    userNFTs = await response.json();
+                } else {
+                    // Use mock data
+                    console.log('Using mock NFT data for development');
+                    userNFTs = getMockNFTs();
+                    document.getElementById('nft-content').innerHTML += 
+                        `<div style="text-align:center;padding:8px;background:#fff3cd;color:#856404;border-radius:4px;margin:10px 0;">
+                            ⚠️ Using mock data (backend API not available)
+                        </div>`;
+                }
+
+                // Fetch on-sale NFTs (also with fallback)
+                try {
+                    const saleResponse = await fetch('/api/nfts/onsale');
+                    if (saleResponse.ok) {
+                        onSaleNFTs = await saleResponse.json();
+                    } else {
+                        onSaleNFTs = [];
+                    }
+                } catch (e) {
+                    onSaleNFTs = [];
+                }
+
+                // Sort by purchase price (high to low)
+                userNFTs.sort((a, b) => {
+                    const priceA = a.purchase_price || 0;
+                    const priceB = b.purchase_price || 0;
+                    return priceB - priceA;
+                });
+
+                document.getElementById('displayNftCount').textContent = userNFTs.length;
+                await renderNFTsAutoLoad();
+
+            } catch (error) {
+                console.error('Loading NFTs failed:', error);
+                document.getElementById('nft-content').innerHTML =
+                    `<div class="loading">${t('load_error')}: ${error.message}</div>`;
+            }
+        }
+
+        // Mock data generator
+        function getMockNFTs() {
+            return [
+                { 
+                    level: 'surname', 
+                    surname: 'Architecture', 
+                    card_number: 1, 
+                    purchase_price: 100, 
+                    hash: '0xA1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6'
+                },
+                { 
+                    level: 'surname', 
+                    surname: 'Engineering', 
+                    card_number: 6, 
+                    purchase_price: 80, 
+                    hash: '0xB2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6'
+                },
+                { 
+                    level: 'citang', 
+                    surname: 'Architecture', 
+                    card_number: 1, 
+                    citang_number: 101, 
+                    citang_name: 'Architecture Department',
+                    purchase_price: 50,
+                    province: 'Hong Kong',
+                    district: 'HKU Main Campus',
+                    hash: '0xC3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6'
+                }
+            ];
+        }
+
+        // ===== AUTO LOAD BATCHES =====
+        async function renderNFTsAutoLoad() {
+            const container = document.getElementById('nft-content');
+
+            if (!userNFTs || userNFTs.length === 0) {
+                container.innerHTML = `<div class="empty-state">${t('no_nfts_portfolio')}</div>`;
+                return;
+            }
+
+            let html = `<div class="category-section">
+                <div class="category-title">${t('my_nfts') || 'My NFTs'} (${userNFTs.length})</div>
+                <div class="member-grid" id="nft-grid"></div>`;
+
+            html += `<div id="loading-indicator" class="loading-indicator" style="display: none;">
+                <div class="spinner"></div>
+                <span>${t('loading_more')}</span>
+            </div>`;
+
+            html += `</div>`;
+            container.innerHTML = html;
+
+            await autoLoadMoreBatches();
+        }
+
+        async function autoLoadMoreBatches() {
+            let currentPage = 1;
+            let allLoaded = false;
+
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) loadingIndicator.style.display = 'block';
+
+            while (!allLoaded) {
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = Math.min(startIndex + itemsPerPage, userNFTs.length);
+
+                if (startIndex >= userNFTs.length) {
+                    allLoaded = true;
+                    break;
+                }
+
+                const batchNFTs = userNFTs.slice(startIndex, endIndex);
+                await renderBatch(batchNFTs);
+                currentPage++;
+
+                if (endIndex >= userNFTs.length) {
+                    allLoaded = true;
+                } else {
+                    await delay(300);
+                }
+            }
+
+            if (loadingIndicator) {
+                loadingIndicator.innerHTML = `<div style="text-align:center;padding:20px;color:#666;">✅ ${t('all_loaded')}</div>`;
+                setTimeout(() => {
+                    loadingIndicator.style.display = 'none';
+                }, 2000);
+            }
+        }
+
+        function renderBatch(batchNFTs) {
+            return new Promise((resolve) => {
+                const gridContainer = document.getElementById('nft-grid');
+                if (!gridContainer) {
+                    resolve();
+                    return;
+                }
+
+                const newHTML = batchNFTs.map(nft => {
+                    switch (nft.level) {
+                        case 'surname':
+                            return renderSurnameCard(nft);
+                        case 'citang':
+                            return renderCitangCard(nft);
+                        case 'member':
+                            return renderMemberCard(nft);
+                        default:
+                            return '';
+                    }
+                }).join('');
+
+                gridContainer.insertAdjacentHTML('beforeend', newHTML);
+
+                // Generate QR codes
+                setTimeout(() => generateAllQRCodes(batchNFTs), 100);
+                setTimeout(() => resolve(), 50);
+            });
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // ===== RENDER CARDS - HORIZONTAL LAYOUT =====
+        function renderSurnameCard(nft) {
+            const isOnSale = onSaleNFTs.some(s => s.level === nft.level && s.card_number === nft.card_number && s.surname === nft.surname);
+            const saleInfo = onSaleNFTs.find(s => s.level === nft.level && s.card_number === nft.card_number && s.surname === nft.surname);
+            const displayHash = nft.hash || 'Hash missing';
+            const purchasePrice = nft.purchase_price || 0;
+            const levelTag = `#${nft.card_number}`;
+
+            return `
+                <div class="card-container">
+                    <div class="card-body">
+                        <div class="card-info">
+                            <span class="card-number-tag">${levelTag}</span>
+                            <div class="card-main-name">${nft.surname}</div>
+                            <div class="card-details">
+                                <span><span class="label">${t('level_label')}:</span> ${t('surname')}</span>
+                                <span><span class="label">${t('purchase_price')}:</span> ${purchasePrice} RC</span>
+                            </div>
+                        </div>
+                        <div class="card-qr-section">
+                            <div class="qr-wrapper">
+                                <div class="qrcode" id="qr-surname-${nft.card_number}"></div>
+                            </div>
+                            <div class="nft-hash">${formatNft(displayHash)}</div>
+                        </div>
+                    </div>
+                    <div class="card-footer-actions">
+                        <span class="price-display">💰 <span class="rc">${purchasePrice} RC</span></span>
+                        <div class="btn-group">
+                            <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory('${nft.level}', '${nft.card_number}', '${nft.surname}')">
+                                ${t('view_transactions')}
+                            </button>
+                            ${isOnSale ? `
+                                <span class="price-info-tag">${t('selling_price')}: <span class="value">${saleInfo?.price || 0} RC</span></span>
+                                <button class="btn-sm btn-sm-cancel" onclick="cancelSale('${nft.level}', '${nft.card_number}', '${nft.surname}', '', '', '', '')">
+                                    ${t('cancel_sale')}
+                                </button>
+                            ` : `
+                                <input type="number" class="price-input" id="price-${nft.level}-${nft.card_number}" placeholder="${t('enter_price')}" min="1">
+                                <button class="btn-sm btn-sm-sell" onclick="sellNFT('${nft.level}', '${nft.card_number}', '${nft.surname}', '', '', '', '')">
+                                    ${t('list_for_sale')}
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function renderCitangCard(nft) {
+            const isOnSale = onSaleNFTs.some(s =>
+                s.level === nft.level && s.card_number === nft.card_number &&
+                s.surname === nft.surname && s.citang_number === nft.citang_number
+            );
+            const saleInfo = onSaleNFTs.find(s =>
+                s.level === nft.level && s.card_number === nft.card_number &&
+                s.surname === nft.surname && s.citang_number === nft.citang_number
+            );
+            const displayHash = nft.hash || 'Hash missing';
+            const purchasePrice = nft.purchase_price || 0;
+            const levelTag = `#${nft.card_number}.${nft.citang_number}`;
+
+            return `
+                <div class="card-container">
+                    <div class="card-body">
+                        <div class="card-info">
+                            <span class="card-number-tag">${levelTag}</span>
+                            <div class="card-main-name">${nft.surname}</div>
+                            <div class="card-sub-name">${nft.citang_name}</div>
+                            <div class="card-details">
+                                <span><span class="label">${t('province')}:</span> ${nft.province || '—'}</span>
+                                <span><span class="label">${t('district')}:</span> ${nft.district || '—'}</span>
+                                <span><span class="label">${t('purchase_price')}:</span> ${purchasePrice} RC</span>
+                            </div>
+                        </div>
+                        <div class="card-qr-section">
+                            <div class="qr-wrapper">
+                                <div class="qrcode" id="qr-citang-${nft.card_number}-${nft.citang_number}"></div>
+                            </div>
+                            <div class="nft-hash">${formatNft(displayHash)}</div>
+                        </div>
+                    </div>
+                    <div class="card-footer-actions">
+                        <span class="price-display">💰 <span class="rc">${purchasePrice} RC</span></span>
+                        <div class="btn-group">
+                            <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory('${nft.level}', '${nft.card_number}', '${nft.surname}', '${nft.citang_number}', '${nft.citang_name}')">
+                                ${t('view_transactions')}
+                            </button>
+                            ${isOnSale ? `
+                                <span class="price-info-tag">${t('selling_price')}: <span class="value">${saleInfo?.price || 0} RC</span></span>
+                                <button class="btn-sm btn-sm-cancel" onclick="cancelSale('${nft.level}', '${nft.card_number}', '${nft.surname}', '${nft.citang_number}', '${nft.citang_name}', '', '')">
+                                    ${t('cancel_sale')}
+                                </button>
+                            ` : `
+                                <input type="number" class="price-input" id="price-${nft.level}-${nft.card_number}" placeholder="${t('enter_price')}" min="1">
+                                <button class="btn-sm btn-sm-sell" onclick="sellNFT('${nft.level}', '${nft.card_number}', '${nft.surname}', '${nft.citang_number}', '${nft.citang_name}', '', '')">
+                                    ${t('list_for_sale')}
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function renderMemberCard(nft) {
+            const isOnSale = onSaleNFTs.some(s =>
+                s.level === nft.level && s.card_number === nft.card_number &&
+                s.surname === nft.surname && s.citang_number === nft.citang_number &&
+                s.member_number === nft.member_number
+            );
+            const saleInfo = onSaleNFTs.find(s =>
+                s.level === nft.level && s.card_number === nft.card_number &&
+                s.surname === nft.surname && s.citang_number === nft.citang_number &&
+                s.member_number === nft.member_number
+            );
+            const displayHash = nft.hash || 'Hash missing';
+            const purchasePrice = nft.purchase_price || 0;
+            const levelTag = `#${nft.card_number}.${nft.citang_number}.${nft.member_number}`;
+
+            return `
+                <div class="card-container">
+                    <div class="card-body">
+                        <div class="card-info">
+                            <span class="card-number-tag">${levelTag}</span>
+                            <div class="card-main-name">${nft.surname}</div>
+                            <div class="card-sub-name">${nft.citang_name} · ${nft.member_name}</div>
+                            <div class="card-details">
+                                <span><span class="label">${t('gender')}:</span> ${nft.gender || '—'}</span>
+                                <span><span class="label">${t('birth')}:</span> ${nft.birth || '—'}</span>
+                                <span><span class="label">${t('purchase_price')}:</span> ${purchasePrice} RC</span>
+                            </div>
+                        </div>
+                        <div class="card-qr-section">
+                            <div class="qr-wrapper">
+                                <div class="qrcode" id="qr-member-${nft.card_number}-${nft.citang_number}-${nft.member_number}"></div>
+                            </div>
+                            <div class="nft-hash">${formatNft(displayHash)}</div>
+                        </div>
+                    </div>
+                    <div class="card-footer-actions">
+                        <span class="price-display">💰 <span class="rc">${purchasePrice} RC</span></span>
+                        <div class="btn-group">
+                            <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory('${nft.level}', '${nft.card_number}', '${nft.surname}', '${nft.citang_number}', '${nft.citang_name}', '${nft.member_number}', '${nft.member_name}')">
+                                ${t('view_transactions')}
+                            </button>
+                            ${isOnSale ? `
+                                <span class="price-info-tag">${t('selling_price')}: <span class="value">${saleInfo?.price || 0} RC</span></span>
+                                <button class="btn-sm btn-sm-cancel" onclick="cancelSale('${nft.level}', '${nft.card_number}', '${nft.surname}', '${nft.citang_number}', '${nft.citang_name}', '${nft.member_number}', '${nft.member_name}')">
+                                    ${t('cancel_sale')}
+                                </button>
+                            ` : `
+                                <input type="number" class="price-input" id="price-${nft.level}-${nft.card_number}" placeholder="${t('enter_price')}" min="1">
+                                <button class="btn-sm btn-sm-sell" onclick="sellNFT('${nft.level}', '${nft.card_number}', '${nft.surname}', '${nft.citang_number}', '${nft.citang_name}', '${nft.member_number}', '${nft.member_name}')">
+                                    ${t('list_for_sale')}
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        // ===== UTILITY FUNCTIONS =====
+        function formatNft(nft) {
+            if (!nft) return '';
+            return nft.match(/.{1,16}/g).join('<br>');
+        }
+
+        function generateAllQRCodes(nfts) {
+            nfts.filter(nft => nft.level === 'surname').forEach(nft => {
+                const qrContainer = document.getElementById(`qr-surname-${nft.card_number}`);
+                if (qrContainer && qrContainer.innerHTML.trim() === '' && nft.hash) {
+                    new QRCode(qrContainer, {
+                        text: nft.hash,
+                        width: 130,
+                        height: 130,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+                }
+            });
+
+            nfts.filter(nft => nft.level === 'citang').forEach(nft => {
+                const qrContainer = document.getElementById(`qr-citang-${nft.card_number}-${nft.citang_number}`);
+                if (qrContainer && qrContainer.innerHTML.trim() === '' && nft.hash) {
+                    new QRCode(qrContainer, {
+                        text: nft.hash,
+                        width: 130,
+                        height: 130,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+                }
+            });
+
+            nfts.filter(nft => nft.level === 'member').forEach(nft => {
+                const qrContainer = document.getElementById(`qr-member-${nft.card_number}-${nft.citang_number}-${nft.member_number}`);
+                if (qrContainer && qrContainer.innerHTML.trim() === '' && nft.hash) {
+                    new QRCode(qrContainer, {
+                        text: nft.hash,
+                        width: 130,
+                        height: 130,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+                }
+            });
+        }
+
+        function viewTransactionHistory(level, card_number, surname, citang_number, citang_name, member_number, member_name) {
+            let url = '';
+            switch (level) {
+                case 'surname':
+                    url = `/nft/ti_log.html?name=${encodeURIComponent(surname)}&card_number=${card_number}`;
+                    break;
+                case 'citang':
+                    url = `/nft/ti_log.html?level=citang&id=${citang_number}`;
+                    break;
+                case 'member':
+                    url = `/nft/ti_log.html?level=member&id=${member_number}`;
+                    break;
+            }
+            if (url) window.location.href = url;
+        }
+
+        function getLevelName(level) {
+            const names = { surname: 'Category', citang: 'Subcategory', member: 'Item' };
+            return names[level] || level;
+        }
+
+        // ===== SELL NFT =====
+        async function sellNFT(level, card_number, surname, citang_number, citang_name, member_number, member_name) {
+            const loginInfo = checkLoginStatus();
+            if (!loginInfo) {
+                showToast(t('please_login'), 'warning');
+                return;
+            }
+
+            currentPriceInputId = `price-${level}-${card_number}`;
+            const priceInput = document.getElementById(currentPriceInputId);
+            const price = parseInt(priceInput.value) || 0;
+
+            if (price < 1) {
+                showToast(t('invalid_price'), 'warning');
+                priceInput.focus();
+                return;
+            }
+
+            const nft = userNFTs.find(item =>
+                item.level === level &&
+                item.card_number === card_number &&
+                item.surname === surname &&
+                item.citang_number === citang_number &&
+                item.citang_name === citang_name &&
+                item.member_number === member_number &&
+                item.member_name === member_name
+            );
+
+            if (!nft) {
+                showToast(t('nft_not_found'), 'error');
+                return;
+            }
+
+            pendingSellNFT = { ...nft, price: price };
+
+            document.getElementById('confirmLevel').textContent = getLevelName(pendingSellNFT.level);
+            document.getElementById('confirmSurname').textContent = pendingSellNFT.surname;
+            document.getElementById('confirmPrice').textContent = `${pendingSellNFT.price} ${t('root_coins')}`;
+
+            let numberText = '';
+            if (pendingSellNFT.level === 'surname') {
+                numberText = `#${pendingSellNFT.card_number}`;
+            } else if (pendingSellNFT.level === 'citang') {
+                numberText = `#${pendingSellNFT.card_number}.${pendingSellNFT.citang_number}`;
+            } else {
+                numberText = `#${pendingSellNFT.card_number}.${pendingSellNFT.citang_number}.${pendingSellNFT.member_number}`;
+            }
+            document.getElementById('confirmNumber').textContent = numberText;
+
+            const citangRow = document.getElementById('confirmCitangRow');
+            const citangSpan = document.getElementById('confirmCitang');
+            if (pendingSellNFT.level === 'citang' || pendingSellNFT.level === 'member') {
+                citangRow.style.display = 'flex';
+                citangSpan.textContent = pendingSellNFT.citang_name || '-';
+            } else {
+                citangRow.style.display = 'none';
+            }
+
+            const memberRow = document.getElementById('confirmMemberRow');
+            const memberSpan = document.getElementById('confirmMember');
+            if (pendingSellNFT.level === 'member') {
+                memberRow.style.display = 'flex';
+                memberSpan.textContent = pendingSellNFT.member_name || '-';
+            } else {
+                memberRow.style.display = 'none';
+            }
+
+            const nftHashSpan = document.getElementById('confirmNftHash');
+            nftHashSpan.textContent = pendingSellNFT.hash || 'No hash';
+
+            document.getElementById('sellConfirmModal').style.display = 'block';
+        }
+
+        function hideSellConfirmModal() {
+            document.getElementById('sellConfirmModal').style.display = 'none';
+            pendingSellNFT = null;
+            currentPriceInputId = '';
+        }
+
+        async function proceedSell() {
+            if (!pendingSellNFT) {
+                showToast(t('nft_not_found'), 'error');
+                hideSellConfirmModal();
+                return;
+            }
+
+            const loginInfo = checkLoginStatus();
+            if (!loginInfo) {
+                showToast(t('please_login'), 'warning');
+                hideSellConfirmModal();
+                return;
+            }
+
+            try {
+                const wallet = loginInfo.walletid || loginInfo.wallet;
+                const response = await fetch('/api/nft/list', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        level: pendingSellNFT.level,
+                        card_number: pendingSellNFT.card_number,
+                        surname: pendingSellNFT.surname,
+                        citang_number: pendingSellNFT.citang_number || '',
+                        citang_name: pendingSellNFT.citang_name || '',
+                        member_number: pendingSellNFT.member_number || '',
+                        member_name: pendingSellNFT.member_name || '',
+                        price: pendingSellNFT.price,
+                        seller_wallet: wallet,
+                        hash: pendingSellNFT.hash || ''
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(t('list_success'), 'success');
+                    hideSellConfirmModal();
+
+                    if (currentPriceInputId) {
+                        const priceInput = document.getElementById(currentPriceInputId);
+                        if (priceInput) priceInput.value = '';
+                    }
+
+                    loadUserNFTs();
+                } else {
+                    showToast(t('list_failed') + ': ' + result.error, 'error');
+                }
+            } catch (error) {
+                console.error('List failed:', error);
+                showToast(t('list_failed') + ': ' + error.message, 'error');
+            }
+        }
+
+        async function cancelSale(level, card_number, surname, citang_number, citang_name, member_number, member_name) {
+            if (!confirm(t('confirm_cancel_sale'))) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/nft/cancel-sale', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        level,
+                        card_number,
+                        surname,
+                        citang_number,
+                        citang_name,
+                        member_number,
+                        member_name
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(t('cancel_sale_success'), 'success');
+                    loadUserNFTs();
+                } else {
+                    showToast(t('cancel_sale_failed') + ': ' + result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Cancel failed:', error);
+                showToast(t('cancel_sale_failed') + ': ' + error.message, 'error');
+            }
+        }
+
+        // ============================================================
+        // WALLET LOGIN EVENTS
+        // ============================================================
+        document.addEventListener('wallet-login-success', (e) => {
+            const detail = e.detail;
+            if (detail && detail.walletid) {
+                showToast(t('login_success'), 'success');
+                loadUserNFTs();
+            }
+        });
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        async function init() {
+            await loadLanguage(currentLang);
+            loadUserNFTs();
+
+            // Listen for logout from other tabs/windows
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'wallet' && !e.newValue) {
+                    // Logged out in another tab
+                    window.location.href = '/nft/NFT_market.html';
+                }
+            });
+
+            // Make functions globally accessible
+            window.performLogout = performLogout;
+            window.toggleLanguage = toggleLanguage;
+            window.hideSellConfirmModal = hideSellConfirmModal;
+            window.proceedSell = proceedSell;
+            window.sellNFT = sellNFT;
+            window.cancelSale = cancelSale;
+            window.viewTransactionHistory = viewTransactionHistory;
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 
 </html>

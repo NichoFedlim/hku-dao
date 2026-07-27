@@ -5,6 +5,7 @@
     "nav_categories": "分类",
     "nav_mainpage": "首页",
     "nav_login": "登录",
+    "nav_portfolio": "用户组合",
     "featured_name": "HKU DAO - 港大道",
     "featured_subtitle": "HKU DAO – 香港大学去中心化自治组织",
     "featured_action": "探索港大",
@@ -229,5 +230,27 @@
     "add_item": "添加子分类",
     "add_item_placeholder": "输入子分类名称",
     "add_item_owner_required": "您拥有此分类NFT - 可以添加子分类。",
-    "add_item_success": "子分类添加成功！"
+    "add_item_success": "子分类添加成功！",
+
+    "logout_confirm": "确定要登出吗？",
+    "logout_success": "登出成功！",
+    "logout_error": "登出失败",
+    "nft_count": "拥有的NFT数量",
+    "selling_price": "售价",
+    "enter_price": "输入价格 (rc)",
+    "list_success": "NFT上架出售!",
+    "list_failed": "上架失败",
+    "confirm_cancel_sale": "确定要取消出售吗？",
+    "cancel_sale_success": "出售已取消！",
+    "cancel_sale_failed": "取消出售失败",
+    "nft_not_found": "未找到NFT",
+    "all_loaded": "所有NFT已加载",
+
+    "log_title": "交易日志",
+    "transaction_log": "交易信息",
+    "loading_log": "正在加载交易日志...",
+    "no_transactions": "未找到交易记录",
+    "no_transactions_desc": "此NFT暂无交易历史。",
+    "copy": "复制到剪贴板",
+    "auth_code_title": "交易认证码 (64位大写)"
 }

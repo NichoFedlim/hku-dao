@@ -6,39 +6,335 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="log_title">Transaction Log – HKU DAO</title>
     <link rel="shortcut icon" type="image/x-icon" href="image/favicon.png">
-    
+
     <!-- External Dependencies -->
     <script src="js/qrcode.min.js"></script>
     <script src="/wallet-auth.js"></script>
-    
+
     <!-- Styles -->
     <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/ti_log.css" />
+
+    <style>
+        /* ===== TRANSACTION LOG – PAGE-SPECIFIC STYLES ===== */
+        .log-container {
+            max-width: 1200px;
+            margin: 20px auto 0;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .log-header h2 {
+            color: var(--primary);
+            font-size: 1.4rem;
+            margin: 0;
+        }
+        .log-header .log-meta {
+            font-size: 0.9rem;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .log-header .log-meta .badge {
+            background: var(--hku-gold);
+            color: var(--primary);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        /* ===== TABLE ===== */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #e8e8e8;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            min-width: 700px;
+        }
+        thead {
+            background: #f5f7fb;
+        }
+        th {
+            padding: 12px 14px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 2px solid #e0e0e0;
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+            vertical-align: middle;
+        }
+        tr:hover td {
+            background: #f8fafc;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Hash short display */
+        .hash-short {
+            font-family: monospace;
+            background: #f0f4f8;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #555;
+        }
+
+        /* Auth code button */
+        .auth-code-btn {
+            background: none;
+            border: none;
+            color: var(--hku-green);
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 0.8rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .auth-code-btn:hover {
+            background: #e8edf2;
+        }
+
+        .view-btn {
+            background: var(--hku-gold);
+            color: var(--primary);
+            border: none;
+            padding: 3px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .view-btn:hover {
+            background: #b8922a;
+        }
+
+        /* Empty & loading states */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+        .empty-state .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+        .empty-state h3 {
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--hku-gold);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== AUTH CODE MODAL ===== */
+        .auth-code-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+        }
+        .auth-code-modal-content {
+            background: #fff;
+            margin: 10% auto;
+            padding: 24px;
+            max-width: 600px;
+            border-radius: 12px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+            position: relative;
+            animation: modalFadeIn 0.3s ease;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .auth-code-close {
+            position: absolute;
+            right: 16px;
+            top: 12px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .auth-code-close:hover {
+            color: #333;
+        }
+        .auth-code-modal-content h3 {
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+        .auth-code-text {
+            font-family: monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            word-break: break-all;
+            background: #f5f7fb;
+            padding: 16px;
+            border-radius: 8px;
+            color: #333;
+            margin: 12px 0;
+            border: 1px solid #e8e8e8;
+        }
+        .copy-btn {
+            background: var(--hku-green);
+            color: white;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .copy-btn:hover {
+            background: #002244;
+        }
+        .copy-btn.copied {
+            background: #28a745;
+        }
+
+        /* ===== BACK BUTTON ===== */
+        .back-row {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .back-btn {
+            background: #f0f0f0;
+            color: #555;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background: #e0e0e0;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .log-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .log-header .log-meta {
+                flex-wrap: wrap;
+            }
+            table {
+                font-size: 0.8rem;
+                min-width: 500px;
+            }
+            th, td {
+                padding: 8px 10px;
+            }
+            .auth-code-modal-content {
+                margin: 20% auto;
+                padding: 16px;
+                width: 95%;
+            }
+        }
+        @media (max-width: 480px) {
+            .log-container {
+                padding: 12px;
+            }
+            table {
+                font-size: 0.7rem;
+                min-width: 400px;
+            }
+            th, td {
+                padding: 6px 6px;
+            }
+            .auth-code-btn {
+                font-size: 0.7rem;
+            }
+            .view-btn {
+                font-size: 0.65rem;
+                padding: 2px 8px;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <!-- ===== HEADER ===== -->
     <header class="header">
         <div class="header-inner container">
-            <h1 class="logo" onclick="window.location.href='/'">Gang Da Dao</h1>
+            <h1 class="logo" onclick="window.location.href='/'">港大道 - Gang Da Dao</h1>
             <nav class="nav">
-                <button class="nav-btn" data-i18n="nav_market" onclick="window.location.href='/nft/NFT_market.html'">Market</button>
+                <button class="nav-btn" data-i18n="nav_market" onclick="window.location.href='/nft/NFT_market.html'">NFT Market</button>
                 <button class="nav-btn" data-i18n="nav_categories" onclick="window.location.href='/nft/categories.html'">Categories</button>
                 <button class="nav-btn" id="lang-switch" onclick="toggleLanguage()">中文</button>
-                <button class="nav-btn" onclick="window.location.href='/portfolio.html'" data-i18n="nav_portfolio">Portfolio</button>
+                <button class="nav-btn" onclick="window.location.href='/nft/portfolio.html'" data-i18n="nav_portfolio">User Portfolio</button>
             </nav>
         </div>
     </header>
 
     <!-- ===== MAIN CONTENT ===== -->
-    <div class="container">
-        <div class="transaction-header">
-            <h2 class="project" data-i18n="transaction_info">Transaction Info:</h2>
-            <div class="transaction-count" id="transaction-count" data-i18n="total_records">Total: 0 records</div>
-        </div>
+    <main class="container">
+        <div class="log-container">
+            <div class="log-header">
+                <h2 id="log-title" data-i18n="transaction_log">Transaction Information</h2>
+                <div class="log-meta">
+                    <span class="badge" id="log-level-badge">Level: All</span>
+                    <span id="log-total" data-i18n="total_records">Total: 0 records in total</span>
+                </div>
+            </div>
 
-        <div class="scrollable-table-container">
-            <div class="table-container">
+            <!-- Loading -->
+            <div id="loading-state" class="loading-spinner">
+                <div class="loader"></div>
+                <p data-i18n="loading_log">Loading transaction log...</p>
+            </div>
+
+            <!-- Table -->
+            <div id="table-wrapper" class="table-wrapper" style="display: none;">
                 <table id="transaction-table">
                     <thead>
                         <tr>
@@ -51,23 +347,38 @@
                             <th data-i18n="next_chain">Next Chain</th>
                         </tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody id="table-body"></tbody>
                 </table>
             </div>
-        </div>
 
-        <div class="button-container">
-            <button class="button" onclick="goBack()" data-i18n="back">Back</button>
+            <!-- Empty state -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">📭</div>
+                <h3 data-i18n="no_transactions">No transactions found</h3>
+                <p data-i18n="no_transactions_desc">This NFT has no transaction history yet.</p>
+            </div>
+
+            <!-- Error state -->
+            <div id="error-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">⚠️</div>
+                <h3 data-i18n="load_error">Failed to load transactions</h3>
+                <p id="error-message">Please try again later.</p>
+            </div>
+
+            <!-- Back button -->
+            <div class="back-row">
+                <button class="back-btn" onclick="window.history.back()" data-i18n="back">← Back</button>
+            </div>
         </div>
-    </div>
+    </main>
 
     <!-- ===== AUTH CODE MODAL ===== -->
     <div id="authCodeModal" class="auth-code-modal">
         <div class="auth-code-modal-content">
             <span class="auth-code-close" onclick="closeAuthCodeModal()">&times;</span>
-            <h3 data-i18n="auth_code_title">Transaction Auth Code (64-bit uppercase)</h3>
+            <h3 data-i18n="auth_code_title">Transaction Auth Code</h3>
             <div class="auth-code-text" id="authCodeFullText"></div>
-            <button class="copy-button" onclick="copyAuthCode()" data-i18n="copy">Copy to Clipboard</button>
+            <button class="copy-btn" id="copyAuthBtn" onclick="copyAuthCode()" data-i18n="copy">Copy to Clipboard</button>
         </div>
     </div>
 
