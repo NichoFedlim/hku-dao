@@ -37,7 +37,7 @@ const corsOptions = {
         const allowedOrigins = [
             'http://localhost:5000',
             'http://127.0.0.1:5000',
-        'https://d3.p2.rbas.top',
+            'https://d3.p2.rbas.top',
             'http://192.168.2.2:5000',
             'https://hk.rbas.top',
             'https://dao002.rbas.top',

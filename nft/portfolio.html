@@ -270,16 +270,11 @@
             color: #e83e8c;
         }
 
-        /* ===== LOADING / EMPTY ===== */
+        /* ===== LOADING ===== */
         .loading {
             text-align: center;
             padding: 40px;
             color: #3498db;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #666;
         }
         .loading-indicator {
             text-align: center;
@@ -305,6 +300,67 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* ===== CONSISTENT EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+            grid-column: 1 / -1;
+        }
+        .empty-state .empty-icon {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+            display: block;
+        }
+        .empty-state h3 {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+        }
+        .empty-state p {
+            font-size: 0.95rem;
+            color: #999;
+        }
+        .empty-state .back-link {
+            display: inline-block;
+            margin-top: 16px;
+            color: var(--hku-gold);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .empty-state .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== BACK TO TOP BUTTON ===== */
+        .back-to-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--hku-gold);
+            color: var(--primary);
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 900;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
         }
 
         /* ===== MODAL ===== */
@@ -689,23 +745,46 @@
         }
 
         // ============================================================
-        // TOAST
+        // TOAST NOTIFICATION
         // ============================================================
-        function showToast(message, type = 'info') {
+        function showToast(message, type = 'info', duration = 3000) {
+            // Remove existing toast
+            const existing = document.querySelector('.toast-global');
+            if (existing) existing.remove();
+            
             const toast = document.createElement('div');
+            toast.className = 'toast-global';
+            
+            const colors = {
+                success: '#28a745',
+                error: '#dc3545',
+                warning: '#ff9800',
+                info: '#4cb7db'
+            };
+            
             toast.style.cssText = `
-                position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
-                background:${type === 'error' ? '#f44336' : type === 'warning' ? '#ff9800' : '#4CAF50'};
-                color:white; padding:12px 24px; border-radius:30px;
-                font-weight:500; box-shadow:0 4px 12px rgba(0,0,0,0.2);
-                z-index:3000; transition:opacity 0.3s;
+                position: fixed;
+                bottom: 24px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${colors[type] || colors.info};
+                color: white;
+                padding: 14px 28px;
+                border-radius: 12px;
+                font-weight: 500;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+                z-index: 9999;
+                transition: opacity 0.3s ease;
+                max-width: 90%;
+                text-align: center;
             `;
             toast.textContent = message;
             document.body.appendChild(toast);
+            
             setTimeout(() => {
                 toast.style.opacity = '0';
                 setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            }, duration);
         }
 
         // ============================================================
@@ -720,6 +799,15 @@
         const USE_MOCK_DATA = true; // Set to false when backend is ready
         let isLoading = false;
         let allLoaded = false;
+
+        // ===== DEBOUNCE UTILITY =====
+        function debounce(fn, delay = 300) {
+            let timer;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
 
         // ===== LOAD USER NFTs =====
         async function loadUserNFTs() {
@@ -1322,6 +1410,23 @@
             }
         });
 
+        // ===== BACK TO TOP BUTTON =====
+        function initBackToTop() {
+            const btn = document.createElement('button');
+            btn.className = 'back-to-top';
+            btn.innerHTML = '↑';
+            btn.setAttribute('aria-label', 'Back to top');
+            document.body.appendChild(btn);
+            
+            window.addEventListener('scroll', () => {
+                btn.classList.toggle('visible', window.scrollY > 400);
+            });
+            
+            btn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
         // ============================================================
         // INIT
         // ============================================================
@@ -1336,6 +1441,7 @@
                     window.location.href = '/nft/NFT_market.html';
                 }
             });
+            initBackToTop();
 
             // Make functions globally accessible
             window.performLogout = performLogout;

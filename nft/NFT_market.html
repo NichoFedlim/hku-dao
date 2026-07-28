@@ -357,20 +357,36 @@
             color: white;
         }
 
-        /* ============ EMPTY STATE ============ */
+        /* ===== CONSISTENT EMPTY STATE ===== */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
             color: #888;
-            width: 100%;
+            grid-column: 1 / -1;
         }
         .empty-state .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 12px;
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+            display: block;
         }
         .empty-state h3 {
             color: var(--primary);
+            font-size: 1.3rem;
             margin-bottom: 8px;
+        }
+        .empty-state p {
+            font-size: 0.95rem;
+            color: #999;
+        }
+        .empty-state .back-link {
+            display: inline-block;
+            margin-top: 16px;
+            color: var(--hku-gold);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .empty-state .back-link:hover {
+            text-decoration: underline;
         }
 
         /* ============ LOADING ============ */
@@ -1178,6 +1194,47 @@
             loadLanguage(next);
         };
 
+        // ===== CONSOLIDATED TOAST SYSTEM =====
+        function showToast(message, type = 'info', duration = 3000) {
+            // Remove existing toast
+            const existing = document.querySelector('.toast-global');
+            if (existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast-global';
+            
+            const colors = {
+                success: '#28a745',
+                error: '#dc3545',
+                warning: '#ff9800',
+                info: '#4cb7db'
+            };
+            
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 24px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${colors[type] || colors.info};
+                color: white;
+                padding: 14px 28px;
+                border-radius: 12px;
+                font-weight: 500;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+                z-index: 9999;
+                transition: opacity 0.3s ease;
+                max-width: 90%;
+                text-align: center;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
         // ============================================================
         // WALLET AUTH
         // ============================================================
@@ -1362,6 +1419,15 @@
         // ============================================================
         // SEARCH FUNCTIONS
         // ============================================================
+        // ===== DEBOUNCE UTILITY =====
+        function debounce(fn, delay = 300) {
+            let timer;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
         function applySearch() {
             const input = document.getElementById('search-input');
             searchQuery = input.value.trim().toLowerCase();
@@ -1544,6 +1610,7 @@
                         <div class="empty-icon">🏷️</div>
                         <h3>${t('no_nfts_on_sale')}</h3>
                         <p>${t('no_nfts_desc')}</p>
+                        <a href="/nft/categories.html" class="back-link">← Back to Categories</a>
                     </div>
                 `;
                 paginationBar.style.display = 'none';

@@ -470,6 +470,35 @@
             font-weight: 600;
         }
 
+        /* ===== BACK TO TOP BUTTON ===== */
+        .back-to-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--hku-gold);
+            color: var(--primary);
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 900;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .detail-header .top-row {
@@ -1404,6 +1433,23 @@
             }, 300);
         });
 
+        // ===== BACK TO TOP BUTTON =====
+        function initBackToTop() {
+            const btn = document.createElement('button');
+            btn.className = 'back-to-top';
+            btn.innerHTML = '↑';
+            btn.setAttribute('aria-label', 'Back to top');
+            document.body.appendChild(btn);
+            
+            window.addEventListener('scroll', () => {
+                btn.classList.toggle('visible', window.scrollY > 400);
+            });
+            
+            btn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
         // ============================================================
         // INIT
         // ============================================================
@@ -1429,6 +1475,7 @@
                     showToast(t('login_success'));
                 }
             });
+            initBackToTop();
 
             // Make functions globally accessible
             window.toggleLanguage = toggleLanguage;
