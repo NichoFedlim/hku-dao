@@ -5,7 +5,6 @@
 // ===== USE MOCK DATA FOR DEVELOPMENT =====
 const USE_MOCK_DATA = true; // Set to false when backend is ready
 
-
 // ===== I18N =====
 const LOCALES = {
     en: '/nft/locales/en.json',
@@ -290,6 +289,202 @@ function generateMockTransactions() {
 }
 
 // ============================================================
+// SEARCH & PAGINATION STATE
+// ============================================================
+let allTransactions = [];
+let filteredTransactions = [];
+let currentPage = 1;
+const ITEMS_PER_PAGE = 50;
+let showAllMode = false;
+let searchQuery = '';
+
+// ============================================================
+// SEARCH FUNCTIONS
+// ============================================================
+function applySearch() {
+    const input = document.getElementById('search-input');
+    searchQuery = input.value.trim().toLowerCase();
+    filterAndRender();
+}
+
+function clearSearch() {
+    document.getElementById('search-input').value = '';
+    searchQuery = '';
+    // Reset to all transactions
+    filteredTransactions = [...allTransactions];
+    currentPage = 1;
+    showAllMode = false;
+    document.getElementById('show-all-btn').classList.remove('active');
+
+    renderTransactions(getCurrentPageItems());
+    renderPagination();
+    updateSearchStatus();
+}
+
+function filterAndRender() {
+    // Filter transactions based on search query
+    if (!searchQuery) {
+        filteredTransactions = [...allTransactions];
+    } else {
+        filteredTransactions = allTransactions.filter(log => {
+            const searchable = [
+                log.thread?.toString() || '',
+                log.time || '',
+                log.price?.toString() || '',
+                log.seller || '',
+                log.buyer || '',
+                log.chain || '',
+                log.next_chain || ''
+            ].join(' ').toLowerCase();
+            return searchable.includes(searchQuery);
+        });
+    }
+
+    // Reset pagination
+    currentPage = 1;
+    showAllMode = false;
+    document.getElementById('show-all-btn').classList.remove('active');
+
+    // Render the filtered list
+    renderTransactions(getCurrentPageItems());
+    renderPagination();
+    updateSearchStatus();
+}
+
+function updateSearchStatus() {
+    const statusEl = document.getElementById('search-status');
+    const total = allTransactions.length;
+    const filtered = filteredTransactions.length;
+
+    if (searchQuery) {
+        statusEl.textContent = `🔍 Found ${filtered} of ${total} transactions matching "${searchQuery}"`;
+    } else {
+        statusEl.textContent = `📊 ${total} transactions total`;
+    }
+}
+
+// ============================================================
+// PAGINATION FUNCTIONS
+// ============================================================
+function getCurrentPageItems() {
+    if (showAllMode) return filteredTransactions;
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = Math.min(start + ITEMS_PER_PAGE, filteredTransactions.length);
+    return filteredTransactions.slice(start, end);
+}
+
+function getTotalPages() {
+    if (showAllMode) return 1;
+    return Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE) || 1;
+}
+
+function renderPagination() {
+    const total = filteredTransactions.length;
+    const totalPages = getTotalPages();
+    const start = showAllMode ? 1 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+    const end = showAllMode ? total : Math.min(currentPage * ITEMS_PER_PAGE, total);
+
+    // Update info
+    document.getElementById('showing-start').textContent = total > 0 ? start : 0;
+    document.getElementById('showing-end').textContent = total > 0 ? end : 0;
+    document.getElementById('total-count').textContent = total;
+
+    // Page numbers
+    const container = document.getElementById('page-numbers');
+    container.innerHTML = '';
+
+    if (showAllMode || totalPages <= 1) {
+        const span = document.createElement('span');
+        span.textContent = '1';
+        span.className = 'page-btn active';
+        container.appendChild(span);
+    } else {
+        const maxVisible = 7;
+        let startPage = Math.max(1, currentPage - 3);
+        let endPage = Math.min(totalPages, currentPage + 3);
+
+        if (startPage > 1) {
+            const firstBtn = document.createElement('button');
+            firstBtn.className = 'page-btn';
+            firstBtn.textContent = '1';
+            firstBtn.onclick = () => goToPage(1);
+            container.appendChild(firstBtn);
+            if (startPage > 2) {
+                const dots = document.createElement('span');
+                dots.textContent = '…';
+                dots.style.padding = '0 4px';
+                container.appendChild(dots);
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = document.createElement('button');
+            btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+            btn.textContent = i;
+            btn.onclick = () => goToPage(i);
+            container.appendChild(btn);
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const dots = document.createElement('span');
+                dots.textContent = '…';
+                dots.style.padding = '0 4px';
+                container.appendChild(dots);
+            }
+            const lastBtn = document.createElement('button');
+            lastBtn.className = 'page-btn';
+            lastBtn.textContent = totalPages;
+            lastBtn.onclick = () => goToPage(totalPages);
+            container.appendChild(lastBtn);
+        }
+    }
+
+    // Prev/Next buttons
+    document.getElementById('prev-page-btn').disabled = currentPage <= 1 || showAllMode;
+    document.getElementById('next-page-btn').disabled = currentPage >= totalPages || showAllMode;
+
+    // Show All button
+    const showAllBtn = document.getElementById('show-all-btn');
+    showAllBtn.classList.toggle('active', showAllMode);
+    showAllBtn.textContent = showAllMode ? (t('show_pages') || 'Show Pages') : (t('show_all') || 'Show All');
+}
+
+function goToPage(page) {
+    if (showAllMode) return;
+    const totalPages = getTotalPages();
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    renderCurrentView();
+}
+
+function prevPage() {
+    if (currentPage > 1) goToPage(currentPage - 1);
+}
+
+function nextPage() {
+    const totalPages = getTotalPages();
+    if (currentPage < totalPages) goToPage(currentPage + 1);
+}
+
+function toggleShowAll() {
+    showAllMode = !showAllMode;
+    if (showAllMode) {
+        currentPage = 1;
+        document.getElementById('show-all-btn').classList.add('active');
+    } else {
+        document.getElementById('show-all-btn').classList.remove('active');
+    }
+    renderCurrentView();
+}
+
+function renderCurrentView() {
+    const items = getCurrentPageItems();
+    renderTransactions(items);
+    renderPagination();
+}
+
+// ============================================================
 // DATA LOADING – Unified (with Mock Fallback)
 // ============================================================
 async function fetchData() {
@@ -359,6 +554,7 @@ async function fetchData() {
             header.insertAdjacentElement('afterend', notice);
         }
 
+        // Logs
         const logs = data.log || [];
 
         if (logs.length === 0) {
@@ -369,7 +565,15 @@ async function fetchData() {
 
         loadingEl.style.display = 'none';
         tableWrapper.style.display = 'block';
-        renderTransactions(logs);
+        // ==== Initialize global state ====
+        allTransactions = logs;
+        filteredTransactions = [...allTransactions];
+        searchQuery = '';
+
+        // ==== Render ====
+        renderTransactions(filteredTransactions);
+        renderPagination();
+        updateSearchStatus();
         totalEl.textContent = `Total: ${logs.length} records`;
 
     } catch (err) {
@@ -406,7 +610,16 @@ function showError(message) {
 function renderTransactions(logs) {
     const tbody = document.getElementById('table-body');
     tbody.innerHTML = '';
+    
+    // Store all transactions for search/pagination
+    allTransactions = logs;
+    filteredTransactions = [...allTransactions];
+    if (logs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:#999;">${t('no_transactions')}</td></tr>`;
+        return;
+    }
 
+    // Sort by thread
     const sorted = [...logs].sort((a, b) => (a.thread || 0) - (b.thread || 0));
 
     sorted.forEach(log => {

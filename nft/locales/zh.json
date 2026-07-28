@@ -60,7 +60,7 @@
     "admin_owner_required": "您必须拥有DAO NFT才能添加分类。",
     "search_subcategories": "搜索子分类...",
 
-    "market_title": "NFT市场",
+    "market_title": "NFT交易市场",
     "market_subtitle": "在售NFT · 点击卡片查看详情",
     "sort_price_desc": "价格高→低",
     "sort_price_asc": "价格低→高",
@@ -68,6 +68,16 @@
     "sort_level_asc": "等级↑",
     "sort_level_desc": "等级↓",
     "loading_market": "正在加载市场数据...",
+    "search_market": "按名称搜索NFT...",
+    "price_high_low": "价格高→低",
+    "price_low_high": "价格低→高",
+    "name_az": "名称A→Z",
+    "level_asc": "级别 ↑",
+    "level_desc": "级别 ↓",
+    "no_nfts_desc": "请稍后再查看新上架。",
+    "nfts_label": "个NFT",
+    "login_to_sell": "登录出售",
+    "home": "首页",
     "login_to_buy": "登录购买NFT",
     "phone_label": "手机号",
     "enter_name": "请输入姓名",
@@ -91,6 +101,7 @@
     "processing_message": "正在处理您的请求...",
     "no_nfts_on_sale": "暂无在售NFT",
     "view_transactions": "查看交易记录",
+    "unable_to_view_transactions": "无法查看交易记录",
     "province": "省份",
     "district": "地区",
     "gender": "性别",
@@ -252,5 +263,10 @@
     "no_transactions": "未找到交易记录",
     "no_transactions_desc": "此NFT暂无交易历史。",
     "copy": "复制到剪贴板",
-    "auth_code_title": "交易认证码 (64位大写)"
+    "auth_code_title": "交易认证码 (64位大写)",
+
+    "search_transactions": "搜索序号、时间、价格、卖出方、买入方...",
+    "search": "搜索",
+    "clear": "清除",
+    "transactions_label": "条交易"
 }

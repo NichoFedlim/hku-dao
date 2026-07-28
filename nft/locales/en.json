@@ -60,7 +60,7 @@
     "admin_owner_required": "You must own the DAO NFT to add categories.",
     "search_subcategories": "Search sub-categories...",
 
-    "market_title": "NFT Market",
+    "market_title": "NFT Trading Market",
     "market_subtitle": "NFTs on Sale · Click card for details",
     "sort_price_desc": "Price High→Low",
     "sort_price_asc": "Price Low→High",
@@ -68,6 +68,16 @@
     "sort_level_asc": "Level ↑",
     "sort_level_desc": "Level ↓",
     "loading_market": "Loading market data...",
+    "search_market": "Search NFTs by name...",
+    "price_high_low": "Price High→Low",
+    "price_low_high": "Price Low→High",
+    "name_az": "Name A→Z",
+    "level_asc": "Level ↑",
+    "level_desc": "Level ↓",
+    "no_nfts_desc": "Check back later for new listings.",
+    "nfts_label": "NFTs",
+    "login_to_sell": "Login to Sell",
+    "home": "Home",
     "login_to_buy": "Login to Buy NFT",
     "phone_label": "Phone",
     "enter_name": "Enter name",
@@ -91,6 +101,7 @@
     "processing_message": "Processing your request...",
     "no_nfts_on_sale": "No NFTs on sale",
     "view_transactions": "View Transactions",
+    "unable_to_view_transactions": "Unable to view transactions",
     "province": "Province",
     "district": "District",
     "gender": "Gender",
@@ -253,5 +264,10 @@
     "no_transactions": "No transactions found",
     "no_transactions_desc": "This NFT has no transaction history yet.",
     "copy": "Copy to Clipboard",
-    "auth_code_title": "Transaction Auth Code (64-bit uppercase)"
+    "auth_code_title": "Transaction Auth Code (64-bit uppercase)",
+
+    "search_transactions": "Search by #, time, price, seller, buyer...",
+    "search": "Search",
+    "clear": "Clear",
+    "transactions_label": "transactions"
 }

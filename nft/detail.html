@@ -196,6 +196,26 @@
             color: var(--hku-gold);
         }
 
+        /* ===== TRANSACTION BUTTON ===== */
+        .btn-transaction {
+            background: linear-gradient(135deg, #4cb7db, #2c7da0);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            margin-top: 12px;
+            width: 100%;
+            max-width: 280px;
+        }
+        .btn-transaction:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 183, 219, 0.4);
+        }
+
         /* ===== CONTENT SECTIONS ===== */
         .content-section {
             background: white;
@@ -551,6 +571,9 @@
                 <div class="hash-label" data-i18n="nft_hash">NFT Hash</div>
                 <div class="hash-value" id="detail-hash">Loading...</div>
                 <div class="price-display" id="detail-price"></div>
+                <button class="btn btn-transaction" id="transaction-btn" onclick="viewTransactionHistory()" data-i18n="view_transactions">
+                    📜 View Transactions 
+                </button>
             </div>
         </div>
 
@@ -898,6 +921,38 @@
         }
 
         // ============================================================
+        // VIEW TRANSACTION HISTORY – Unified for all types
+        // ============================================================
+        function viewTransactionHistory() {
+            const type = detailData.type || 'item';
+            const id = detailData.id;
+            let url = '';
+
+            // Build the URL based on the NFT type
+            if (type === 'category') {
+                // For category level: use card_number from the data
+                const cardNumber = detailData.card_number || id;
+                const name = encodeURIComponent(detailData.name || '');
+                url = `/nft/ti_log.html?level=surname&card_number=${cardNumber}&name=${name}`;
+            } else if (type === 'item' || type === 'subitem') {
+                // For item/subitem level: use the ID
+                const level = type === 'item' ? 'subcategory' : 'item';
+                url = `/nft/ti_log.html?level=${level}&id=${id}`;
+            } else {
+                // Fallback: try to use card_number if available
+                const cardNumber = detailData.card_number || id;
+                const name = encodeURIComponent(detailData.name || '');
+                url = `/nft/ti_log.html?level=surname&card_number=${cardNumber}&name=${name}`;
+            }
+
+            if (url) {
+                window.location.href = url;
+            } else {
+                showToast(t('error'), t('unable_to_view_transactions'));
+            }
+        }
+
+        // ============================================================
         // RENDER DETAIL
         // ============================================================
         function renderDetail() {
@@ -926,6 +981,13 @@
             document.getElementById('breadcrumb-parent').textContent = parentName;
             document.getElementById('breadcrumb-parent').href = parentLink;
             document.getElementById('breadcrumb-current').textContent = displayName;
+
+            // ===== TRANSACTION BUTTON =====
+            const txBtn = document.getElementById('transaction-btn');
+            if (txBtn) {
+                // Always show the button, but you could hide it if no transactions exist
+                txBtn.style.display = 'inline-block';
+            }
 
             // Hash
             if (detailData.hash) {

@@ -56,6 +56,124 @@
             font-size: 0.8rem;
         }
 
+        /* ===== SEARCH BAR ===== */
+        .search-bar {
+            margin-bottom: 16px;
+        }
+        .search-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        #search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 16px;
+            border: 2px solid #ddd;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+        #search-input:focus {
+            border-color: var(--hku-gold);
+            outline: none;
+        }
+        #search-btn {
+            background: var(--hku-green);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        #search-btn:hover {
+            background: #002244;
+        }
+        #clear-search-btn {
+            background: #f0f0f0;
+            color: #555;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        #clear-search-btn:hover {
+            background: #e0e0e0;
+        }
+        .search-status {
+            margin-top: 6px;
+            font-size: 0.9rem;
+            color: #666;
+            min-height: 1.5em;
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 16px 0 12px;
+            padding: 10px 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e8e8e8;
+        }
+        .pagination-info {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .pagination-info strong {
+            color: var(--primary);
+        }
+        .pagination-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            padding: 5px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
+            color: #555;
+        }
+        .page-btn:hover {
+            border-color: var(--hku-gold);
+            color: var(--primary);
+        }
+        .page-btn.active {
+            background: var(--hku-gold);
+            border-color: var(--hku-gold);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .page-btn.show-all {
+            background: #f0f0f0;
+            border-color: #ddd;
+            color: #666;
+            font-weight: 500;
+        }
+        .page-btn.show-all.active {
+            background: var(--hku-green);
+            border-color: var(--hku-green);
+            color: white;
+        }
+
         /* ===== TABLE ===== */
         .table-wrapper {
             overflow-x: auto;
@@ -279,6 +397,23 @@
                 padding: 16px;
                 width: 95%;
             }
+
+            .search-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            #search-btn, #clear-search-btn {
+                width: 100%;
+                text-align: center;
+            }
+            .pagination-bar {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+            .pagination-controls {
+                justify-content: center;
+            }
         }
         @media (max-width: 480px) {
             .log-container {
@@ -324,6 +459,33 @@
                 <div class="log-meta">
                     <span class="badge" id="log-level-badge">Level: All</span>
                     <span id="log-total" data-i18n="total_records">Total: 0 records in total</span>
+                </div>
+            </div>
+
+            <!-- ===== SEARCH ===== -->
+            <div class="search-bar">
+                <div class="search-container">
+                    <input type="text" id="search-input" data-i18n-placeholder="search_transactions" placeholder="Search by #, time, price, seller, buyer..." />
+                    <button type="button" id="search-btn" onclick="applySearch()" data-i18n="search">🔍 Search</button>
+                    <button type="button" id="clear-search-btn" onclick="clearSearch()" data-i18n="clear">✕ Clear</button>
+                </div>
+                <div id="search-status" class="search-status"></div>
+            </div>
+
+            <!-- ===== PAGINATION (top) ===== -->
+            <div class="pagination-bar" id="pagination-top">
+                <div class="pagination-info">
+                    <span data-i18n="showing">Showing</span>
+                    <strong id="showing-start">0</strong>–<strong id="showing-end">0</strong>
+                    <span data-i18n="of">of</span>
+                    <strong id="total-count">0</strong>
+                    <span data-i18n="transactions_label">transactions</span>
+                </div>
+                <div class="pagination-controls">
+                    <button class="page-btn" id="prev-page-btn" onclick="prevPage()" data-i18n="prev">‹ Prev</button>
+                    <span id="page-numbers"></span>
+                    <button class="page-btn" id="next-page-btn" onclick="nextPage()" data-i18n="next">Next ›</button>
+                    <button class="page-btn show-all" id="show-all-btn" onclick="toggleShowAll()" data-i18n="show_all">Show All</button>
                 </div>
             </div>
 
