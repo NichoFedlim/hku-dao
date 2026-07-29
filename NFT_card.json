@@ -1,0 +1,777 @@
+[
+  {
+    "card_number": 1,
+    "name": "Architecture",
+    "name_zh": "建筑学院",
+    "type": "faculty",
+    "nft": "10D95EDF7AB8F8E500132D68A587FE69303F48F0BC765A380D75AF5252C148EB",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "10D95EDF7AB8F8E5",
+        "next_chain": "00132D68A587FE69"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 2,
+    "name": "Arts",
+    "name_zh": "文学院",
+    "type": "faculty",
+    "nft": "AB628D1A7BDDA67843C08CF5382BC069A7B69BC058ABD42D983EF428024C0782",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "AB628D1A7BDDA678",
+        "next_chain": "43C08CF5382BC069"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 3,
+    "name": "Business & Economics",
+    "name_zh": "商学院",
+    "type": "faculty",
+    "nft": "0CF63250CC84F253EAE67EEBD56CABBB109F8497D90AC126FD9FF230CA446AEF",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "0CF63250CC84F253",
+        "next_chain": "EAE67EEBD56CABBB"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 4,
+    "name": "Dentistry",
+    "name_zh": "牙医学院",
+    "type": "faculty",
+    "nft": "65D167886833119F4A1A1004D4C4AB7A1F1B72E55AC05BC9633A820C06D726DD",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "65D167886833119F",
+        "next_chain": "4A1A1004D4C4AB7A"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 5,
+    "name": "Education",
+    "name_zh": "教育学院",
+    "type": "faculty",
+    "nft": "1D4E384CBCC24B2D23123F07D510C21B65833FB81CB2837F3D72F5B59572DC96",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "1D4E384CBCC24B2D",
+        "next_chain": "23123F07D510C21B"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 6,
+    "name": "Engineering",
+    "name_zh": "工程学院",
+    "type": "faculty",
+    "nft": "F834CF5EFFFC9A3FB36BBA062154EAC647246B754C69FB755A456EA0166958B9",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "F834CF5EFFFC9A3F",
+        "next_chain": "B36BBA062154EAC6"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 7,
+    "name": "Law",
+    "name_zh": "法学院",
+    "type": "faculty",
+    "nft": "539B46597B15B3BF0EB148EC01887B008951A907326452599DDBEA0E12BE7664",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "539B46597B15B3BF",
+        "next_chain": "0EB148EC01887B00"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 8,
+    "name": "Medicine",
+    "name_zh": "李嘉诚医学院",
+    "type": "faculty",
+    "nft": "B004B09583B11EF5842729A46133E13B6BC62CEB3315329537D5035D900F68EB",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "B004B09583B11EF5",
+        "next_chain": "842729A46133E13B"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 9,
+    "name": "Science",
+    "name_zh": "理学院",
+    "type": "faculty",
+    "nft": "EB017CF36614D92E7CBFA207D2B957593CF7E1799E047D5CC8590B36E27F434C",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "EB017CF36614D92E",
+        "next_chain": "7CBFA207D2B95759"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 10,
+    "name": "Social Sciences",
+    "name_zh": "社会科学学院",
+    "type": "faculty",
+    "nft": "4B43AEE170C24E0CB7868E8C18B02DD598DCF895DD5C85A4F82521D991C86E15",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "4B43AEE170C24E0C",
+        "next_chain": "B7868E8C18B02DD5"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 101,
+    "name": "Main Building",
+    "name_zh": "主楼",
+    "type": "building",
+    "nft": "A01661DFFCDCAC390BB0C643B82116155407C80A512E37B4A77DD9FB624A6344",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "A01661DFFCDCAC39",
+        "next_chain": "0BB0C643B8211615"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 102,
+    "name": "Haking Wong Building",
+    "name_zh": "王克桢楼",
+    "type": "building",
+    "nft": "AB02A40D7FA72875AA6ED10000693FB630623ED7FB92EE8F7A32B6524A83E748",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "AB02A40D7FA72875",
+        "next_chain": "AA6ED10000693FB6"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 103,
+    "name": "Chow Yei Ching Building",
+    "name_zh": "周亦卿楼",
+    "type": "building",
+    "nft": "2CF9524DFAC4D99778B5C33B6451262076B48CB3E4F07C67F8499DBA1A1379B3",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "2CF9524DFAC4D997",
+        "next_chain": "78B5C33B64512620"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 104,
+    "name": "K.K. Leung Building",
+    "name_zh": "梁銶琚楼",
+    "type": "building",
+    "nft": "F692533321A7F76400C7AEA57500D5E59B3C3EECDD1D003DA75B53360AFD0CB8",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "F692533321A7F764",
+        "next_chain": "00C7AEA57500D5E5"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 105,
+    "name": "Meng Wah Complex",
+    "name_zh": "蒙民伟楼",
+    "type": "building",
+    "nft": "DE9FD00C44674C762C135F1723FEB4279E3E4AA1D517AF68EB32221B59DDEEE1",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "DE9FD00C44674C76",
+        "next_chain": "2C135F1723FEB427"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 601,
+    "name": "1910 – 1929",
+    "name_zh": "1910 – 1929",
+    "type": "history",
+    "nft": "EDEA66D42871518C6751C7C4B261D757B80BDAF70653356EDB335A5E451D1ABE",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "EDEA66D42871518C",
+        "next_chain": "6751C7C4B261D757"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 602,
+    "name": "1930 – 1949",
+    "name_zh": "1930 – 1949",
+    "type": "history",
+    "nft": "B7A2DFFF7257CCD4CF4ED3EFAC5608167BDFA1AC3F7D12A981573E89E4C63773",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "B7A2DFFF7257CCD4",
+        "next_chain": "CF4ED3EFAC560816"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 603,
+    "name": "1950 – 1969",
+    "name_zh": "1950 – 1969",
+    "type": "history",
+    "nft": "C586120905DABCE8CEDB16692471197E802525E4F69A3A6ECD6C0B195A5B2D7F",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "C586120905DABCE8",
+        "next_chain": "CEDB16692471197E"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 604,
+    "name": "1970 – 1989",
+    "name_zh": "1970 – 1989",
+    "type": "history",
+    "nft": "E7E4E216C9948D643E00A6B31308EC36043B3889252300EE4AE72BC6ACF1AE08",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "E7E4E216C9948D64",
+        "next_chain": "3E00A6B31308EC36"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 605,
+    "name": "1990 – 2009",
+    "name_zh": "1990 – 2009",
+    "type": "history",
+    "nft": "EA4C5C1420C826E3EED7F42A3C3C4646C6A0E4CD7B296136D9736776F7021CA2",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "EA4C5C1420C826E3",
+        "next_chain": "EED7F42A3C3C4646"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 606,
+    "name": "2010 – 2029",
+    "name_zh": "2010 – 2029",
+    "type": "history",
+    "nft": "D100243228CA11DF116305A19A7529E0CDA31788F70684E8F762BF8316D5DF81",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "D100243228CA11DF",
+        "next_chain": "116305A19A7529E0"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 701,
+    "name": "Dim Sum",
+    "name_zh": "点心",
+    "type": "culture",
+    "nft": "86115B372E842EE14D280F9F90E953DB6E1443D4BFD7BFFE12F8232824CEDC6A",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "86115B372E842EE1",
+        "next_chain": "4D280F9F90E953DB"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 702,
+    "name": "Peak Hiking Trails",
+    "name_zh": "山顶行山径",
+    "type": "culture",
+    "nft": "C5432EBCD53DB88F832E414A976B28DC9228776897FB3B81130C4DFDEFD0E9BF",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "C5432EBCD53DB88F",
+        "next_chain": "832E414A976B28DC"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 703,
+    "name": "Two-Dish Rice",
+    "name_zh": "两餸饭",
+    "type": "culture",
+    "nft": "DA91045F504376932E1497CB17C61758FB5947D913D3564F09C87C68C0055815",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "DA91045F50437693",
+        "next_chain": "2E1497CB17C61758"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  },
+  {
+    "card_number": 704,
+    "name": "Siu Mei (Roast Meats)",
+    "name_zh": "烧味",
+    "type": "culture",
+    "nft": "E3DD500A1CD6BD7E23A57FCD1B69EF780EFA0F9A814C1A5B43E78DD2D4CB19F0",
+    "population": 0,
+    "percent": 0,
+    "price": 1000,
+    "source": [],
+    "distribution": [],
+    "history": [],
+    "modern": [],
+    "log": [
+      {
+        "thread": 1,
+        "time": "2026-07-28 08:56:37",
+        "price": 1000,
+        "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+        "buyer": "10001.1000.1010",
+        "chain": "E3DD500A1CD6BD7E",
+        "next_chain": "23A57FCD1B69EF78"
+      }
+    ],
+    "nft_holder": {
+      "wallet": "10001.1000.1010",
+      "phone_number": "",
+      "email": "",
+      "other": "......"
+    }
+  }
+]

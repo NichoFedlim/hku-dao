@@ -585,6 +585,8 @@
     </footer>
 
     <script>
+        // Detect if we're on the dev server (port 5504) and set API base accordingly
+        const API_BASE = (window.location.port === '5504' || window.location.port === '5500') ? 'http://127.0.0.1:5012' : '';
         // ============================================================
         // I18N SYSTEM
         // ============================================================
@@ -1021,6 +1023,7 @@
         let currentPage = 1;
         const ITEMS_PER_PAGE = 50;
         let showAllMode = false;
+        let usingMockData = false; // flag to show mock indicator
 
         // ===== DOM REFS =====
         const grid = document.getElementById('item-grid');
@@ -1031,10 +1034,66 @@
         const parentNameEl = document.getElementById('parent-name');
 
         // ===== LOAD ITEMS =====
-        function loadItems() {
+        async function loadItems() {
             const params = new URLSearchParams(window.location.search);
             const level = params.get('level') || 'category';
             const id = params.get('id') || params.get('parent');
+            
+            currentLevel = level;
+            parentId = id;
+            
+            if (!id) {
+                showEmptyState('❓', 'Missing ID', 'No category ID provided.');
+                return;
+            }
+            
+            try {
+                // Fetch subcategories from API
+                const url = `${API_BASE}/api/subcategories/list/${id}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch subcategories');
+                const result = await response.json();
+                
+                if (!result.data || result.data.length === 0) {
+                    showEmptyState('📭', 'No items found', 'This category has no sub-items.');
+                    return;
+                }
+                
+                // Transform API data
+                items = result.data.map(sub => ({
+                    id: sub.id,
+                    name: sub.name,
+                    name_zh: sub.name_zh || sub.name,
+                    nft: sub.hash || `0x${Math.random().toString(16).substring(2, 18)}`,
+                    shortlink: sub.shortlink || `https://hku.hk/subcategory/${sub.id}`,
+                    price: sub.price || 0,
+                    parentName: sub.categoryName || 'Category',
+                    parentName_zh: sub.categoryName || 'Category'
+                }));
+                
+                parentName = currentLang === 'zh' ? (items[0]?.parentName_zh || items[0]?.parentName) : items[0]?.parentName;
+                parentNameEl.textContent = parentName || 'Category';
+                countBadge.textContent = items.length;
+                
+                filteredItems = [...items];
+                currentPage = 1;
+                showAllMode = false;
+                renderCurrentView();
+                
+            } catch (error) {
+                console.error('Failed to load items:', error);
+                showToast('Failed to load items from server', 'error');
+                // Fallback to hardcoded data
+                showToast('⚠️ Using mock data - backend API not available', 'warning');
+                usingMockData = true;
+                return loadItemsFallback(id);
+            }
+        }
+
+        function loadItemsFallback(id) {
+            const params = new URLSearchParams(window.location.search);
+            const level = params.get('level') || 'category';
+            id = params.get('id') || params.get('parent');
 
             currentLevel = level;
             parentId = id;
@@ -1458,7 +1517,31 @@
         // ============================================================
         async function init() {
             await loadLanguage(currentLang);
-            loadItems();
+            await loadItems();
+
+            // Show mock indicator if using mock data
+            if (usingMockData) {
+                const indicator = document.createElement('div');
+                indicator.id = 'mock-indicator';
+                indicator.style.cssText = `
+                    background: #ff9800;
+                    color: #fff;
+                    padding: 8px 16px;
+                    border-radius: 8px;
+                    text-align: center;
+                    margin: 10px 0;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                `;
+                indicator.innerHTML = '⚠️ Using mock data (backend API not available)';
+                const searchSection = document.querySelector('.search-section');
+                if (searchSection) {
+                    searchSection.parentNode.insertBefore(indicator, searchSection);
+                }
+            }
 
             const info = checkLoginStatus();
             if (info) {

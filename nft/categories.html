@@ -604,6 +604,8 @@
     </footer>
 
     <script>
+        // Detect if we're on the dev server (port 5504) and set API base accordingly
+        const API_BASE = (window.location.port === '5504' || window.location.port === '5500') ? 'http://127.0.0.1:5012' : '';
         // ============================================================
         // I18N SYSTEM
         // ============================================================
@@ -916,6 +918,7 @@
         const ITEMS_PER_PAGE = 50;
         let showAllMode = false;
         let hasOwnership = false;
+        let usingMockData = false; // flag to show mock indicator
 
         // ===== DOM REFS =====
         const grid = document.getElementById('category-grid');
@@ -926,7 +929,39 @@
         const loginBtn = document.getElementById('login-btn');
 
         // ===== BUILD CATEGORY DATA =====
-        function buildAllCategories() {
+        async function buildAllCategories() {
+            try {
+                const url = `${API_BASE}/api/categories/list`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch categories');
+                const result = await response.json();
+                const categories = result.data || [];
+                if (!categories.length) throw new Error('No categories returned');
+                
+                // Transform API data to match the expected format
+                return categories.map(cat => ({
+                    id: cat.id,
+                    name: cat.name,
+                    name_zh: cat.name_zh || cat.name,
+                    filterKey: cat.type || 'all',
+                    subcount: cat.subcount || 0,
+                    nft: cat.hash || `0x${Math.random().toString(16).substring(2, 18)}`,
+                    shortlink: cat.shortlink || `https://hku.hk/category/${cat.id}`,
+                    price: cat.price || 0
+                }));
+            } catch (error) {
+                console.error('Failed to load categories:', error);
+                showToast('Failed to load categories from server', 'error');
+                // Fallback to hardcoded data
+                showToast('⚠️ Using mock data - backend API not available', 'warning');
+                usingMockData = true;
+                return buildAllCategoriesFallback();
+            }
+        }
+
+        // Keep the fallback for when server is down
+        function buildAllCategoriesFallback() {
+            // Your existing hardcoded data
             const all = [];
             for (const [filterKey, items] of Object.entries(CATEGORY_DATA)) {
                 items.forEach(item => {
@@ -1413,10 +1448,34 @@
         // ===== INIT =====
         async function init() {
             await loadLanguage(currentLang);
-            allCategories = buildAllCategories();
+            allCategories = await buildAllCategories();
             filteredCategories = [...allCategories];
             updateFilterBadges();
             renderCurrentView();
+
+            // Show mock indicator if using mock data
+            if (usingMockData) {
+                const indicator = document.createElement('div');
+                indicator.id = 'mock-indicator';
+                indicator.style.cssText = `
+                    background: #ff9800;
+                    color: #fff;
+                    padding: 8px 16px;
+                    border-radius: 8px;
+                    text-align: center;
+                    margin: 10px 0;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                `;
+                indicator.innerHTML = '⚠️ Using mock data (backend API not available)';
+                const searchSection = document.querySelector('.search-section');
+                if (searchSection) {
+                    searchSection.parentNode.insertBefore(indicator, searchSection);
+                }
+            }
 
             const info = checkLoginStatus();
             if (info) {

@@ -456,6 +456,8 @@
          JAVASCRIPT
          ============================================================ -->
     <script>
+        // Detect if we're on the dev server (port 5504) and set API base accordingly
+        const API_BASE = (window.location.port === '5504' || window.location.port === '5500') ? 'http://127.0.0.1:5012' : '';
         // ============================================================
         // I18N SYSTEM
         // ============================================================
@@ -566,7 +568,7 @@
 
         async function loadDaoData() {
             try {
-                const response = await fetch('/nft/data/peizheng.json');
+                const response = await fetch(`${API_BASE}/hku_dao.json`);
                 if (!response.ok) throw new Error('Failed to load DAO data');
                 daoData = await response.json();
 
@@ -579,7 +581,7 @@
                     hashDisplay.innerHTML = 'No NFT hash available';
                 }
 
-                // Generate QR code
+                // Generate QR code – use shortlink if available, else hash, else fallback
                 const qrContent = daoData.shortlink?.trim() || daoData.hash?.trim() || 'https://hku.hk';
                 const qrContainer = document.getElementById('dao-qrcode');
                 if (qrContainer && qrContent) {
@@ -597,6 +599,7 @@
             } catch (error) {
                 console.error('Failed to load DAO data:', error);
                 document.getElementById('dao-hash-display').innerHTML = '⚠️ Failed to load data';
+                // Optionally show a fallback QR
             }
         }
 
@@ -618,7 +621,7 @@
             const grid = document.getElementById('grid');
             try {
                 // Fetch from API (or use mock data)
-                const response = await fetch('/api/categories');
+                const response = await fetch(`${API_BASE}/api/categories/list`);
                 let categories;
                 if (response.ok) {
                     categories = await response.json();

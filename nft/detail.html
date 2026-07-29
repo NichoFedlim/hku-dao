@@ -738,6 +738,8 @@
     </footer>
 
     <script>
+        // Detect if we're on the dev server (port 5504) and set API base accordingly
+        const API_BASE = (window.location.port === '5504' || window.location.port === '5500') ? 'http://127.0.0.1:5012' : '';
         // ============================================================
         // I18N SYSTEM
         // ============================================================
@@ -848,6 +850,7 @@
         let pendingUploads = [];
         let selectedFile = null;
         let selectedFileType = '';
+        let usingMockData = false; // flag to show mock indicator
 
         // ============================================================
         // LOAD DETAIL DATA
@@ -905,7 +908,94 @@
             // Add more categories as needed...
         };
 
-        function loadDetail() {
+
+        async function loadDetail() {
+            const params = new URLSearchParams(window.location.search);
+            const type = params.get('type') || 'item';
+            const id = params.get('id');
+            
+            itemType = type;
+            itemId = id;
+            
+            if (!id) {
+                showToast('Error', 'Missing item ID');
+                return;
+            }
+            
+            try {
+                let response;
+                let data;
+                
+                if (type === 'category') {
+                    // Fetch category detail API
+                    const url = `${API_BASE}/api/category/detail?id=${id}&name=`;
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Failed to fetch category');
+                    const data = await response.json();
+                    detailData = {
+                        id: data.card_number || id,
+                        name: data.name,
+                        name_zh: data.name_zh || data.name,
+                        type: 'category',
+                        hash: data.hash || '',
+                        shortlink: data.shortlink || '',
+                        price: data.price || 0,
+                        description: data.description || '',
+                        description_zh: data.description_zh || '',
+                        details: data.details || '',
+                        details_zh: data.details_zh || '',
+                        attachments: data.attachments || []
+                    };
+                } else if (type === 'subcategory' || type === 'item') {
+                    // Build URL from query params
+                    const categoryId = params.get('categoryId');
+                    const categoryName = params.get('categoryName');
+                    const subcategoryId = params.get('subcategoryId');
+                    const subcategoryName = params.get('subcategoryName');
+                    const itemNumber = params.get('itemNumber');
+                    const itemName = params.get('itemName');
+                    
+                    let url;
+                    if (type === 'subcategory') {
+                        url = `${API_BASE}/api/subcategory/detail?category_id=${categoryId}&category_name=${categoryName}&subcategory_id=${subcategoryId}&subcategory_name=${subcategoryName}`;
+                    } else {
+                        url = `${API_BASE}/api/item/detail?category_id=${categoryId}&category_name=${categoryName}&subcategory_id=${subcategoryId}&subcategory_name=${subcategoryName}&item_number=${itemNumber}&item_name=${itemName}`;
+                    }
+                    
+                    response = await fetch(url);
+                    if (!response.ok) throw new Error('Failed to fetch detail');
+                    data = await response.json();
+                    detailData = {
+                        id: data.id || id,
+                        name: data.name,
+                        name_zh: data.name_zh || data.name,
+                        type: type,
+                        hash: data.hash || '',
+                        shortlink: data.shortlink || '',
+                        price: data.purchase_price || data.price || 0,
+                        description: data.description || '',
+                        description_zh: data.description_zh || '',
+                        details: data.details || '',
+                        details_zh: data.details_zh || '',
+                        attachments: data.attachments || []
+                    };
+                }
+                
+                originalData = { ...detailData };
+                renderDetail();
+                checkOwnership();
+                
+            } catch (error) {
+                console.error('Failed to load detail:', error);
+                showToast('Failed to load data from server', 'error');
+                // Fallback to mock data
+                showToast('⚠️ Using mock data - backend API not available', 'warning');
+                usingMockData = true;
+                loadDetailFallback(type, id);
+            }
+        }
+
+        function loadDetailFallback() {
             const params = new URLSearchParams(window.location.search);
             const type = params.get('type') || 'item';
             const id = params.get('id');
@@ -1124,7 +1214,8 @@
             try {
                 // In production: fetch user's NFTs and check ownership
                 // For demo, we check if the user is logged in
-                const response = await fetch(`/api/user/nfts?wallet=${info.walletid}`);
+                const url = `${API_BASE}/api/user/nfts?wallet=${info.walletid}`;
+                const response = await fetch(url);
                 if (response.ok) {
                     const userNFTs = await response.json();
                     // Check if user owns this specific NFT
@@ -1216,7 +1307,7 @@
             detailData.details = newDetails;
 
             // In production: save to server
-            // const response = await fetch('/api/detail/update', {
+            // const response = await fetch('${API_BASE}/api/detail/update', {
             //     method: 'POST',
             //     headers: { 'Content-Type': 'application/json' },
             //     body: JSON.stringify({
@@ -1455,7 +1546,7 @@
         // ============================================================
         async function init() {
             await loadLanguage(currentLang);
-            loadDetail();
+            await loadDetail();
 
             const info = checkLoginStatus();
             if (info) {
