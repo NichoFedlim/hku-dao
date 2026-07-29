@@ -7,7 +7,7 @@
 ---
 ## 📋 Table of Content
 
-| Section | What I Added/Improved |
+| Section | What is Added/Improved |
 |---------|----------------------|
 | **1. Overview** | Clear description of the project's purpose and 3-level hierarchy |
 | **2. Architecture** | Data flow diagram and core pages table |
