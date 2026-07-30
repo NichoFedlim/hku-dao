@@ -205,15 +205,22 @@
             color: #cc9f2e;
         }
 
-        /* ---- FIX: btn-group nowrap and input styling ---- */
+        /* ---- btn-group nowrap and input styling ---- */
         .card-footer-actions .btn-group {
+            display: flex;
+            flex-direction: column; /* stack rows vertically */
+            gap: 4px;
+            width: 100%;
+        }
+        .card-footer-actions .btn-group .btn-row {
             display: flex;
             gap: 6px;
             align-items: center;
-            flex-wrap: nowrap; /* force one line */
+            flex-wrap: wrap;
         }
         .card-footer-actions .btn-group .price-input {
             width: 80px;
+            max-width: 100%;
             padding: 5px 8px;
             border: 1px solid #ddd;
             border-radius: 6px;
@@ -222,6 +229,7 @@
             -webkit-appearance: textfield;
             appearance: textfield;
             -moz-appearance: textfield;
+            flex-shrink: 1;
         }
         .card-footer-actions .btn-group .price-input::-webkit-inner-spin-button,
         .card-footer-actions .btn-group .price-input::-webkit-outer-spin-button {
@@ -241,7 +249,8 @@
             font-weight: 600;
             cursor: pointer;
             transition: background 0.2s;
-            white-space: nowrap;
+            white-space: nowrap; /* keep text on one line */
+            flex-shrink: 0; /* prevent buttons from shrinking too much */
         }
         .btn-sm-sell {
             background: #28a745;
@@ -264,6 +273,13 @@
         .btn-sm-transaction:hover {
             background: #3aa3c7;
         }
+        .btn-sm-transfer {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-sm-transfer:hover {
+            background: #5a6268;
+        }
         .btn-sm:disabled {
             background: #6c757d;
             cursor: not-allowed;
@@ -277,6 +293,7 @@
             color: #856404;
             border-left: 3px solid #ffc107;
             white-space: nowrap;
+            flex-shrink: 0;
         }
         .price-info-tag .value {
             font-weight: 700;
@@ -400,7 +417,7 @@
         .skeleton-card .skeleton-line.medium { width: 80%; }
         .skeleton-card .skeleton-line.long { width: 100%; }
 
-        /* ===== MODAL ===== */
+        /* ===== MODALS (Sell & Transfer) ===== */
         .modal {
             display: none;
             position: fixed;
@@ -476,6 +493,20 @@
             font-weight: bold;
         }
         .confirm-btn:hover { background: #218838; }
+
+        /* Transfer modal specific */
+        .recipient-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        .recipient-input:focus {
+            border-color: #4cb7db;
+            outline: none;
+        }
 
         /* ===== MOCK INDICATOR ===== */
         #mock-indicator {
@@ -706,6 +737,69 @@
         </div>
     </div>
 
+    <!-- ===== TRANSFER CONFIRM MODAL ===== -->
+    <div class="modal" id="transferModal">
+        <div class="modal-content">
+            <span class="close" onclick="hideTransferModal()">&times;</span>
+
+            <div id="transferSection">
+                <h3 style="color: #910209; margin-bottom: 20px;" data-i18n="transfer_nft">Transfer NFT</h3>
+
+                <div class="confirm-info-card">
+                    <h4 style="margin-bottom: 15px; color: #333;" data-i18n="nft_details">NFT Details</h4>
+
+                    <div class="confirm-nft-details">
+                        <div class="detail-row">
+                            <span style="font-weight: bold; min-width: 80px;" data-i18n="level_label">Level:</span>
+                            <span id="transferLevel" style="color: #333;"></span>
+                        </div>
+                        <div class="detail-row">
+                            <span style="font-weight: bold; min-width: 80px;" data-i18n="number_label">Number:</span>
+                            <span id="transferNumber" style="color: #333;"></span>
+                        </div>
+                        <div class="detail-row">
+                            <span style="font-weight: bold; min-width: 80px;" data-i18n="surname_label">Surname:</span>
+                            <span id="transferSurname" style="color: #333;"></span>
+                        </div>
+                        <div class="detail-row" id="transferCitangRow" style="display: none;">
+                            <span style="font-weight: bold; min-width: 80px;" data-i18n="citang_label">Citang:</span>
+                            <span id="transferCitang" style="color: #333;"></span>
+                        </div>
+                        <div class="detail-row" id="transferMemberRow" style="display: none;">
+                            <span style="font-weight: bold; min-width: 80px;" data-i18n="member_label">Member:</span>
+                            <span id="transferMember" style="color: #333;"></span>
+                        </div>
+                        <div class="detail-row">
+                            <span style="font-weight: bold; min-width: 80px;" data-i18n="nft_hash_label">NFT Hash:</span>
+                            <span id="transferNftHash" style="color: #333; font-family: monospace; font-size: 12px; word-break: break-all;"></span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 6px;" data-i18n="recipient_wallet">Recipient Wallet Address *</label>
+                        <input type="text" id="transferRecipient" class="recipient-input" placeholder="64-character hex address" />
+                        <small style="color: #888; display: block; margin-top: 4px;" data-i18n="transfer_recipient_hint">Enter the recipient's 64-character wallet address</small>
+                    </div>
+                </div>
+
+                <div class="price-section">
+                    <p style="margin: 0; color: #856404;" data-i18n="transfer_warning">
+                        <strong>Note:</strong> This will send the NFT to the recipient's wallet. The action is irreversible.
+                    </p>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="button" onclick="hideTransferModal()"
+                        style="padding: 10px 30px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; flex: 1;"
+                        data-i18n="cancel">Cancel</button>
+                    <button class="confirm-btn" onclick="proceedTransfer()"
+                        style="padding: 10px 30px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: bold; flex: 1;"
+                        data-i18n="confirm_transfer">Confirm Transfer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ============================================================ -->
     <!-- ======================== JAVASCRIPT =========================== -->
     <!-- ============================================================ -->
@@ -860,15 +954,14 @@
         let userNFTs = [];
         let onSaleNFTs = [];
         let pendingSellNFT = null;
+        let pendingTransferNFT = null;
         let currentPriceInputId = '';
         let usingMockData = false;
 
         const itemsPerPage = 12;
-        let isLoading = false;
-        let allLoaded = false;
 
         // ============================================================
-        // MOCK DATA GENERATOR (fallback) – updated to match HKU categories
+        // MOCK DATA GENERATOR (fallback)
         // ============================================================
         function getMockNFTs() {
             return [
@@ -1113,7 +1206,7 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        // ===== RENDER CARDS - HORIZONTAL LAYOUT =====
+        // ===== RENDER CARDS =====
         function renderSurnameCard(nft) {
             const isOnSale = onSaleNFTs.some(s => s.level === nft.level && s.card_number === nft.card_number && s.surname === nft.surname);
             const saleInfo = onSaleNFTs.find(s => s.level === nft.level && s.card_number === nft.card_number && s.surname === nft.surname);
@@ -1142,20 +1235,27 @@
                     <div class="card-footer-actions">
                         <span class="price-display">💰 <span class="rc">${purchasePrice} RC</span></span>
                         <div class="btn-group">
-                            <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory('${nft.level}', '${nft.card_number}', '${escapeHtml(nft.surname)}')">
-                                ${t('view_transactions')}
-                            </button>
-                            ${isOnSale ? `
-                                <span class="price-info-tag">${t('selling_price')}: <span class="value">${saleInfo?.price || 0} RC</span></span>
-                                <button class="btn-sm btn-sm-cancel" onclick="cancelSale('${nft.level}', '${nft.card_number}', '${escapeHtml(nft.surname)}', '', '', '', '')">
-                                    ${t('cancel_sale')}
+                            <div class="btn-row">
+                                <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory(...)">
+                                    ${t('view_transactions')}
                                 </button>
-                            ` : `
-                                <input type="number" class="price-input" id="price-${nft.level}-${nft.card_number}" placeholder="${t('enter_price')}" min="1">
-                                <button class="btn-sm btn-sm-sell" onclick="sellNFT('${nft.level}', '${nft.card_number}', '${escapeHtml(nft.surname)}', '', '', '', '')">
-                                    ${t('list_for_sale')}
+                                <button class="btn-sm btn-sm-transfer" onclick="openTransferModal(...)">
+                                    ${t('transfer')}
                                 </button>
-                            `}
+                            </div>
+                            <div class="btn-row">
+                                ${isOnSale ? `
+                                    <span class="price-info-tag">${t('selling_price')}: <span class="value">${saleInfo?.price || 0} RC</span></span>
+                                    <button class="btn-sm btn-sm-cancel" onclick="cancelSale(...)">
+                                        ${t('cancel_sale')}
+                                    </button>
+                                ` : `
+                                    <input type="number" class="price-input" id="price-${nft.level}-${nft.card_number}" placeholder="${t('enter_price')}" min="1">
+                                    <button class="btn-sm btn-sm-sell" onclick="sellNFT(...)">
+                                        ${t('list_for_sale')}
+                                    </button>
+                                `}
+                            </div>
                         </div>
                     </div>
                 </div>`;
@@ -1197,20 +1297,27 @@
                     <div class="card-footer-actions">
                         <span class="price-display">💰 <span class="rc">${purchasePrice} RC</span></span>
                         <div class="btn-group">
-                            <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory('${nft.level}', '${nft.card_number}', '${escapeHtml(nft.surname)}', '${nft.citang_number}', '${escapeHtml(nft.citang_name)}')">
-                                ${t('view_transactions')}
-                            </button>
-                            ${isOnSale ? `
-                                <span class="price-info-tag">${t('selling_price')}: <span class="value">${saleInfo?.price || 0} RC</span></span>
-                                <button class="btn-sm btn-sm-cancel" onclick="cancelSale('${nft.level}', '${nft.card_number}', '${escapeHtml(nft.surname)}', '${nft.citang_number}', '${escapeHtml(nft.citang_name)}', '', '')">
-                                    ${t('cancel_sale')}
+                            <div class="btn-row">
+                                <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory(...)">
+                                    ${t('view_transactions')}
                                 </button>
-                            ` : `
-                                <input type="number" class="price-input" id="price-${nft.level}-${nft.card_number}" placeholder="${t('enter_price')}" min="1">
-                                <button class="btn-sm btn-sm-sell" onclick="sellNFT('${nft.level}', '${nft.card_number}', '${escapeHtml(nft.surname)}', '${nft.citang_number}', '${escapeHtml(nft.citang_name)}', '', '')">
-                                    ${t('list_for_sale')}
+                                <button class="btn-sm btn-sm-transfer" onclick="openTransferModal(...)">
+                                    ${t('transfer')}
                                 </button>
-                            `}
+                            </div>
+                            <div class="btn-row">
+                                ${isOnSale ? `
+                                    <span class="price-info-tag">${t('selling_price')}: <span class="value">${saleInfo?.price || 0} RC</span></span>
+                                    <button class="btn-sm btn-sm-cancel" onclick="cancelSale(...)">
+                                        ${t('cancel_sale')}
+                                    </button>
+                                ` : `
+                                    <input type="number" class="price-input" id="price-${nft.level}-${nft.card_number}" placeholder="${t('enter_price')}" min="1">
+                                    <button class="btn-sm btn-sm-sell" onclick="sellNFT(...)">
+                                        ${t('list_for_sale')}
+                                    </button>
+                                `}
+                            </div>
                         </div>
                     </div>
                 </div>`;
@@ -1254,20 +1361,27 @@
                     <div class="card-footer-actions">
                         <span class="price-display">💰 <span class="rc">${purchasePrice} RC</span></span>
                         <div class="btn-group">
-                            <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory('${nft.level}', '${nft.card_number}', '${escapeHtml(nft.surname)}', '${nft.citang_number}', '${escapeHtml(nft.citang_name)}', '${nft.member_number}', '${escapeHtml(nft.member_name)}')">
-                                ${t('view_transactions')}
-                            </button>
-                            ${isOnSale ? `
-                                <span class="price-info-tag">${t('selling_price')}: <span class="value">${saleInfo?.price || 0} RC</span></span>
-                                <button class="btn-sm btn-sm-cancel" onclick="cancelSale('${nft.level}', '${nft.card_number}', '${escapeHtml(nft.surname)}', '${nft.citang_number}', '${escapeHtml(nft.citang_name)}', '${nft.member_number}', '${escapeHtml(nft.member_name)}')">
-                                    ${t('cancel_sale')}
+                            <div class="btn-row">
+                                <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory(...)">
+                                    ${t('view_transactions')}
                                 </button>
-                            ` : `
-                                <input type="number" class="price-input" id="price-${nft.level}-${nft.card_number}" placeholder="${t('enter_price')}" min="1">
-                                <button class="btn-sm btn-sm-sell" onclick="sellNFT('${nft.level}', '${nft.card_number}', '${escapeHtml(nft.surname)}', '${nft.citang_number}', '${escapeHtml(nft.citang_name)}', '${nft.member_number}', '${escapeHtml(nft.member_name)}')">
-                                    ${t('list_for_sale')}
+                                <button class="btn-sm btn-sm-transfer" onclick="openTransferModal(...)">
+                                    ${t('transfer')}
                                 </button>
-                            `}
+                            </div>
+                            <div class="btn-row">
+                                ${isOnSale ? `
+                                    <span class="price-info-tag">${t('selling_price')}: <span class="value">${saleInfo?.price || 0} RC</span></span>
+                                    <button class="btn-sm btn-sm-cancel" onclick="cancelSale(...)">
+                                        ${t('cancel_sale')}
+                                    </button>
+                                ` : `
+                                    <input type="number" class="price-input" id="price-${nft.level}-${nft.card_number}" placeholder="${t('enter_price')}" min="1">
+                                    <button class="btn-sm btn-sm-sell" onclick="sellNFT(...)">
+                                        ${t('list_for_sale')}
+                                    </button>
+                                `}
+                            </div>
                         </div>
                     </div>
                 </div>`;
@@ -1325,7 +1439,9 @@
             return names[level] || level;
         }
 
-        // ===== SELL NFT =====
+        // ============================================================
+        // SELL NFT
+        // ============================================================
         async function sellNFT(level, card_number, surname, citang_number, citang_name, member_number, member_name) {
             const loginInfo = checkLoginStatus();
             if (!loginInfo) {
@@ -1458,6 +1574,9 @@
             }
         }
 
+        // ============================================================
+        // CANCEL SALE
+        // ============================================================
         async function cancelSale(level, card_number, surname, citang_number, citang_name, member_number, member_name) {
             if (!confirm(t('confirm_cancel_sale'))) {
                 return;
@@ -1489,6 +1608,135 @@
             } catch (error) {
                 console.error('Cancel failed:', error);
                 showToast(t('cancel_sale_failed') + ': ' + error.message, 'error');
+            }
+        }
+
+        // ============================================================
+        // TRANSFER NFT
+        // ============================================================
+        function openTransferModal(level, card_number, surname, citang_number, citang_name, member_number, member_name) {
+            const loginInfo = checkLoginStatus();
+            if (!loginInfo) {
+                showToast(t('please_login'), 'warning');
+                return;
+            }
+
+            const nft = userNFTs.find(item =>
+                item.level === level &&
+                item.card_number === card_number &&
+                item.surname === surname &&
+                item.citang_number === citang_number &&
+                item.citang_name === citang_name &&
+                item.member_number === member_number &&
+                item.member_name === member_name
+            );
+
+            if (!nft) {
+                showToast(t('nft_not_found'), 'error');
+                return;
+            }
+
+            pendingTransferNFT = nft;
+
+            document.getElementById('transferLevel').textContent = getLevelName(pendingTransferNFT.level);
+            document.getElementById('transferSurname').textContent = pendingTransferNFT.surname;
+
+            let numberText = '';
+            if (pendingTransferNFT.level === 'surname') {
+                numberText = `#${pendingTransferNFT.card_number}`;
+            } else if (pendingTransferNFT.level === 'citang') {
+                numberText = `#${pendingTransferNFT.card_number}.${pendingTransferNFT.citang_number}`;
+            } else {
+                numberText = `#${pendingTransferNFT.card_number}.${pendingTransferNFT.citang_number}.${pendingTransferNFT.member_number}`;
+            }
+            document.getElementById('transferNumber').textContent = numberText;
+
+            const citangRow = document.getElementById('transferCitangRow');
+            const citangSpan = document.getElementById('transferCitang');
+            if (pendingTransferNFT.level === 'citang' || pendingTransferNFT.level === 'member') {
+                citangRow.style.display = 'flex';
+                citangSpan.textContent = pendingTransferNFT.citang_name || '-';
+            } else {
+                citangRow.style.display = 'none';
+            }
+
+            const memberRow = document.getElementById('transferMemberRow');
+            const memberSpan = document.getElementById('transferMember');
+            if (pendingTransferNFT.level === 'member') {
+                memberRow.style.display = 'flex';
+                memberSpan.textContent = pendingTransferNFT.member_name || '-';
+            } else {
+                memberRow.style.display = 'none';
+            }
+
+            document.getElementById('transferNftHash').textContent = pendingTransferNFT.hash || 'No hash';
+            document.getElementById('transferRecipient').value = '';
+
+            document.getElementById('transferModal').style.display = 'block';
+        }
+
+        function hideTransferModal() {
+            document.getElementById('transferModal').style.display = 'none';
+            pendingTransferNFT = null;
+        }
+
+        async function proceedTransfer() {
+            if (!pendingTransferNFT) {
+                showToast(t('nft_not_found'), 'error');
+                hideTransferModal();
+                return;
+            }
+
+            const loginInfo = checkLoginStatus();
+            if (!loginInfo) {
+                showToast(t('please_login'), 'warning');
+                hideTransferModal();
+                return;
+            }
+
+            const recipient = document.getElementById('transferRecipient').value.trim();
+            if (!recipient || recipient.length !== 64 || !/^[A-F0-9]{64}$/i.test(recipient)) {
+                showToast(t('invalid_recipient'), 'error');
+                return;
+            }
+
+            // Check not sending to self
+            if (recipient.toLowerCase() === loginInfo.walletid.toLowerCase()) {
+                showToast(t('cannot_transfer_self'), 'error');
+                return;
+            }
+
+            try {
+                const wallet = loginInfo.walletid || loginInfo.wallet;
+                const response = await fetch('/api/nft/transfer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        level: pendingTransferNFT.level,
+                        card_number: pendingTransferNFT.card_number,
+                        surname: pendingTransferNFT.surname,
+                        citang_number: pendingTransferNFT.citang_number || '',
+                        citang_name: pendingTransferNFT.citang_name || '',
+                        member_number: pendingTransferNFT.member_number || '',
+                        member_name: pendingTransferNFT.member_name || '',
+                        from_wallet: wallet,
+                        to_wallet: recipient,
+                        hash: pendingTransferNFT.hash || ''
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(t('transfer_success'), 'success');
+                    hideTransferModal();
+                    loadUserNFTs();
+                } else {
+                    showToast(t('transfer_failed') + ': ' + result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Transfer failed:', error);
+                showToast(t('transfer_failed') + ': ' + error.message, 'error');
             }
         }
 
@@ -1543,6 +1791,9 @@
             window.proceedSell = proceedSell;
             window.sellNFT = sellNFT;
             window.cancelSale = cancelSale;
+            window.openTransferModal = openTransferModal;
+            window.hideTransferModal = hideTransferModal;
+            window.proceedTransfer = proceedTransfer;
             window.viewTransactionHistory = viewTransactionHistory;
         }
 
