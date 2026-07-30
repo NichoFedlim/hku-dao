@@ -63,7 +63,7 @@
         }
 
         .nav-btn {
-            background: #4cb7db;  /* Light blue */
+            background: #4cb7db;
             color: white;
             border: none;
             padding: 8px 20px;
@@ -80,7 +80,7 @@
         }
 
         .nav-btn:hover {
-            background: #2c7da0;  /* Darker blue on hover */
+            background: #2c7da0;
         }
 
         /* ============ SEARCH BAR ============ */
@@ -178,20 +178,20 @@
         .sort-btn {
             background: #f1f5f9;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 40px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
             color: #1e293b;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .sort-btn i {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
         }
 
         .sort-btn.active {
@@ -222,16 +222,15 @@
         }
 
         .market-grid {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 15px;
-            justify-content: flex-start;
+            justify-content: start;
         }
 
         .nft-name-card {
-            width: auto;
-            min-width: 100px;
-            max-width: 220px;
+            width: 100%;
+            aspect-ratio: 1 / 1.2; /* consistent height relative to width */
             background: linear-gradient(135deg, #4cb7db, #2c7da0);
             border-radius: 12px;
             display: flex;
@@ -243,9 +242,9 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             border: 2px solid rgba(255, 255, 255, 0.3);
-            padding: 12px 20px;
+            padding: 12px 10px;
             overflow: hidden;
-            flex-shrink: 0;
+            min-height: 140px;
         }
 
         .nft-name-card:hover {
@@ -261,25 +260,15 @@
             width: 100%;
             text-align: center;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 1rem;
         }
 
-        .nft-name-card .surname-line {
-            font-size: 1.3rem;
-            margin-bottom: 2px;
-        }
-
-        .nft-name-card .citang-line {
-            font-size: 1.5rem;
-            margin-bottom: 2px;
-        }
-
-        .nft-name-card .member-line {
-            font-size: 1.7rem;
-        }
-
-        .nft-name-card.surname-only .surname-line {
-            font-size: 2rem;
-        }
+        .nft-name-card .surname-line { font-size: 1.2rem; margin-bottom: 2px; }
+        .nft-name-card .citang-line { font-size: 1.3rem; margin-bottom: 2px; }
+        .nft-name-card .member-line { font-size: 1.4rem; }
+        .nft-name-card.surname-only .surname-line { font-size: 1.6rem; }
 
         .nft-name-card .price-line {
             color: #ffd700;
@@ -429,7 +418,7 @@
             margin: 5% auto;
             padding: 0;
             width: auto;
-            max-width: 380px;
+            max-width: 460px;
             position: relative;
             animation: modalFadeIn 0.3s ease;
         }
@@ -439,28 +428,29 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Close button – fixed position, never overlapped */
         .close {
             color: #fff;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.7);
             border-radius: 50%;
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
             cursor: pointer;
             position: absolute;
-            right: -15px;
-            top: -15px;
+            right: -18px;
+            top: -18px;
             z-index: 10;
             transition: all 0.3s;
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
-
         .close:hover {
             background: #c00;
-            transform: rotate(90deg);
+            transform: rotate(90deg) scale(1.1);
         }
 
         .login-modal-content {
@@ -689,109 +679,114 @@
             text-align: center;
         }
 
-        /* ===== NFT DETAIL CARDS ===== */
+        /* ===== NFT DETAIL CARDS (modal) ===== */
         .card-surname, .card-citang, .card-member {
-            width: 340px;
-            background-color: #4cb7db;
-            border: 2px solid #333;
-            border-radius: 10px;
-            transition: transform .2s ease;
-            margin: 0 auto;
-            padding: 15px;
-            position: relative;
-        }
-        .card-inner {
             width: 100%;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 5px;
-            padding: 5px;
+            background: linear-gradient(135deg, #4cb7db, #2c7da0);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            transition: transform .2s ease;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
         }
-        .member-name {
-            font-size: 2.2rem;
+        .card-surname .card-inner,
+        .card-citang .card-inner,
+        .card-member .card-inner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            align-items: center;
+            padding: 5px 0;
+        }
+        .card-surname .member-name {
+            font-size: 3.2rem;
             margin: 0;
-            margin-top: 8px;
             color: #fff;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, .3);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, .3);
+        }
+        .card-citang .member-name,
+        .card-member .member-name {
+            font-size: 1.4rem;
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, .3);
+            margin: 4px 0;
         }
         .member-details {
-            font-size: .75rem;
-            color: #fff;
-            margin-top: 15px;
+            font-size: .8rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 8px;
         }
         .qr-section {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100%;
+            gap: 6px;
         }
         .qr-wrapper {
             background: #fff;
             padding: 6px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             display: inline-block;
-            margin-bottom: 2px;
         }
         .qrcode {
-            width: 100%;
-            max-width: 130px;
-            height: auto;
-            aspect-ratio: 1/1;
-            margin: 0;
-            border-radius: 6px;
+            width: 130px;
+            height: 130px;
+            display: block;
         }
         .nft-background {
-            background: #fff;
-            padding: 8px 4px;
-            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 6px 8px;
+            border-radius: 6px;
             width: 100%;
             text-align: center;
             font-family: monospace;
-            font-size: 11px;
+            font-size: 10px;
             line-height: 1.3;
             color: #333;
             word-break: break-all;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 4;
-            line-clamp: 4;
-            -webkit-box-orient: vertical;
-            white-space: normal;
+            max-height: 60px;
+            overflow-y: auto;
         }
         .button-section {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 7px 5px 0 5px;
+            padding: 12px 0 0 0;
+            margin-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
         .nft-transaction-btn {
-            background: linear-gradient(to bottom, #7fb9e2, #5a9ccc);
+            background: rgba(255, 255, 255, 0.2);
             color: #fff;
             border: none;
             padding: 8px 16px;
-            font-size: .9rem;
+            font-size: .85rem;
             cursor: pointer;
-            border-radius: 5px;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
-            transition: all .3s;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all .2s;
+            backdrop-filter: blur(4px);
+        }
+        .nft-transaction-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
         }
         .price-display {
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: bold;
-            color: #f39c12;
+            color: #ffd700;
         }
         .card-number-tag {
-            margin-left: 10px;
-            color: #ecf1f5;
-            font-size: .9rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: .8rem;
+            margin-left: 6px;
         }
         .modal-action-buttons {
             display: flex;
             justify-content: center;
-            margin-top: 15px;
+            margin-top: 16px;
         }
         .buy-now-btn {
             background: linear-gradient(135deg, #28a745, #1e7e34);
@@ -805,6 +800,10 @@
             transition: all 0.3s;
             width: 100%;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .buy-now-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
         .modal-header-close {
             position: absolute;
@@ -842,6 +841,19 @@
             margin-left: 5px;
         }
 
+        /* ===== MOCK NOTICE ===== */
+        .mock-notice {
+            text-align: center;
+            padding: 10px;
+            background: #fff3cd;
+            color: #856404;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            max-width: 1400px;
+            margin: 0 auto 10px;
+        }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .header { flex-direction: column; gap: 10px; text-align: center; }
@@ -852,11 +864,14 @@
             .sort-btn { padding: 6px 12px; font-size: 0.75rem; }
             .section-title { padding-left: 18px; font-size: 1rem; }
             .market-container { padding: 0 12px 20px; }
-            .market-grid { gap: 10px; }
-            .nft-name-card { padding: 8px 12px; min-width: 70px; max-width: 150px; }
-            .nft-name-card .surname-line { font-size: 0.9rem; }
-            .nft-name-card .citang-line { font-size: 1rem; }
-            .nft-name-card .member-line { font-size: 1.1rem; }
+            .market-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 10px;
+            }
+            .nft-name-card { min-height: 120px; }
+            .nft-name-card .surname-line { font-size: 1rem; }
+            .nft-name-card .citang-line { font-size: 1.1rem; }
+            .nft-name-card .member-line { font-size: 1.2rem; }
             .nft-name-card.surname-only .surname-line { font-size: 1.3rem; }
             .nft-name-card .price-line { font-size: 0.7rem; }
             .search-container { flex-direction: column; }
@@ -870,6 +885,11 @@
             .action-cell { min-width: 150px; }
             .action-cell input { width: 60px !important; padding: 4px 6px !important; font-size: 0.65rem !important; }
             .action-cell .sell-btn { padding: 4px 8px; font-size: 0.65rem; }
+            .modal-content { max-width: 95%; margin: 10% auto; }
+            .qrcode { width: 100px; height: 100px; }
+            .card-surname .member-name { font-size: 2.2rem; }
+            .card-citang .member-name, .card-member .member-name { font-size: 1.1rem; }
+            .close { right: -8px; top: -8px; width: 32px; height: 32px; font-size: 22px; }
         }
 
         @media (max-width: 560px) {
@@ -879,13 +899,16 @@
         }
 
         @media (max-width: 480px) {
-            .market-grid { gap: 8px; }
-            .nft-name-card { padding: 6px 10px; min-width: 60px; max-width: 120px; }
-            .nft-name-card .surname-line { font-size: 0.8rem; }
-            .nft-name-card .citang-line { font-size: 0.85rem; }
-            .nft-name-card .member-line { font-size: 0.9rem; }
+            .market-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 8px;
+            }
+            .nft-name-card { min-height: 100px; padding: 8px 6px; }
+            .nft-name-card .surname-line { font-size: 0.9rem; }
+            .nft-name-card .citang-line { font-size: 0.95rem; }
+            .nft-name-card .member-line { font-size: 1rem; }
             .nft-name-card.surname-only .surname-line { font-size: 1.1rem; }
-            .nft-name-card .price-line { font-size: 0.6rem; }
+            .nft-name-card .price-line { font-size: 0.75rem; }
             .phone-group-wrapper { flex-direction: row; gap: 8px; }
             .country-code-select { width: 150px; }
             .country-code-select select { padding: 12px 8px; font-size: 0.9em; height: 48px; }
@@ -898,6 +921,14 @@
             .action-cell { min-width: 135px; }
             .action-cell input { width: 50px !important; padding: 3px 4px !important; font-size: 0.6rem !important; }
             .action-cell .sell-btn { padding: 3px 6px; font-size: 0.6rem; }
+            .qrcode { width: 80px; height: 80px; }
+            .card-surname .card-inner,
+            .card-citang .card-inner,
+            .card-member .card-inner {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .close { right: -6px; top: -6px; width: 28px; height: 28px; font-size: 18px; }
         }
 
         @media (max-width: 380px) {
@@ -1199,17 +1230,17 @@
             // Remove existing toast
             const existing = document.querySelector('.toast-global');
             if (existing) existing.remove();
-            
+
             const toast = document.createElement('div');
             toast.className = 'toast-global';
-            
+
             const colors = {
                 success: '#28a745',
                 error: '#dc3545',
                 warning: '#ff9800',
                 info: '#4cb7db'
             };
-            
+
             toast.style.cssText = `
                 position: fixed;
                 bottom: 24px;
@@ -1228,7 +1259,7 @@
             `;
             toast.textContent = message;
             document.body.appendChild(toast);
-            
+
             setTimeout(() => {
                 toast.style.opacity = '0';
                 setTimeout(() => toast.remove(), 300);
@@ -1239,7 +1270,8 @@
         // WALLET AUTH
         // ============================================================
         function checkLoginStatus() {
-            const w = localStorage.getItem('wallet'), n = localStorage.getItem('name');
+            const w = localStorage.getItem('wallet'),
+                n = localStorage.getItem('name');
             return (w && n) ? { wallet: w, name: n, account: localStorage.getItem('account') } : null;
         }
 
@@ -1277,7 +1309,8 @@
         function showCustomToast(msg, type) {
             const t = document.createElement('div');
             t.className = 'custom-toast';
-            t.innerHTML = `<div class="toast-icon">${type === 'error' ? '❌' : '✅'}</div><div class="toast-message">${msg}</div><div class="toast-close">OK</div>`;
+            t.innerHTML =
+            `<div class="toast-icon">${type === 'error' ? '❌' : '✅'}</div><div class="toast-message">${msg}</div><div class="toast-close">OK</div>`;
             document.body.appendChild(t);
             t.querySelector('.toast-close').onclick = () => t.remove();
             setTimeout(() => t.remove(), 3000);
@@ -1289,12 +1322,7 @@
         }
 
         // ============================================================
-        // USE MOCK DATA FOR DEVELOPMENT
-        // ============================================================
-        const USE_MOCK_DATA = true; // Set to false when backend is ready
-
-        // ============================================================
-        // MOCK DATA GENERATOR
+        // MOCK DATA GENERATOR (fallback)
         // ============================================================
         function generateMockNFTs() {
             const mockNames = ['Architecture', 'Engineering', 'Medicine', 'Law', 'Business', 'Science'];
@@ -1313,7 +1341,6 @@
                     seller: `0x${Math.random().toString(16).substring(2, 18)}`
                 });
             });
-
             // Generate citang NFTs
             for (let i = 1; i <= 5; i++) {
                 for (let j = 1; j <= 3; j++) {
@@ -1329,7 +1356,6 @@
                     });
                 }
             }
-
             // Generate member NFTs
             for (let i = 1; i <= 3; i++) {
                 for (let j = 1; j <= 3; j++) {
@@ -1370,14 +1396,17 @@
         let nftDataCache = {};
         let citangDetailsCache = {};
         let memberDetailsCache = {};
+        let usingMockData = false;
 
         // ============================================================
         // SORTING FUNCTIONS
         // ============================================================
         function getDisplayLines(nft) {
             if (nft.level === 'surname') return { surname: nft.surname, citang: null, member: null, isSurnameOnly: true };
-            if (nft.level === 'citang') return { surname: nft.surname + '.', citang: nft.citang_name, member: null, isSurnameOnly: false };
-            return { surname: nft.surname + '.', citang: nft.citang_name + '.', member: nft.member_name, isSurnameOnly: false };
+            if (nft.level === 'citang') return { surname: nft.surname + '.', citang: nft.citang_name, member: null,
+                isSurnameOnly: false };
+            return { surname: nft.surname + '.', citang: nft.citang_name + '.', member: nft.member_name,
+                isSurnameOnly: false };
         }
 
         function getFullDisplayName(nft) {
@@ -1402,7 +1431,8 @@
             let sorted = [...list];
             if (type === 'price-desc') sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
             else if (type === 'price-asc') sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
-            else if (type === 'pinyin') sorted.sort((a, b) => getFullDisplayName(a).localeCompare(getFullDisplayName(b), 'zh-CN'));
+            else if (type === 'pinyin') sorted.sort((a, b) => getFullDisplayName(a).localeCompare(getFullDisplayName(b),
+                'zh-CN'));
             else if (type === 'level') sorted.sort((a, b) => {
                 let w = getLevelWeightForward(a) - getLevelWeightForward(b);
                 if (w !== 0) return w;
@@ -1604,6 +1634,10 @@
             const container = document.getElementById('market-content');
             const paginationBar = document.getElementById('pagination-bar');
 
+            // Remove any existing mock notice
+            const existingNotice = document.querySelector('.mock-notice');
+            if (existingNotice) existingNotice.remove();
+
             if (!nfts || !nfts.length) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -1614,6 +1648,13 @@
                     </div>
                 `;
                 paginationBar.style.display = 'none';
+                // Show mock notice if using mock
+                if (usingMock) {
+                    const notice = document.createElement('div');
+                    notice.className = 'mock-notice';
+                    notice.textContent = '⚠️ Using mock data (backend API not available)';
+                    container.parentNode.insertBefore(notice, container);
+                }
                 return;
             }
 
@@ -1648,32 +1689,48 @@
             });
             html += '</div>';
             container.innerHTML = html;
+
+            // Show mock notice if using mock
+            if (usingMockData) {
+                const notice = document.createElement('div');
+                notice.className = 'mock-notice';
+                notice.textContent = '⚠️ Using mock data (backend API not available)';
+                container.parentNode.insertBefore(notice, container);
+            }
+
             updateSearchStatus();
         }
 
         // ============================================================
-        // LOAD ON-SALE NFTs
+        // LOAD ON-SALE NFTs (real API first, fallback to mock)
         // ============================================================
         async function loadOnSaleNFTs() {
             try {
                 const container = document.getElementById('market-content');
-                container.innerHTML = `<div class="loading"><div class="loading-spinner"></div><span>${t('loading_market')}</span></div>`;
+                container.innerHTML =
+                `<div class="loading"><div class="loading-spinner"></div><span>${t('loading_market')}</span></div>`;
+
+                // Remove any existing mock notice
+                const existingNotice = document.querySelector('.mock-notice');
+                if (existingNotice) existingNotice.remove();
 
                 let nfts = [];
+                let usingMock = false;
 
-                if (!USE_MOCK_DATA) {
+                try {
+                    // Try real API
                     const res = await fetch('/api/nfts/onsale');
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     nfts = await res.json();
-                } else {
-                    console.log('📦 Using mock NFT market data');
+                    console.log('✅ Loaded real NFT market data');
+                } catch (apiError) {
+                    console.warn('⚠️ Failed to fetch real NFT data, falling back to mock:', apiError);
+                    usingMock = true;
                     nfts = generateMockNFTs();
-                    // Show notice
-                    const notice = document.createElement('div');
-                    notice.style.cssText = 'text-align:center;padding:8px;background:#fff3cd;color:#856404;border-radius:4px;margin-bottom:12px;font-size:0.9rem;max-width:1400px;margin:0 auto 10px;';
-                    notice.textContent = '⚠️ Using mock data (backend API not available)';
-                    document.querySelector('.market-container').insertBefore(notice, container);
+                    showToast('⚠️ Using mock data (backend API not available)', 'warning');
                 }
+
+                usingMockData = usingMock;
 
                 // Enrich with additional data
                 const enriched = await Promise.all(nfts.map(async nft => {
@@ -1698,6 +1755,14 @@
                 applySortAndRender(defaultSort);
                 updateSearchStatus();
 
+                // // Show mock notice if using mock
+                // if (usingMock) {
+                //     const notice = document.createElement('div');
+                //     notice.className = 'mock-notice';
+                //     notice.textContent = '⚠️ Using mock data (backend API not available)';
+                //     container.parentNode.insertBefore(notice, container);
+                // }
+
             } catch (e) {
                 console.error('Failed to load NFTs:', e);
                 document.getElementById('market-content').innerHTML = `
@@ -1705,6 +1770,7 @@
                         <div class="empty-icon">❌</div>
                         <h3>${t('load_error')}</h3>
                         <p>${e.message}</p>
+                        <button onclick="loadOnSaleNFTs()" style="margin-top:16px;padding:10px 30px;background:#4cb7db;color:white;border:none;border-radius:30px;cursor:pointer;">${t('retry') || 'Retry'}</button>
                     </div>
                 `;
             }
@@ -1718,8 +1784,10 @@
             if (nftDataCache[key]) return nftDataCache[key];
             let url = '';
             if (nft.level === 'surname') url = `/citang-data/${nft.card_number}${nft.surname}/content.json`;
-            else if (nft.level === 'citang') url = `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/citang.json`;
-            else url = `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/${nft.member_number}${nft.member_name}/${nft.member_number}${nft.member_name}.json`;
+            else if (nft.level === 'citang') url =
+                `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/citang.json`;
+            else url =
+                `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/${nft.member_number}${nft.member_name}/${nft.member_number}${nft.member_name}.json`;
             try {
                 const r = await fetch(url);
                 if (!r.ok) throw new Error();
@@ -1735,7 +1803,8 @@
         async function getCitangDetails(nft) {
             const key = `citang_${nft.card_number}_${nft.citang_number}`;
             if (citangDetailsCache[key]) return citangDetailsCache[key];
-            const url = `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/citang.json`;
+            const url =
+                `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/citang.json`;
             try {
                 const r = await fetch(url);
                 if (!r.ok) return {};
@@ -1751,7 +1820,8 @@
         async function getMemberDetails(nft) {
             const key = `member_${nft.card_number}_${nft.citang_number}_${nft.member_number}`;
             if (memberDetailsCache[key]) return memberDetailsCache[key];
-            const url = `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/${nft.member_number}${nft.member_name}/${nft.member_number}${nft.member_name}.json`;
+            const url =
+                `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/${nft.member_number}${nft.member_name}/${nft.member_number}${nft.member_name}.json`;
             try {
                 const r = await fetch(url);
                 if (!r.ok) return {};
@@ -1876,7 +1946,8 @@
         function viewTransactionHistory(level, card_number, surname, citang_number, citang_name, member_number, member_name) {
             let url = '';
             if (level === 'surname') {
-                url = `/nft/ti_log.html?level=surname&card_number=${card_number}&name=${encodeURIComponent(surname)}`;
+                url =
+                `/nft/ti_log.html?level=surname&card_number=${card_number}&name=${encodeURIComponent(surname)}`;
             } else if (level === 'citang') {
                 url = `/nft/ti_log.html?level=citang&id=${citang_number}`;
             } else {
@@ -1937,7 +2008,8 @@
             document.getElementById('buyLoginCode').value = '';
             document.getElementById('buyLoginCode').disabled = true;
             const btn = document.getElementById('buySendCodeBtn');
-            if (btn) { btn.disabled = false; btn.textContent = t('send_code'); }
+            if (btn) { btn.disabled = false;
+                btn.textContent = t('send_code'); }
         }
 
         function getNFTName(nft) {
@@ -2113,7 +2185,8 @@
                     localStorage.setItem('name', result.name);
                     localStorage.setItem('account', name);
                     showLoginMessage(t('login_success'), 'success');
-                    setTimeout(() => { showNFTSelectionSection(); updateLoginUI(); }, 1000);
+                    setTimeout(() => { showNFTSelectionSection();
+                        updateLoginUI(); }, 1000);
                 } else {
                     showLoginMessage(t('login_failed') + ': ' + (result.error || t('unknown_error')), 'error');
                 }
@@ -2135,21 +2208,38 @@
         }
 
         // ============================================================
-        // USER NFTs (for login modal)
+        // USER NFTs (for login modal) – fallback to mock if needed
         // ============================================================
         async function loadUserNFTs() {
             const info = checkLoginStatus();
             if (!info) return;
             try {
+                // Try real API
                 const res = await fetch(`/api/user/nfts?wallet=${info.wallet}`);
-                userNFTs = await res.json();
+                let userNFTs;
+                if (res.ok) {
+                    userNFTs = await res.json();
+                } else {
+                    console.warn('Failed to fetch user NFTs, using mock fallback');
+                    userNFTs = [
+                        { level: 'surname', surname: 'Mock Surname', card_number: 999, purchase_price: 100,
+                            hash: '0x' + Math.random().toString(16).substring(2, 18) },
+                        { level: 'citang', surname: 'Mock', card_number: 998, citang_number: 101,
+                            citang_name: 'Mock Citang', purchase_price: 50,
+                            hash: '0x' + Math.random().toString(16).substring(2, 18) }
+                    ];
+                    showToast('⚠️ Using mock data for your NFTs', 'warning');
+                }
+
                 const onsaleRes = await fetch('/api/nfts/onsale');
-                const onsaleList = await onsaleRes.json();
+                const onsaleList = onsaleRes.ok ? await onsaleRes.json() : [];
+
                 const tbody = document.getElementById('nftTableBody');
-                if (!userNFTs.length) {
+                if (!userNFTs || userNFTs.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="3">${t('no_nfts')}</td></tr>`;
                     return;
                 }
+
                 let html = '';
                 userNFTs.forEach((nft, idx) => {
                     const name = getNFTName(nft);
@@ -2184,7 +2274,8 @@
                     } else {
                         const sellBtnClass = isPreparingSell ? 'sell-btn prepared' : 'sell-btn';
                         const sellBtnText = isPreparingSell ? t('prepared') : t('list_for_sale');
-                        const priceVal = isPreparingSell ? (pendingSellActions.find(a => a.nftIndex === idx)?.price || '') : '';
+                        const priceVal = isPreparingSell ? (pendingSellActions.find(a => a.nftIndex === idx)
+                            ?.price || '') : '';
                         html += `<tr>
                             <td class="nft-name-cell">${escapeHtml(name)}</td>
                             <td class="price-cell">${priceDisplay}</td>
@@ -2209,6 +2300,8 @@
                 });
             } catch (e) {
                 console.error(e);
+                document.getElementById('nftTableBody').innerHTML =
+                `<tr><td colspan="3">${t('load_error')}</td></tr>`;
             }
         }
 
@@ -2364,7 +2457,8 @@
                     localStorage.setItem('name', result.name);
                     localStorage.setItem('account', name);
                     showBuyLoginMessage(t('login_success'), 'success');
-                    setTimeout(() => { showBuyConfirmSection(); updateLoginUI(); }, 1000);
+                    setTimeout(() => { showBuyConfirmSection();
+                        updateLoginUI(); }, 1000);
                 } else {
                     showBuyLoginMessage(t('login_failed') + ': ' + (result.error || t('unknown_error')), 'error');
                 }
