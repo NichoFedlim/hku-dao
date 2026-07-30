@@ -638,11 +638,11 @@
                 <span class="count-badge" id="count-faculties">0</span>
             </button>
             <button class="filter-btn" data-filter="main-campus" onclick="applyFilter('main-campus')">
-                <span data-i18n="filter_main_campus">Main Campus</span>
+                <span data-i18n="filter_main-campus">Main Campus</span>
                 <span class="count-badge" id="count-main-campus">0</span>
             </button>
             <button class="filter-btn" data-filter="centennial-campus" onclick="applyFilter('centennial-campus')">
-                <span data-i18n="filter_centennial">Centennial Campus</span>
+                <span data-i18n="filter_centennial-campus">Centennial Campus</span>
                 <span class="count-badge" id="count-centennial-campus">0</span>
             </button>
             <button class="filter-btn" data-filter="halls" onclick="applyFilter('halls')">
@@ -1342,8 +1342,8 @@
             const displayName = (item) => currentLang === 'zh' ? item.name_zh : item.name;
             const filterLabels = {
                 faculties: t('filter_faculties') || 'Faculties',
-                'main-campus': t('filter_main_campus') || 'Main Campus',
-                'centennial-campus': t('filter_centennial') || 'Centennial Campus',
+                'main-campus': t('filter_main-campus') || 'Main Campus',
+                'centennial-campus': t('filter_centennial-campus') || 'Centennial Campus',
                 halls: t('filter_halls') || 'Halls',
                 medical: t('filter_medical') || 'Medical',
                 sports: t('filter_sports') || 'Sports',
