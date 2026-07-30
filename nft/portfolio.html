@@ -204,18 +204,29 @@
         .card-footer-actions .price-display .rc {
             color: #cc9f2e;
         }
+
+        /* ---- FIX: btn-group nowrap and input styling ---- */
         .card-footer-actions .btn-group {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
-            flex-wrap: wrap;
+            flex-wrap: nowrap; /* force one line */
         }
         .card-footer-actions .btn-group .price-input {
-            width: 90px;
-            padding: 6px 10px;
+            width: 80px;
+            padding: 5px 8px;
             border: 1px solid #ddd;
             border-radius: 6px;
             font-size: 0.8rem;
+            /* Remove spin buttons */
+            -webkit-appearance: textfield;
+            appearance: textfield;
+            -moz-appearance: textfield;
+        }
+        .card-footer-actions .btn-group .price-input::-webkit-inner-spin-button,
+        .card-footer-actions .btn-group .price-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
         .card-footer-actions .btn-group .price-input:focus {
             border-color: #cc9f2e;
@@ -223,13 +234,14 @@
         }
 
         .btn-sm {
-            padding: 6px 14px;
+            padding: 5px 12px;
             border: none;
             border-radius: 6px;
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             transition: background 0.2s;
+            white-space: nowrap;
         }
         .btn-sm-sell {
             background: #28a745;
@@ -261,9 +273,10 @@
             background: #fff3cd;
             padding: 4px 12px;
             border-radius: 4px;
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             color: #856404;
             border-left: 3px solid #ffc107;
+            white-space: nowrap;
         }
         .price-info-tag .value {
             font-weight: 700;
@@ -532,6 +545,7 @@
                 gap: 6px;
             }
             .card-footer-actions .btn-group {
+                flex-wrap: wrap; /* allow wrap on small screens */
                 justify-content: center;
             }
             .card-footer-actions .btn-group .price-input {
@@ -780,22 +794,17 @@
             }
 
             try {
-                // Clear all sessions
-                clearWalletSession();
-
+                clearWalletSession();                       // Clear all sessions
                 // Clear any cached data
                 userNFTs = [];
                 onSaleNFTs = [];
                 pendingSellNFT = null;
-
-                // Show toast message
-                showToast(t('logout_success') || 'Logged out successfully');
+                showToast(t('logout_success') || 'Logged out successfully');      // Show toast message
 
                 // Redirect to market page after short delay
                 setTimeout(() => {
                     window.location.href = '/nft/NFT_market.html';
                 }, 800);
-
             } catch (error) {
                 console.error('Logout error:', error);
                 showToast(t('logout_error') || 'Logout failed', 'error');
@@ -809,10 +818,10 @@
             // Remove existing toast
             const existing = document.querySelector('.toast-global');
             if (existing) existing.remove();
-            
+
             const toast = document.createElement('div');
             toast.className = 'toast-global';
-            
+
             const colors = {
                 success: '#28a745',
                 error: '#dc3545',
@@ -838,7 +847,7 @@
             `;
             toast.textContent = message;
             document.body.appendChild(toast);
-            
+
             setTimeout(() => {
                 toast.style.opacity = '0';
                 setTimeout(() => toast.remove(), 300);
@@ -858,38 +867,73 @@
         let isLoading = false;
         let allLoaded = false;
 
-        // ===== MOCK DATA GENERATOR (fallback) =====
+        // ============================================================
+        // MOCK DATA GENERATOR (fallback) – updated to match HKU categories
+        // ============================================================
         function getMockNFTs() {
             return [
                 {
                     level: 'surname',
                     surname: 'Architecture',
                     card_number: 1,
-                    purchase_price: 100,
+                    purchase_price: 1000,
                     hash: '0xA1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6'
                 },
                 {
                     level: 'surname',
                     surname: 'Engineering',
                     card_number: 6,
-                    purchase_price: 80,
+                    purchase_price: 800,
                     hash: '0xB2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6'
+                },
+                {
+                    level: 'surname',
+                    surname: 'Medicine',
+                    card_number: 8,
+                    purchase_price: 1200,
+                    hash: '0xC3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6'
                 },
                 {
                     level: 'citang',
                     surname: 'Architecture',
                     card_number: 1,
                     citang_number: 101,
-                    citang_name: 'Architecture Department',
-                    purchase_price: 50,
+                    citang_name: 'Department of Architecture',
+                    purchase_price: 500,
                     province: 'Hong Kong',
-                    district: 'HKU Main Campus',
-                    hash: '0xC3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6'
+                    district: 'Main Campus',
+                    hash: '0xD4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6'
+                },
+                {
+                    level: 'citang',
+                    surname: 'Engineering',
+                    card_number: 6,
+                    citang_number: 601,
+                    citang_name: 'Department of Civil Engineering',
+                    purchase_price: 600,
+                    province: 'Hong Kong',
+                    district: 'Main Campus',
+                    hash: '0xE5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6'
+                },
+                {
+                    level: 'member',
+                    surname: 'Architecture',
+                    card_number: 1,
+                    citang_number: 101,
+                    citang_name: 'Department of Architecture',
+                    member_number: 1001,
+                    member_name: 'Prof. John Smith',
+                    purchase_price: 200,
+                    gender: 'Male',
+                    birth: '1975-03-15',
+                    hash: '0xF6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6'
                 }
             ];
         }
 
-        // ===== LOAD USER NFTs =====
+        // ============================================================
+        // LOAD USER NFTs
+        // ============================================================
         async function loadUserNFTs() {
             const loginInfo = checkLoginStatus();
 
@@ -1084,8 +1128,8 @@
                             <span class="card-number-tag">${levelTag}</span>
                             <div class="card-main-name">${escapeHtml(nft.surname)}</div>
                             <div class="card-details">
-                                <span><span class="label">${t('level_label')}:</span> ${t('surname')}</span>
-                                <span><span class="label">${t('purchase_price')}:</span> ${purchasePrice} RC</span>
+                                <span><span class="label">${t('level_label')}: </span>${t('surname')}</span>
+                                <span><span class="label">${t('purchase_price')}: </span>${purchasePrice} RC</span>
                             </div>
                         </div>
                         <div class="card-qr-section">
@@ -1138,9 +1182,9 @@
                             <div class="card-main-name">${escapeHtml(nft.surname)}</div>
                             <div class="card-sub-name">${escapeHtml(nft.citang_name)}</div>
                             <div class="card-details">
-                                <span><span class="label">${t('province')}:</span> ${nft.province || '—'}</span>
-                                <span><span class="label">${t('district')}:</span> ${nft.district || '—'}</span>
-                                <span><span class="label">${t('purchase_price')}:</span> ${purchasePrice} RC</span>
+                                <span><span class="label">${t('province')}: </span>${nft.province || '—'}</span>
+                                <span><span class="label">${t('district')}: </span>${nft.district || '—'}</span>
+                                <span><span class="label">${t('purchase_price')}: </span>${purchasePrice} RC</span>
                             </div>
                         </div>
                         <div class="card-qr-section">
@@ -1195,9 +1239,9 @@
                             <div class="card-main-name">${escapeHtml(nft.surname)}</div>
                             <div class="card-sub-name">${escapeHtml(nft.citang_name)} · ${escapeHtml(nft.member_name)}</div>
                             <div class="card-details">
-                                <span><span class="label">${t('gender')}:</span> ${nft.gender || '—'}</span>
-                                <span><span class="label">${t('birth')}:</span> ${nft.birth || '—'}</span>
-                                <span><span class="label">${t('purchase_price')}:</span> ${purchasePrice} RC</span>
+                                <span><span class="label">${t('gender')}: </span>${nft.gender || '—'}</span>
+                                <span><span class="label">${t('birth')}: </span>${nft.birth || '—'}</span>
+                                <span><span class="label">${t('purchase_price')}: </span>${purchasePrice} RC</span>
                             </div>
                         </div>
                         <div class="card-qr-section">
@@ -1249,32 +1293,6 @@
                 const el = document.getElementById(id);
                 if (el && el.innerHTML.trim() === '' && nft.hash) {
                     new QRCode(el, {
-                        text: nft.hash,
-                        width: 130,
-                        height: 130,
-                        colorDark: '#000000',
-                        colorLight: '#ffffff',
-                        correctLevel: QRCode.CorrectLevel.L
-                    });
-                }
-            });
-            nfts.filter(nft => nft.level === 'citang').forEach(nft => {
-                const qrContainer = document.getElementById(`qr-citang-${nft.card_number}-${nft.citang_number}`);
-                if (qrContainer && qrContainer.innerHTML.trim() === '' && nft.hash) {
-                    new QRCode(qrContainer, {
-                        text: nft.hash,
-                        width: 130,
-                        height: 130,
-                        colorDark: '#000000',
-                        colorLight: '#ffffff',
-                        correctLevel: QRCode.CorrectLevel.L
-                    });
-                }
-            });
-            nfts.filter(nft => nft.level === 'member').forEach(nft => {
-                const qrContainer = document.getElementById(`qr-member-${nft.card_number}-${nft.citang_number}-${nft.member_number}`);
-                if (qrContainer && qrContainer.innerHTML.trim() === '' && nft.hash) {
-                    new QRCode(qrContainer, {
                         text: nft.hash,
                         width: 130,
                         height: 130,
@@ -1492,11 +1510,11 @@
             btn.innerHTML = '↑';
             btn.setAttribute('aria-label', 'Back to top');
             document.body.appendChild(btn);
-            
+
             window.addEventListener('scroll', () => {
                 btn.classList.toggle('visible', window.scrollY > 400);
             });
-            
+
             btn.addEventListener('click', () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
