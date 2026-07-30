@@ -1,5 +1,5 @@
 // ============================================================
-// ti_log.js – Transaction Log Logic
+// ti_log.js – Transaction Log Logic (HKU DAO)
 // ============================================================
 
 // ===== USE MOCK DATA FOR DEVELOPMENT =====
@@ -47,7 +47,7 @@ window.toggleLanguage = function() {
 };
 
 // ============================================================
-// SHA256 UTILITY
+// SHA256 UTILITY (for fallback auth code calculation)
 // ============================================================
 function jsSHA256(input) {
     function rightRotate(value, amount) {
@@ -165,9 +165,15 @@ function formatWalletShort(wallet) {
 }
 
 // ============================================================
-// AUTH CODE
+// AUTH CODE (fallback if verification_code not in log)
 // ============================================================
 function calculateAuthCode(log) {
+    // If verification_code exists, use it directly
+    if (log.verification_code) {
+        return log.verification_code;
+    }
+
+    // Fallback: calculate from log data
     const displayData =
         `${log.thread}\t` +
         `${log.time}\t` +
@@ -185,7 +191,6 @@ function showFullAuthCode(fullCode) {
     currentAuthCode = fullCode;
     document.getElementById('authCodeFullText').textContent = fullCode;
     document.getElementById('authCodeModal').style.display = 'block';
-    // Reset copy button
     const btn = document.getElementById('copyAuthBtn');
     btn.textContent = t('copy') || 'Copy to Clipboard';
     btn.classList.remove('copied');
@@ -209,7 +214,6 @@ function copyAuthCode() {
             btn.classList.remove('copied');
         }, 2000);
     }).catch(() => {
-        // Fallback
         const textarea = document.createElement('textarea');
         textarea.value = text;
         document.body.appendChild(textarea);
@@ -224,8 +228,9 @@ function copyAuthCode() {
         }, 2000);
     });
 }
+
 // ============================================================
-// MOCK DATA GENERATOR
+// MOCK DATA GENERATOR (fallback for development)
 // ============================================================
 function generateMockTransactions() {
     const now = new Date();
@@ -247,19 +252,18 @@ function generateMockTransactions() {
 
         const seller = mockWallets[Math.floor(Math.random() * mockWallets.length)];
         let buyer = mockWallets[Math.floor(Math.random() * mockWallets.length)];
-        // Ensure buyer !== seller
         while (buyer === seller) {
             buyer = mockWallets[Math.floor(Math.random() * mockWallets.length)];
         }
 
         const price = Math.floor(Math.random() * 500) + 50;
-
-        // Generate chain hash (64 hex chars)
         const chain = Array.from({ length: 64 }, () =>
             '0123456789ABCDEF'[Math.floor(Math.random() * 16)]
         ).join('');
-
         const nextChain = Array.from({ length: 64 }, () =>
+            '0123456789ABCDEF'[Math.floor(Math.random() * 16)]
+        ).join('');
+        const verificationCode = Array.from({ length: 64 }, () =>
             '0123456789ABCDEF'[Math.floor(Math.random() * 16)]
         ).join('');
 
@@ -270,11 +274,11 @@ function generateMockTransactions() {
             seller: seller,
             buyer: buyer,
             chain: chain,
-            next_chain: nextChain
+            next_chain: nextChain,
+            verification_code: verificationCode
         });
     }
 
-    // Sort by thread
     mockLogs.sort((a, b) => a.thread - b.thread);
 
     return {
@@ -286,6 +290,48 @@ function generateMockTransactions() {
             other: 'Current NFT holder'
         }
     };
+}
+
+// ============================================================
+// TOAST SYSTEM (unified)
+// ============================================================
+function showToast(message, type = 'info', duration = 3000) {
+    const existing = document.querySelector('.toast-global');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'toast-global';
+
+    const colors = {
+        success: '#28a745',
+        error: '#dc3545',
+        warning: '#ff9800',
+        info: '#4cb7db'
+    };
+
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: ${colors[type] || colors.info};
+        color: white;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-weight: 500;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        z-index: 9999;
+        transition: opacity 0.3s ease;
+        max-width: 90%;
+        text-align: center;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
 }
 
 // ============================================================
@@ -310,19 +356,15 @@ function applySearch() {
 function clearSearch() {
     document.getElementById('search-input').value = '';
     searchQuery = '';
-    // Reset to all transactions
     filteredTransactions = [...allTransactions];
     currentPage = 1;
     showAllMode = false;
     document.getElementById('show-all-btn').classList.remove('active');
-
-    renderTransactions(getCurrentPageItems());
-    renderPagination();
+    renderCurrentView();
     updateSearchStatus();
 }
 
 function filterAndRender() {
-    // Filter transactions based on search query
     if (!searchQuery) {
         filteredTransactions = [...allTransactions];
     } else {
@@ -334,20 +376,16 @@ function filterAndRender() {
                 log.seller || '',
                 log.buyer || '',
                 log.chain || '',
-                log.next_chain || ''
+                log.next_chain || '',
+                log.verification_code || ''
             ].join(' ').toLowerCase();
             return searchable.includes(searchQuery);
         });
     }
-
-    // Reset pagination
     currentPage = 1;
     showAllMode = false;
     document.getElementById('show-all-btn').classList.remove('active');
-
-    // Render the filtered list
-    renderTransactions(getCurrentPageItems());
-    renderPagination();
+    renderCurrentView();
     updateSearchStatus();
 }
 
@@ -384,12 +422,10 @@ function renderPagination() {
     const start = showAllMode ? 1 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
     const end = showAllMode ? total : Math.min(currentPage * ITEMS_PER_PAGE, total);
 
-    // Update info
     document.getElementById('showing-start').textContent = total > 0 ? start : 0;
     document.getElementById('showing-end').textContent = total > 0 ? end : 0;
     document.getElementById('total-count').textContent = total;
 
-    // Page numbers
     const container = document.getElementById('page-numbers');
     container.innerHTML = '';
 
@@ -440,11 +476,9 @@ function renderPagination() {
         }
     }
 
-    // Prev/Next buttons
     document.getElementById('prev-page-btn').disabled = currentPage <= 1 || showAllMode;
     document.getElementById('next-page-btn').disabled = currentPage >= totalPages || showAllMode;
 
-    // Show All button
     const showAllBtn = document.getElementById('show-all-btn');
     showAllBtn.classList.toggle('active', showAllMode);
     showAllBtn.textContent = showAllMode ? (t('show_pages') || 'Show Pages') : (t('show_all') || 'Show All');
@@ -485,14 +519,97 @@ function renderCurrentView() {
 }
 
 // ============================================================
-// DATA LOADING – Unified (with Mock Fallback)
+// RENDER TRANSACTIONS
+// ============================================================
+function renderTransactions(logs) {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+
+    if (!logs || logs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:#999;">${t('no_transactions')}</td></tr>`;
+        return;
+    }
+
+    // Sort by thread descending (newest first)
+    const sorted = [...logs].sort((a, b) => (b.thread || 0) - (a.thread || 0));
+
+    sorted.forEach(log => {
+        const authCode = calculateAuthCode(log); // uses verification_code if available
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td>${log.thread || '—'}</td>
+            <td>${log.time || '—'}</td>
+            <td>￥${log.price || 0}</td>
+            <td>${formatWalletShort(log.seller)}</td>
+            <td>${formatWalletShort(log.buyer)}</td>
+            <td><span class="hash-short">${formatChainShort(log.chain)}</span></td>
+            <td>
+                <button class="auth-code-btn" onclick="showFullAuthCode('${authCode}')">
+                    ${authCode.length > 8 ? formatChainShort(authCode) : authCode}
+                </button>
+                <button class="view-btn" onclick="showFullAuthCode('${authCode}')">View</button>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    });
+}
+
+// ============================================================
+// DATA LOADING – Unified HKU DAO Backend with Mock Fallback
 // ============================================================
 async function fetchData() {
     const urlParams = new URLSearchParams(window.location.search);
-    const level = urlParams.get('level') || 'surname';
+
+    // Parse parameters – support both old and new naming
+    const levelParam = urlParams.get('level') || 'surname';
     const id = urlParams.get('id');
     const name = decodeURIComponent(urlParams.get('name') || '');
     const cardNumber = urlParams.get('card_number');
+
+    // Map legacy level names to new HKU DAO structure
+    let level = '';
+    let category_id = '';
+    let category_name = '';
+    let subcategory_id = '';
+    let subcategory_name = '';
+    let item_number = '';
+    let item_name = '';
+
+    // Try to get from URL parameters (new format)
+    const urlCategoryId = urlParams.get('category_id') || urlParams.get('categoryId');
+    const urlCategoryName = urlParams.get('category_name') || urlParams.get('categoryName');
+    const urlSubcategoryId = urlParams.get('subcategory_id') || urlParams.get('subcategoryId');
+    const urlSubcategoryName = urlParams.get('subcategory_name') || urlParams.get('subcategoryName');
+    const urlItemNumber = urlParams.get('item_number') || urlParams.get('itemNumber');
+    const urlItemName = urlParams.get('item_name') || urlParams.get('itemName');
+
+    // Determine level
+    if (levelParam === 'surname' || levelParam === 'category') {
+        level = 'category';
+        category_id = urlCategoryId || cardNumber || id || '';
+        category_name = urlCategoryName || name || '';
+    } else if (levelParam === 'citang' || levelParam === 'subcategory') {
+        level = 'subcategory';
+        category_id = urlCategoryId || cardNumber || '';
+        category_name = urlCategoryName || '';
+        subcategory_id = urlSubcategoryId || id || '';
+        subcategory_name = urlSubcategoryName || name || '';
+    } else if (levelParam === 'member' || levelParam === 'item') {
+        level = 'item';
+        category_id = urlCategoryId || cardNumber || '';
+        category_name = urlCategoryName || '';
+        subcategory_id = urlSubcategoryId || '';
+        subcategory_name = urlSubcategoryName || '';
+        item_number = urlItemNumber || id || '';
+        item_name = urlItemName || name || '';
+    } else {
+        // Fallback: treat as category
+        level = 'category';
+        category_id = cardNumber || id || '';
+        category_name = name || '';
+    }
 
     const loadingEl = document.getElementById('loading-state');
     const tableWrapper = document.getElementById('table-wrapper');
@@ -506,98 +623,98 @@ async function fetchData() {
     emptyEl.style.display = 'none';
     errorEl.style.display = 'none';
 
-    let levelDisplay = '';
-
-    // Determine level display name
-    if (level === 'surname' || level === 'category') {
-        levelDisplay = 'Category';
-    } else if (level === 'citang' || level === 'subcategory') {
-        levelDisplay = 'Subcategory';
-    } else if (level === 'member' || level === 'item') {
-        levelDisplay = 'Item';
-    } else {
-        levelDisplay = 'All';
-    }
+    const levelDisplay = {
+        'category': 'Category',
+        'subcategory': 'Subcategory',
+        'item': 'Item'
+    }[level] || 'All';
     badgeEl.textContent = `Level: ${levelDisplay}`;
 
     try {
         let data = null;
+        let usingMock = false;
 
-        // Try to fetch from API first
+        // Try real API first (unless USE_MOCK_DATA is forced)
         if (!USE_MOCK_DATA) {
-            let endpoint = '';
-            if (level === 'surname' && cardNumber) {
-                endpoint = `/ti-log/${cardNumber}?surname=${encodeURIComponent(name)}`;
-            } else if (level === 'citang' && id) {
-                endpoint = `/api/citang/log?citang_id=${id}`;
-            } else if (level === 'member' && id) {
-                endpoint = `/api/member/log?member_id=${id}`;
-            } else if (cardNumber) {
-                endpoint = `/ti-log/${cardNumber}?surname=${encodeURIComponent(name)}`;
-            } else {
-                throw new Error('Missing parameters');
+            try {
+                // Build query parameters
+                const params = new URLSearchParams();
+                params.set('level', level);
+                if (category_id) params.set('category_id', category_id);
+                if (category_name) params.set('category_name', category_name);
+                if (subcategory_id) params.set('subcategory_id', subcategory_id);
+                if (subcategory_name) params.set('subcategory_name', subcategory_name);
+                if (item_number) params.set('item_number', item_number);
+                if (item_name) params.set('item_name', item_name);
+
+                const endpoint = `/api/log/transaction?${params.toString()}`;
+                const response = await fetch(endpoint);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                data = await response.json();
+                console.log('✅ Loaded transaction log from HKU DAO backend');
+            } catch (apiError) {
+                console.warn('⚠️ Failed to fetch from API, using mock fallback:', apiError);
+                usingMock = true;
+                data = generateMockTransactions();
+                showToast('⚠️ Using mock data (backend API not available)', 'warning');
             }
-
-            const response = await fetch(endpoint);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            data = await response.json();
         } else {
-            // Use mock data
-            console.log('📦 Using mock transaction data for development');
+            // Mock data forced
+            usingMock = true;
             data = generateMockTransactions();
-
-            // Show notice
-            const notice = document.createElement('div');
-            notice.style.cssText = 'text-align:center;padding:8px;background:#fff3cd;color:#856404;border-radius:4px;margin-bottom:12px;font-size:0.9rem;';
-            notice.textContent = '⚠️ Using mock data (backend API not available)';
-            const header = document.querySelector('.log-header');
-            header.insertAdjacentElement('afterend', notice);
+            console.log('📦 Using mock transaction data (USE_MOCK_DATA=true)');
         }
 
-        // Logs
+        // If mock is used, show a notice
+        if (usingMock) {
+            const header = document.querySelector('.log-header');
+            let notice = document.querySelector('.mock-notice');
+            if (!notice) {
+                notice = document.createElement('div');
+                notice.className = 'mock-notice';
+                notice.style.cssText = 'text-align:center;padding:10px;background:#fff3cd;color:#856404;border-radius:4px;margin-bottom:12px;font-size:0.9rem;';
+                notice.textContent = '⚠️ Using mock data (backend API not available)';
+                header.insertAdjacentElement('afterend', notice);
+            } else {
+                notice.style.display = 'block';
+            }
+        } else {
+            // Remove mock notice if exists
+            const notice = document.querySelector('.mock-notice');
+            if (notice) notice.style.display = 'none';
+        }
+
         const logs = data.log || [];
 
         if (logs.length === 0) {
             loadingEl.style.display = 'none';
             emptyEl.style.display = 'block';
+            totalEl.textContent = 'Total: 0 records';
             return;
         }
 
         loadingEl.style.display = 'none';
         tableWrapper.style.display = 'block';
-        // ==== Initialize global state ====
+
         allTransactions = logs;
         filteredTransactions = [...allTransactions];
         searchQuery = '';
+        document.getElementById('search-input').value = '';
 
-        // ==== Render ====
         renderTransactions(filteredTransactions);
         renderPagination();
         updateSearchStatus();
-        totalEl.textContent = `Total: ${logs.length} records`;
+        totalEl.textContent = `Total: ${logs.length} records${usingMock ? ' (mock)' : ''}`;
 
     } catch (err) {
         console.error('Failed to load log:', err);
         loadingEl.style.display = 'none';
-
-        // If using mock data and failed, still show mock
-        if (USE_MOCK_DATA) {
-            console.log('🔄 Attempting mock data fallback...');
-            try {
-                const mockData = generateMockTransactions();
-                const logs = mockData.log || [];
-                if (logs.length > 0) {
-                    tableWrapper.style.display = 'block';
-                    renderTransactions(logs);
-                    totalEl.textContent = `Total: ${logs.length} records (mock)`;
-                    return;
-                }
-            } catch (mockErr) {
-                console.error('Mock fallback failed:', mockErr);
-            }
-        }
-
         showError(err.message);
+        showToast('Failed to load transaction log: ' + err.message, 'error');
     }
 }
 
@@ -605,44 +722,6 @@ function showError(message) {
     document.getElementById('loading-state').style.display = 'none';
     document.getElementById('error-state').style.display = 'block';
     document.getElementById('error-message').textContent = message;
-}
-
-function renderTransactions(logs) {
-    const tbody = document.getElementById('table-body');
-    tbody.innerHTML = '';
-    
-    // Store all transactions for search/pagination
-    allTransactions = logs;
-    filteredTransactions = [...allTransactions];
-    if (logs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:#999;">${t('no_transactions')}</td></tr>`;
-        return;
-    }
-
-    // Sort by thread
-    const sorted = [...logs].sort((a, b) => (a.thread || 0) - (b.thread || 0));
-
-    sorted.forEach(log => {
-        const authCode = calculateAuthCode(log);
-        const row = document.createElement('tr');
-
-        row.innerHTML = `
-            <td>${log.thread || '—'}</td>
-            <td>${log.time || '—'}</td>
-            <td>￥${log.price || 0}</td>
-            <td>${formatWalletShort(log.seller)}</td>
-            <td>${formatWalletShort(log.buyer)}</td>
-            <td><span class="hash-short">${formatChainShort(log.chain)}</span></td>
-            <td>
-                <button class="auth-code-btn" onclick="showFullAuthCode('${authCode}')">
-                    ${formatChainShort(authCode)}
-                </button>
-                <button class="view-btn" onclick="showFullAuthCode('${authCode}')">View</button>
-            </td>
-        `;
-
-        tbody.appendChild(row);
-    });
 }
 
 // ============================================================
@@ -679,6 +758,12 @@ window.goBack = goBack;
 window.showFullAuthCode = showFullAuthCode;
 window.closeAuthCodeModal = closeAuthCodeModal;
 window.copyAuthCode = copyAuthCode;
+window.applySearch = applySearch;
+window.clearSearch = clearSearch;
+window.prevPage = prevPage;
+window.nextPage = nextPage;
+window.goToPage = goToPage;
+window.toggleShowAll = toggleShowAll;
 
 // Click outside modal to close
 window.onclick = function(event) {
