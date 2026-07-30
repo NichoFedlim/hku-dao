@@ -227,6 +227,42 @@
         }
 
         /* ============================================================
+           MOCK INDICATOR
+           ============================================================ */
+        #mock-indicator {
+            background: #ff9800;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 10px 0 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+        }
+        #mock-indicator .close-mock {
+            background: rgba(255,255,255,0.25);
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        #mock-indicator .close-mock:hover {
+            background: rgba(255,255,255,0.4);
+        }
+
+        /* ============================================================
            RESPONSIVE
            ============================================================ */
         @media (max-width: 768px) {
@@ -467,6 +503,7 @@
         };
         let currentLang = localStorage.getItem('hku_lang') || 'en';
         let translations = {};
+        let usingMockData = false; // Track if we're using fallback data
 
         async function loadLanguage(lang) {
             try {
@@ -501,7 +538,7 @@
                 const key = el.getAttribute('data-i18n-placeholder');
                 el.placeholder = t(key);
             });
-            document.title = 'HKU DAO - 港大道' || t('page_title') ;
+            document.title = 'HKU DAO - 港大道' || t('page_title');
         }
 
         window.toggleLanguage = function() {
@@ -535,7 +572,7 @@
             try {
                 const result = await openWalletLoginModal();
                 if (result && result.walletid) {
-                    showToast(t('login_success'));
+                    showToast(t('login_success'), 'success');
                     location.reload();
                 }
             } catch (e) {
@@ -546,23 +583,50 @@
         };
 
         // ============================================================
-        // TOAST
+        // TOAST (unified)
         // ============================================================
-        function showToast(message, type = 'info') {
-            const existing = document.querySelector('.toast');
+        function showToast(message, type = 'info', duration = 3000) {
+            const existing = document.querySelector('.toast-global');
             if (existing) existing.remove();
+
             const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
+            toast.className = 'toast-global';
+
+            const colors = {
+                success: '#28a745',
+                error: '#dc3545',
+                warning: '#ff9800',
+                info: '#4cb7db'
+            };
+
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 24px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${colors[type] || colors.info};
+                color: white;
+                padding: 14px 28px;
+                border-radius: 12px;
+                font-weight: 500;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+                z-index: 9999;
+                transition: opacity 0.3s ease;
+                max-width: 90%;
+                text-align: center;
+                font-size: 0.95rem;
+            `;
             toast.textContent = message;
             document.body.appendChild(toast);
+
             setTimeout(() => {
                 toast.style.opacity = '0';
                 setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            }, duration);
         }
 
         // ============================================================
-        // DAO CARD: LOAD DATA & GENERATE QR
+        // DAO CARD: LOAD DATA & GENERATE QR (with fallback)
         // ============================================================
         let daoData = null;
 
@@ -571,35 +635,51 @@
                 const response = await fetch(`${API_BASE}/hku_dao.json`);
                 if (!response.ok) throw new Error('Failed to load DAO data');
                 daoData = await response.json();
-
-                // Update NFT hash display
-                const hashDisplay = document.getElementById('dao-hash-display');
-                if (daoData.hash) {
-                    const formattedHash = daoData.hash.match(/.{1,16}/g).join('<br>');
-                    hashDisplay.innerHTML = formattedHash;
-                } else {
-                    hashDisplay.innerHTML = 'No NFT hash available';
-                }
-
-                // Generate QR code – use shortlink if available, else hash, else fallback
-                const qrContent = daoData.shortlink?.trim() || daoData.hash?.trim() || 'https://hku.hk';
-                const qrContainer = document.getElementById('dao-qrcode');
-                if (qrContainer && qrContent) {
-                    qrContainer.innerHTML = '';
-                    new QRCode(qrContainer, {
-                        text: qrContent,
-                        width: 140,
-                        height: 140,
-                        colorDark: '#003153',
-                        colorLight: '#ffffff',
-                        correctLevel: QRCode.CorrectLevel.L
-                    });
-                }
-
+                usingMockData = false;
+                renderDaoCard(daoData);
             } catch (error) {
-                console.error('Failed to load DAO data:', error);
-                document.getElementById('dao-hash-display').innerHTML = '⚠️ Failed to load data';
-                // Optionally show a fallback QR
+                console.warn('Failed to load DAO data, using fallback:', error);
+                usingMockData = true;
+                // Generate fallback data
+                const response = await fetch(`/hku_dao.json`);
+                daoData = await response.json();
+                usingMockData = false;
+                renderDaoCard(daoData);
+                // Show toast notification
+                showToast('⚠️ Using mock DAO data – backend API not available', 'warning');
+            }
+        }
+
+        function renderDaoCard(data) {
+            // Update NFT hash display
+            const hashDisplay = document.getElementById('dao-hash-display');
+            if (data.hash) {
+                const formattedHash = data.hash.match(/.{1,16}/g)?.join('<br>') || data.hash;
+                hashDisplay.innerHTML = formattedHash + (data._mock ? ' <span style="color:#ff9800;font-size:0.7rem;">(mock)</span>' : '');
+            } else {
+                hashDisplay.innerHTML = 'No NFT hash available';
+            }
+
+            // Generate QR code
+            const qrContent = data.shortlink?.trim() || data.hash?.trim() || 'https://hku.hk';
+            const qrContainer = document.getElementById('dao-qrcode');
+            if (qrContainer && qrContent) {
+                qrContainer.innerHTML = '';
+                new QRCode(qrContainer, {
+                    text: qrContent,
+                    width: 140,
+                    height: 140,
+                    colorDark: '#003153',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.L
+                });
+                // Ensure canvas is properly sized
+                const canvas = qrContainer.querySelector('canvas');
+                if (canvas) {
+                    canvas.style.width = '100%';
+                    canvas.style.height = '100%';
+                    canvas.style.display = 'block';
+                }
             }
         }
 
@@ -612,10 +692,9 @@
         };
 
         // ============================================================
-        // CATEGORY GRID (Homepage Preview) – using main.js pattern
+        // CATEGORY GRID (Homepage Preview) with fallback
         // ============================================================
-        // This is a simplified version. In production, use the modular JS.
-        // For now, we'll fetch and display categories.
+        // This is a simplified version. In production, use the modular JS. For now, we'll fetch and display categories.
 
         async function loadHomepageCategories() {
             const grid = document.getElementById('grid');
@@ -623,27 +702,24 @@
                 // Fetch from API (or use mock data)
                 const response = await fetch(`${API_BASE}/api/categories/list`);
                 let categories;
+                let isMock = false;
+
                 if (response.ok) {
-                    categories = await response.json();
+                    const result = await response.json();
+                    categories = result.data || [];
+                    if (!categories.length) {
+                        throw new Error('No categories returned');
+                    }
                 } else {
-                    // Mock data for demo
-                    categories = [
-                        { id: 1, name: 'Architecture', name_zh: '建筑学院', subcount: 4 },
-                        { id: 2, name: 'Arts', name_zh: '文学院', subcount: 4 },
-                        { id: 3, name: 'Business & Economics', name_zh: '商学院', subcount: 5 },
-                        { id: 4, name: 'Dentistry', name_zh: '牙医学院', subcount: 2 },
-                        { id: 5, name: 'Education', name_zh: '教育学院', subcount: 3 },
-                        { id: 6, name: 'Engineering', name_zh: '工程学院', subcount: 5 },
-                        { id: 7, name: 'Law', name_zh: '法学院', subcount: 2 },
-                        { id: 8, name: 'Medicine', name_zh: '李嘉诚医学院', subcount: 9 },
-                        { id: 9, name: 'Science', name_zh: '理学院', subcount: 6 },
-                        { id: 10, name: 'Social Sciences', name_zh: '社会科学学院', subcount: 5 }
-                    ];
+                    throw new Error('API returned ' + response.status);
                 }
+
+                // If we got here, API worked
+                usingMockData = false;
 
                 const displayName = (item) => currentLang === 'zh' ? item.name_zh : item.name;
 
-                grid.innerHTML = categories.map(cat => `
+                grid.innerHTML = categories.slice(0, 6).map(cat => `
                     <div class="category-card" data-id="${cat.id}">
                         <div class="name">${displayName(cat)}</div>
                         <div class="subcount">${cat.subcount || 0} ${t('category_card_subitems') || 'sub-items'}</div>
@@ -654,12 +730,48 @@
                 grid.querySelectorAll('.category-card').forEach(card => {
                     card.addEventListener('click', () => {
                         const id = card.dataset.id;
-                        window.location.href = `/nft/subcategories.html?category=${id}`;
+                        window.location.href = `/nft/items.html?level=category&id=${id}`;
                     });
                 });
 
-            } catch (e) {
-                grid.innerHTML = `<p style="color:red;text-align:center;padding:40px;">${t('load_error')}: ${e.message}</p>`;
+            } catch (error) {
+                console.warn('Failed to load categories, using mock data:', error);
+                usingMockData = true;
+
+                // Mock data for homepage preview (Demo)
+                const mockCategories = [
+                    { id: 1, name: 'Architecture', name_zh: '建筑学院', subcount: 4 },
+                    { id: 2, name: 'Arts', name_zh: '文学院', subcount: 4 },
+                    { id: 3, name: 'Business & Economics', name_zh: '商学院', subcount: 5 },
+                    { id: 4, name: 'Dentistry', name_zh: '牙医学院', subcount: 2 },
+                    { id: 5, name: 'Education', name_zh: '教育学院', subcount: 3 },
+                    { id: 6, name: 'Engineering', name_zh: '工程学院', subcount: 5 },
+                    { id: 7, name: 'Law', name_zh: '法学院', subcount: 2 },
+                    { id: 8, name: 'Medicine', name_zh: '李嘉诚医学院', subcount: 9 },
+                    { id: 9, name: 'Science', name_zh: '理学院', subcount: 6 },
+                    { id: 10, name: 'Social Sciences', name_zh: '社会科学学院', subcount: 5 }
+                ];
+
+                const displayName = (item) => currentLang === 'zh' ? item.name_zh : item.name;
+
+                grid.innerHTML = mockCategories.map(cat => `
+                    <div class="category-card" data-id="${cat.id}">
+                        <div class="name">${displayName(cat)}</div>
+                        <div class="subcount">${cat.subcount || 0} ${t('category_card_subitems') || 'sub-items'}</div>
+                        <span style="font-size:0.65rem;color:#ff9800;display:block;margin-top:4px;">⚠️ mock data</span>
+                    </div>
+                `).join('');
+
+                // Click handler
+                grid.querySelectorAll('.category-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const id = card.dataset.id;
+                        window.location.href = `/nft/items.html?level=category&id=${id}`;
+                    });
+                });
+
+                // Show toast if not already shown
+                showToast('⚠️ Using mock category data – backend API not available', 'warning');
             }
         }
 
@@ -689,9 +801,9 @@
         }
 
         // ============================================================
-        // QR SCAN (simplified – you can keep your existing logic)
+        // QR SCAN (placeholder – keep your existing logic)
         // ============================================================
-        // [Keep your existing QR scan logic from the old file here]
+        // [Your existing QR scan logic here]
 
         // ============================================================
         // INIT
@@ -701,6 +813,20 @@
             applyTranslations();
             await loadDaoData();
             await loadHomepageCategories();
+
+            // Show mock indicator if using mock data
+            if (usingMockData) {
+                const indicator = document.createElement('div');
+                indicator.id = 'mock-indicator';
+                indicator.innerHTML = `
+                    ⚠️ Using mock data (backend API not available)
+                    <button class="close-mock" onclick="this.parentElement.remove()">✕</button>
+                `;
+                const searchSection = document.querySelector('.search-section');
+                if (searchSection) {
+                    searchSection.parentNode.insertBefore(indicator, searchSection);
+                }
+            }
 
             // Update login button
             const info = checkLoginStatus();

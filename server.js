@@ -432,6 +432,7 @@ async function updateTransactionLog(level, categoryId, categoryName, subcategory
 // ============================================================
 const WALLET_CONFIG = {
     url: 'ws://192.168.1.26:5000',
+    // url: 'https://hk.rbas.top/',
     connected: false,
     ws: null,
     reconnectInterval: 5000,
