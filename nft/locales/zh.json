@@ -87,6 +87,7 @@
     "send_code": "发送验证码",
     "resend_code": "重新发送",
     "login_and_buy": "登录并购买",
+    "buy_now": "立即购买",
     "confirm_purchase": "确认购买",
     "back_to_login": "返回登录",
     "user_login": "用户登录",
