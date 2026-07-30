@@ -1,7 +1,7 @@
 {
   "name": "Education",
   "name_zh": "教育学院",
-  "type": "faculty",
+  "type": "faculties",
   "hash": "1D4E384CBCC24B2D23123F07D510C21B65833FB81CB2837F3D72F5B59572DC96",
   "card_number": 5,
   "population": 0,

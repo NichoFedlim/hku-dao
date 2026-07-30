@@ -1,7 +1,7 @@
 {
   "name": "Arts",
   "name_zh": "文学院",
-  "type": "faculty",
+  "type": "faculties",
   "hash": "AB628D1A7BDDA67843C08CF5382BC069A7B69BC058ABD42D983EF428024C0782",
   "card_number": 2,
   "population": 0,

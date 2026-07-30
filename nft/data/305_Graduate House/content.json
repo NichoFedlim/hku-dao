@@ -1,7 +1,7 @@
 {
   "name": "Graduate House",
   "name_zh": "研究生宿舍",
-  "type": "hall",
+  "type": "halls",
   "hash": "8C7491B5EB06F3DA1C33F7BCDC0CEA905C1044BB753699748C67E5A394B92BB9",
   "card_number": 305,
   "population": 0,

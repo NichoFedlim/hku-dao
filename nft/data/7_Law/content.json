@@ -1,7 +1,7 @@
 {
   "name": "Law",
   "name_zh": "法学院",
-  "type": "faculty",
+  "type": "faculties",
   "hash": "539B46597B15B3BF0EB148EC01887B008951A907326452599DDBEA0E12BE7664",
   "card_number": 7,
   "population": 0,

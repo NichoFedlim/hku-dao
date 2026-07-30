@@ -1,7 +1,7 @@
 {
   "name": "Science",
   "name_zh": "理学院",
-  "type": "faculty",
+  "type": "faculties",
   "hash": "EB017CF36614D92E7CBFA207D2B957593CF7E1799E047D5CC8590B36E27F434C",
   "card_number": 9,
   "population": 0,

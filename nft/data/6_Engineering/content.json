@@ -1,7 +1,7 @@
 {
   "name": "Engineering",
   "name_zh": "工程学院",
-  "type": "faculty",
+  "type": "faculties",
   "hash": "F834CF5EFFFC9A3FB36BBA062154EAC647246B754C69FB755A456EA0166958B9",
   "card_number": 6,
   "population": 0,

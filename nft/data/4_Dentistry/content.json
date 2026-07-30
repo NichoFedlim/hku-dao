@@ -1,7 +1,7 @@
 {
   "name": "Dentistry",
   "name_zh": "牙医学院",
-  "type": "faculty",
+  "type": "faculties",
   "hash": "65D167886833119F4A1A1004D4C4AB7A1F1B72E55AC05BC9633A820C06D726DD",
   "card_number": 4,
   "population": 0,

@@ -1,7 +1,7 @@
 {
   "name": "Main Building",
   "name_zh": "主楼",
-  "type": "building",
+  "type": "main-campus",
   "hash": "A01661DFFCDCAC390BB0C643B82116155407C80A512E37B4A77DD9FB624A6344",
   "card_number": 101,
   "population": 0,

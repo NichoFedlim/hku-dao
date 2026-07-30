@@ -1,7 +1,7 @@
 {
   "name": "Architecture",
   "name_zh": "建筑学院",
-  "type": "faculty",
+  "type": "faculties",
   "hash": "10D95EDF7AB8F8E500132D68A587FE69303F48F0BC765A380D75AF5252C148EB",
   "card_number": 1,
   "population": 0,
