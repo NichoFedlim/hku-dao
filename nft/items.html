@@ -13,6 +13,7 @@
     <!-- Wallet auth -->
     <script src="/wallet-auth.js"></script>
 
+    <!-- Global CSS -->
     <link rel="stylesheet" href="css/style.css" />
 
     <style>
@@ -579,6 +580,49 @@
         </div>
     </div>
 
+    <!-- ===== ADD SUBCATEGORY MODAL ===== -->
+    <div class="modal-overlay" id="addSubcategoryModal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="add_subcategory_title">Add New Subcategory</h2>
+                <button class="modal-close" onclick="closeModal('addSubcategoryModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="addSubcategoryForm">
+                    <!-- Hidden fields for parent info -->
+                    <input type="hidden" id="subCategoryId" />
+                    <input type="hidden" id="subCategoryName" />
+                    
+                    <div class="form-group" style="background:#f8f9fa; padding:10px 14px; border-radius:8px; margin-bottom:16px;">
+                        <small style="color:#666;">Adding to: <strong id="subCategoryParentDisplay" style="color:var(--hku-green);">Loading...</strong></small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label data-i18n="subcategory_name_label">Subcategory Name *</label>
+                        <input type="text" id="subCatName" placeholder="e.g. Department of Architecture" required />
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="subcategory_name_zh_label">Subcategory Name (Chinese) *</label>
+                        <input type="text" id="subCatNameZh" placeholder="e.g. 建筑学系" required />
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="subcategory_price_label">Price (RC) *</label>
+                        <input type="number" id="subCatPrice" value="1000" min="1" required />
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="wallet_address_label">Your Wallet Address *</label>
+                        <input type="text" id="subCatWallet" placeholder="64-character hex address" required />
+                        <small class="form-hint">Your wallet address (from login)</small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('addSubcategoryModal')" data-i18n="cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary" data-i18n="create_subcategory">Create Subcategory</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== FOOTER ===== -->
     <footer class="footer">
         <p data-i18n="footer_text">© 2026 Gang Da Dao · Built on RBAS Blockchain</p>
@@ -738,7 +782,9 @@
             }
         }
 
-        // ===== ADD SUBCATEGORY =====
+        // ============================================================
+        // ADD SUBCATEGORY/ITEM MODAL FUNCTIONS
+        // ============================================================
         function openAddItem() {
             const info = checkLoginStatus();
             if (!info) {
@@ -751,18 +797,123 @@
                 return;
             }
 
-            // Get the parent category name for context
-            const parentName = document.getElementById('parent-name').textContent || 'this category';
+            // Get current category info from the page
+            const categoryId = parentId;
+            const categoryName = parentName;
 
-            // In production, this would open a modal with form fields
-            const name = prompt(t('add_item_placeholder') + ' (' + parentName + ')');
-            if (name && name.trim()) {
-                // In production: call API to add subcategory
-                showToast(t('add_item_success'), 'success');
-                // Reload items to show the new one
-                loadItems();
+            if (!categoryId || !categoryName) {
+                showToast('Category information missing. Please go back and try again.', 'error');
+                return;
+            }
+
+            // Pre-fill hidden fields and wallet
+            document.getElementById('subCategoryId').value = categoryId;
+            document.getElementById('subCategoryName').value = categoryName;
+            
+            const walletInput = document.getElementById('subCatWallet');
+            if (walletInput && info.walletid) {
+                walletInput.value = info.walletid;
+            }
+
+            // Set the parent name in the modal title/description
+            const parentDisplay = document.getElementById('subCategoryParentDisplay');
+            if (parentDisplay) {
+                parentDisplay.textContent = categoryName;
+            }
+
+            // Show modal
+            const modal = document.getElementById('addSubcategoryModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.classList.add('active');
             }
         }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('active');
+                // Reset form
+                const form = modal.querySelector('form');
+                if (form) form.reset();
+            }
+        }
+
+        // ===== FORM SUBMIT HANDLER =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('addSubcategoryForm');
+            if (!form) return;
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const categoryId = document.getElementById('subCategoryId').value;
+                const categoryName = document.getElementById('subCategoryName').value;
+                const subName = document.getElementById('subCatName').value.trim();
+                const subNameZh = document.getElementById('subCatNameZh').value.trim();
+                const price = parseInt(document.getElementById('subCatPrice').value);
+                const wallet = document.getElementById('subCatWallet').value.trim();
+
+                // Validation
+                if (!subName || !subNameZh || !wallet || !price) {
+                    showToast('Please fill in all required fields.', 'error');
+                    return;
+                }
+                if (!/^[A-F0-9]{64}$/i.test(wallet)) {
+                    showToast('Invalid wallet address (must be 64 hex characters).', 'error');
+                    return;
+                }
+
+                // Disable submit button
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Creating...';
+
+                try {
+                    // Get the next subcategory number (find max existing + 1)
+                    // Or let the backend handle it - we'll send 0 and backend will assign
+                    const subcategoryNumber = 0; // Backend will generate
+
+                    const url = `${API_BASE}/subcategory/${categoryId}/${encodeURIComponent(categoryName)}/subcategory`;
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: subName,
+                            name_zh: subNameZh,
+                            subcategory_number: subcategoryNumber,
+                            buyer_wallet: wallet,
+                            price: price
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showToast('Subcategory created successfully!', 'success');
+                        closeModal('addSubcategoryModal');
+                        // Reload items
+                        await loadItems();
+                        // Reset form
+                        form.reset();
+                        // Re-fill wallet if still logged in
+                        const info = checkLoginStatus();
+                        if (info && info.walletid) {
+                            document.getElementById('subCatWallet').value = info.walletid;
+                        }
+                    } else {
+                        showToast(result.error || 'Failed to create subcategory.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error creating subcategory:', error);
+                    showToast('Network error. Please try again.', 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = t('create_subcategory') || 'Create Subcategory';
+                }
+            });
+        });
 
         // ============================================================
         // SUBCATEGORY DATA (same as subcategories.html)

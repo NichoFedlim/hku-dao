@@ -1,4 +1,4 @@
-/* ===== 基础重置 & 变量 ===== */
+/* ===== RESET & VARIABLES ===== */
 :root {
     --hku-green: #003153;
     --hku-gold: #CC9F2E;
@@ -24,7 +24,7 @@ body {
     background: var(--bg-light);
     color: var(--text-dark);
     line-height: 1.6;
-    padding-top: 70px; /* 为固定头部留空间 */
+    padding-top: 70px;
 }
 
 .container {
@@ -33,7 +33,7 @@ body {
     padding: 0 20px;
 }
 
-/* ===== 头部 ===== */
+/* ===== HEADER ===== */
 .header {
     position: fixed;
     top: 0;
@@ -45,6 +45,7 @@ body {
     z-index: 1000;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
+
 .header-inner {
     display: flex;
     justify-content: space-between;
@@ -52,20 +53,24 @@ body {
     flex-wrap: wrap;
     gap: 10px;
 }
+
 .logo {
     font-size: 1.8rem;
     font-weight: 700;
     letter-spacing: 1px;
     color: var(--hku-gold);
+    cursor: pointer;
 }
+
 .nav {
     display: flex;
     gap: 12px;
     align-items: center;
     flex-wrap: wrap;
 }
+
 .nav-btn {
-    background: rgba(255,255,255,0.15);
+    background: rgba(255, 255, 255, 0.15);
     color: white;
     border: none;
     padding: 8px 18px;
@@ -75,113 +80,31 @@ body {
     font-weight: 500;
     transition: var(--transition);
 }
+
 .nav-btn:hover {
-    background: rgba(255,255,255,0.3);
+    background: rgba(255, 255, 255, 0.3);
 }
+
 #lang-switch {
     background: var(--hku-gold);
     color: var(--primary);
 }
+
 #lang-switch:hover {
     background: #d4a827;
 }
 
-/* ===== 特色卡片 ===== */
-.featured-card {
-    background: var(--card-bg);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
-    margin: 30px 0 20px;
-    padding: 24px;
-    border-left: 6px solid var(--hku-gold);
-    display: flex;
-    flex-direction: column;
-}
-.card-layout {
-    display: flex;
-    gap: 30px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-.card-left {
-    flex: 2;
-    min-width: 200px;
-}
-.card-right {
-    flex: 1;
-    min-width: 150px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-}
-.hku-logo {
-    max-width: 120px;
-    height: auto;
-    border-radius: 50%;
-    background: #f0f0f0;
-    padding: 8px;
-}
-.hku-name {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--hku-green);
-    margin: 8px 0 4px;
-}
-.hku-subtitle {
-    font-size: 1.1rem;
-    color: #555;
-}
-.qr-wrapper {
-    background: white;
-    padding: 8px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-.qrcode {
-    width: 140px;
-    height: 140px;
-}
-.nft-display {
-    background: #f0f4f8;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-family: monospace;
-    font-size: 0.75rem;
-    word-break: break-all;
-    text-align: center;
-    width: 100%;
-    max-height: 80px;
-    overflow-y: auto;
-}
-.card-footer {
-    margin-top: 20px;
-    text-align: right;
-}
-.action-btn {
-    background: var(--hku-gold);
-    color: var(--primary);
-    border: none;
-    padding: 10px 28px;
-    border-radius: 30px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-}
-.action-btn:hover {
-    background: #b8922a;
-    transform: translateY(-2px);
+/* ===== SEARCH & SCAN ===== */
+.search-section {
+    margin: 20px 0 15px;
 }
 
-/* ===== 搜索栏 ===== */
-.search-section {
-    margin: 20px 0 30px;
-}
 .search-container {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
 }
+
 #search-input {
     flex: 1;
     min-width: 200px;
@@ -191,10 +114,12 @@ body {
     font-size: 1rem;
     transition: var(--transition);
 }
+
 #search-input:focus {
     border-color: var(--hku-gold);
     outline: none;
 }
+
 #scan-btn {
     background: var(--primary);
     color: white;
@@ -204,6 +129,7 @@ body {
     cursor: pointer;
     font-weight: 500;
 }
+
 .search-status {
     margin-top: 8px;
     font-size: 0.9rem;
@@ -211,44 +137,293 @@ body {
     min-height: 1.5em;
 }
 
-/* ===== 分类网格 ===== */
+/* ===== FILTER BAR ===== */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 20px;
+    padding: 12px 16px;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    align-items: center;
+}
+
+.filter-bar .filter-label {
+    font-weight: 600;
+    color: var(--primary);
+    font-size: 0.9rem;
+    margin-right: 4px;
+}
+
+.filter-btn {
+    padding: 6px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 30px;
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: var(--transition);
+    color: #555;
+}
+
+.filter-btn:hover {
+    border-color: var(--hku-gold);
+    color: var(--primary);
+}
+
+.filter-btn.active {
+    background: var(--hku-gold);
+    border-color: var(--hku-gold);
+    color: var(--primary);
+}
+
+.filter-btn .count-badge {
+    display: inline-block;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 0 8px;
+    font-size: 0.7rem;
+    margin-left: 4px;
+}
+
+.filter-btn.active .count-badge {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.filter-clear {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 30px;
+    background: #f0f0f0;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: var(--transition);
+    color: #888;
+    margin-left: auto;
+}
+
+.filter-clear:hover {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.filter-clear.hidden {
+    display: none;
+}
+
+/* ===== CATEGORY NFT CARDS ===== */
 .category-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
     margin: 20px 0;
 }
-.category-card {
+
+.nft-card {
     background: var(--card-bg);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
+    overflow: hidden;
     transition: var(--transition);
     border: 1px solid transparent;
-}
-.category-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--hku-gold);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-}
-.category-card .name {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: var(--primary);
-}
-.category-card .subcount {
-    font-size: 0.85rem;
-    color: #888;
-    margin-top: 6px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
 }
 
-/* ===== 管理员按钮 ===== */
+.nft-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--hku-gold);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.nft-card .card-inner {
+    display: flex;
+    padding: 16px;
+    gap: 16px;
+    flex: 1;
+}
+
+.nft-card .card-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.nft-card .card-left .item-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+
+.nft-card .card-left .item-parent {
+    font-size: 0.75rem;
+    color: #999;
+    background: #f0f0f0;
+    padding: 2px 12px;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.nft-card .card-left .price-tag {
+    font-size: 0.9rem;
+    color: var(--hku-gold);
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.nft-card .card-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.nft-card .card-right .qr-wrapper {
+    background: white;
+    padding: 4px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.nft-card .card-right .qr-wrapper .qrcode {
+    width: 120px;
+    height: 120px;
+    display: block;
+}
+
+.nft-card .card-right .nft-hash {
+    font-family: monospace;
+    font-size: 0.6rem;
+    line-height: 1.4;
+    word-break: break-all;
+    text-align: center;
+    background: #f5f7fb;
+    padding: 6px 10px;
+    border-radius: 6px;
+    width: 100%;
+    max-height: 60px;
+    overflow-y: auto;
+    color: #555;
+}
+
+.nft-card .card-footer {
+    padding: 10px 16px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fafafa;
+}
+
+.nft-card .card-footer .action-btn {
+    background: linear-gradient(135deg, var(--hku-gold), #b8922a);
+    color: var(--primary);
+    border: none;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.nft-card .card-footer .action-btn:hover {
+    transform: scale(1.02);
+}
+
+.nft-card .card-footer .card-number {
+    font-size: 0.75rem;
+    color: #999;
+}
+
+/* ===== PAGINATION ===== */
+.pagination-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 20px 0 10px;
+    padding: 12px 16px;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.pagination-info {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.pagination-info strong {
+    color: var(--primary);
+}
+
+.pagination-controls {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    padding: 6px 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: var(--transition);
+    color: #555;
+}
+
+.page-btn:hover {
+    border-color: var(--hku-gold);
+    color: var(--primary);
+}
+
+.page-btn.active {
+    background: var(--hku-gold);
+    border-color: var(--hku-gold);
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.page-btn.show-all {
+    background: #f0f0f0;
+    border-color: #ddd;
+    color: #666;
+    font-weight: 500;
+}
+
+.page-btn.show-all.active {
+    background: var(--hku-green);
+    border-color: var(--hku-green);
+    color: white;
+}
+
+/* ===== ADMIN SECTION ===== */
 .admin-section {
     margin: 30px 0 20px;
     text-align: center;
 }
+
 .admin-btn {
     background: #28a745;
     color: white;
@@ -259,25 +434,29 @@ body {
     font-weight: 600;
     transition: var(--transition);
 }
+
 .admin-btn:hover {
     background: #218838;
 }
+
 .admin-btn.disabled {
     background: #6c757d;
     cursor: not-allowed;
 }
+
 .admin-hint {
     margin-top: 8px;
     font-size: 0.9rem;
     color: #666;
 }
 
-/* ===== 加载动画 ===== */
+/* ===== LOADING ===== */
 .loading-spinner {
     grid-column: 1 / -1;
     text-align: center;
     padding: 40px;
 }
+
 .loader {
     border: 4px solid #f3f3f3;
     border-top: 4px solid var(--hku-gold);
@@ -287,21 +466,283 @@ body {
     animation: spin 1s linear infinite;
     margin: 0 auto 12px;
 }
+
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
-/* ===== 扫码模态框 ===== */
+/* ===== MODAL OVERLAY ===== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 520px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideUp 0.3s ease;
+}
+
+@keyframes modalSlideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: var(--primary);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #999;
+    transition: 0.2s;
+    padding: 0 8px;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-body .form-group {
+    margin-bottom: 18px;
+}
+
+.modal-body .form-group label {
+    display: block;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+}
+
+.modal-body .form-group input,
+.modal-body .form-group select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: 0.2s;
+}
+
+.modal-body .form-group input:focus,
+.modal-body .form-group select:focus {
+    outline: none;
+    border-color: var(--hku-gold);
+    box-shadow: 0 0 0 3px rgba(204, 159, 46, 0.15);
+}
+
+.modal-body .form-hint {
+    display: block;
+    font-size: 0.75rem;
+    color: #888;
+    margin-top: 4px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 0.95rem;
+}
+
+.btn-primary {
+    background: var(--hku-gold);
+    color: var(--primary);
+}
+
+.btn-primary:hover {
+    background: #b8922a;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #f0f0f0;
+    color: #555;
+}
+
+.btn-secondary:hover {
+    background: #e0e0e0;
+}
+
+/* ===== BACK TO TOP BUTTON ===== */
+.back-to-top {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--hku-gold);
+    color: var(--primary);
+    border: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 900;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.back-to-top:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #888;
+    grid-column: 1 / -1;
+}
+
+.empty-state .empty-icon {
+    font-size: 3.5rem;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.empty-state h3 {
+    color: var(--primary);
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    font-size: 0.95rem;
+    color: #999;
+}
+
+.empty-state .back-link {
+    display: inline-block;
+    margin-top: 16px;
+    color: var(--hku-gold);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.empty-state .back-link:hover {
+    text-decoration: underline;
+}
+
+/* ===== SKELETON LOADING ===== */
+.skeleton {
+    background: linear-gradient(90deg, #e8e8e8 25%, #f0f0f0 50%, #e8e8e8 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.skeleton-card {
+    min-height: 120px;
+    padding: 16px;
+}
+
+.skeleton-card .skeleton-line {
+    height: 16px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+}
+
+.skeleton-card .skeleton-line.short {
+    width: 60%;
+}
+
+.skeleton-card .skeleton-line.medium {
+    width: 80%;
+}
+
+.skeleton-card .skeleton-line.long {
+    width: 100%;
+}
+
+/* ===== SCAN MODAL ===== */
 .scan-modal {
     display: none;
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.8);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
     z-index: 2000;
     justify-content: center;
     align-items: center;
 }
+
 .scan-container {
     background: #1a1a2e;
     padding: 24px;
@@ -311,19 +752,23 @@ body {
     color: white;
     text-align: center;
 }
+
 .scan-container h3 {
     margin-bottom: 16px;
 }
+
 #scan-video {
     width: 100%;
     border-radius: 8px;
     background: #000;
 }
+
 #scan-result {
     margin: 12px 0;
     font-size: 1rem;
     color: #89f8e8;
 }
+
 .close-scan {
     background: #c00;
     color: white;
@@ -333,11 +778,44 @@ body {
     cursor: pointer;
     font-weight: 600;
 }
+
 .close-scan:hover {
     background: #a00;
 }
 
-/* ===== 页脚 ===== */
+/* ===== TOAST NOTIFICATIONS ===== */
+.toast-global {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 500;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    transition: opacity 0.3s ease;
+    max-width: 90%;
+    text-align: center;
+}
+
+/* ===== MOCK INDICATOR ===== */
+#mock-indicator {
+    background: #ff9800;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-align: center;
+    margin: 10px 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* ===== FOOTER ===== */
 .footer {
     margin-top: 40px;
     padding: 20px 0;
@@ -347,16 +825,66 @@ body {
     font-size: 0.9rem;
 }
 
-/* ===== 响应式 ===== */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-    body { padding-top: 110px; }
-    .header-inner { flex-direction: column; align-items: stretch; }
-    .nav { justify-content: center; }
-    .card-layout { flex-direction: column; align-items: center; }
-    .card-left { text-align: center; }
-    .category-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    body {
+        padding-top: 110px;
+    }
+
+    .header-inner {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .nav {
+        justify-content: center;
+    }
+
+    .category-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .nft-card .card-inner {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .nft-card .card-right .qr-wrapper .qrcode {
+        width: 100px;
+        height: 100px;
+    }
+
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-clear {
+        margin-left: 0;
+    }
+
+    .pagination-bar {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .pagination-controls {
+        justify-content: center;
+    }
 }
+
 @media (max-width: 480px) {
-    .search-container { flex-direction: column; }
-    #scan-btn { width: 100%; }
+    .search-container {
+        flex-direction: column;
+    }
+
+    #scan-btn {
+        width: 100%;
+    }
+
+    .filter-btn {
+        font-size: 0.75rem;
+        padding: 4px 12px;
+    }
 }

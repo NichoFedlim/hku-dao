@@ -881,11 +881,13 @@ app.get('/api/categories/list', (req, res) => {
                     const name = match[2];
                     const contentPath = path.join(dataRoot, dir.name, 'content.json');
                     let hash = '', shortlink = '', price = 0, subcount = 0;
+                    let type = 'other';   // default type
                     if (fs.existsSync(contentPath)) {
                         try {
                             const content = JSON.parse(fs.readFileSync(contentPath, 'utf-8'));
                             hash = content.hash || '';
                             shortlink = content.shortlink || '';
+                            type = content.type || 'other';
                             // Count subcategories
                             const subdirs = fs.readdirSync(path.join(dataRoot, dir.name), { withFileTypes: true });
                             subcount = subdirs.filter(d => d.isDirectory() && /^\d+_/.test(d.name)).length;
@@ -901,7 +903,7 @@ app.get('/api/categories/list', (req, res) => {
                             }
                         } catch (e) { console.error(`Failed to read ${contentPath}:`, e); }
                     }
-                    categories.push({ id, name, hash, shortlink, price, subcount });
+                    categories.push({ id, name, hash, shortlink, price, subcount, type });
                 }
             }
         }
