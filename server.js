@@ -1629,43 +1629,95 @@ app.get('/api/user/nfts', async (req, res) => {
         const dataRoot = NFT_DATA_DIR;
         const dirs = fs.readdirSync(dataRoot, { withFileTypes: true });
 
+        // Helper: check if the latest buyer matches wallet
+        function checkLogFile(logPath, level, idFields) {
+            if (!fs.existsSync(logPath)) return null;
+            try {
+                const logData = JSON.parse(fs.readFileSync(logPath, 'utf-8'));
+                const logs = logData.log || [];
+                if (logs.length === 0) return null;
+                // Sort by thread descending (latest first)
+                const sorted = logs.sort((a, b) => (b.thread || 0) - (a.thread || 0));
+                const latest = sorted[0];
+                if (latest.buyer === wallet) {
+                    return {
+                        level: level,
+                        ...idFields,
+                        hash: latest.chain || '',
+                        purchase_price: latest.price || 0
+                    };
+                }
+            } catch (e) { /* ignore */ }
+            return null;
+        }
+
         for (const dir of dirs) {
             if (dir.isDirectory()) {
                 const match = dir.name.match(/^(\d+)_(.+)$/);
                 if (match) {
-                    const logPath = path.join(dataRoot, dir.name, 'content_log.json');
-                    if (fs.existsSync(logPath)) {
-                        const logData = JSON.parse(fs.readFileSync(logPath, 'utf-8'));
-                        const logs = logData.log || [];
-                        if (logs.length > 0) {
-                            const latest = logs.reduce((a, b) => (a.thread > b.thread ? a : b));
-                            if (latest.buyer === wallet) {
-                                nfts.push({
-                                    level: 'category',
-                                    id: parseInt(match[1]),
-                                    name: match[2],
-                                    hash: latest.chain,
-                                    purchase_price: latest.price || 0
-                                });
+                    const card_number = match[1];
+                    const surname = match[2];
+                    const categoryPath = path.join(dataRoot, dir.name);
+                    const contentLog = path.join(categoryPath, 'content_log.json');
+                    // Check category level
+                    const catResult = checkLogFile(contentLog, 'category', { card_number, surname });
+                    if (catResult) nfts.push(catResult);
+
+                    // Scan subcategories inside this category
+                    const subdirs = fs.readdirSync(categoryPath, { withFileTypes: true });
+                    for (const subdir of subdirs) {
+                        if (subdir.isDirectory()) {
+                            const subMatch = subdir.name.match(/^(\d+)_(.+)$/);
+                            if (subMatch) {
+                                const citang_number = subMatch[1];
+                                const citang_name = subMatch[2];
+                                const subPath = path.join(categoryPath, subdir.name);
+                                const subLog = path.join(subPath, 'subcategory_log.json');
+                                const subResult = checkLogFile(subLog, 'subcategory', { card_number, surname, citang_number, citang_name });
+                                if (subResult) nfts.push(subResult);
+
+                                // Scan items inside this subcategory
+                                const itemDirs = fs.readdirSync(subPath, { withFileTypes: true });
+                                for (const itemDir of itemDirs) {
+                                    if (itemDir.isDirectory()) {
+                                        const itemMatch = itemDir.name.match(/^(\d+)_(.+)$/);
+                                        if (itemMatch) {
+                                            const member_number = itemMatch[1];
+                                            const member_name = itemMatch[2];
+                                            const itemPath = path.join(subPath, itemDir.name);
+                                            const itemLog = path.join(itemPath, `${member_number}_${member_name}_log.json`);
+                                            const itemResult = checkLogFile(itemLog, 'item', { card_number, surname, citang_number, citang_name, member_number, member_name });
+                                            if (itemResult) nfts.push(itemResult);
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
         }
+
         res.json(nfts);
     } catch (error) {
-        console.error('Failed to retrieve user NFT:', error);
+        console.error('Failed to retrieve user NFTs:', error);
         sendError(res, 500, 'Failed to retrieve', error.message);
     }
 });
 
 // List NFT for sale
 app.post('/api/nft/list', async (req, res) => {
-    const { level, id, name, price, seller_wallet, hash } = req.body;
-    if (!level || !id || !name || !price || !seller_wallet) {
+    const { level, card_number, surname, citang_number, citang_name, member_number, member_name, price, seller_wallet, hash } = req.body;
+    if (!level || !price || !seller_wallet) {
         return sendError(res, 400, 'Missing necessary parameters');
     }
+
+    // Build a unique ID for the NFT (use all fields)
+    const nftId = {
+        level, card_number, surname,
+        citang_number: citang_number || '', citang_name: citang_name || '',
+        member_number: member_number || '', member_name: member_name || ''
+    };
 
     const marketFile = path.join(NFT_DATA_DIR, 'market.json');
     let marketData = [];
@@ -1677,20 +1729,23 @@ app.post('/api/nft/list', async (req, res) => {
         }
     }
 
-    const existingIndex = marketData.findIndex(item =>
-        item.level === level && item.id === id && item.name === name
+    // Remove existing entry if any
+    marketData = marketData.filter(item => 
+        !(item.level === level && 
+          item.card_number === card_number && 
+          item.surname === surname &&
+          (item.citang_number || '') === (citang_number || '') &&
+          (item.citang_name || '') === (citang_name || '') &&
+          (item.member_number || '') === (member_number || '') &&
+          (item.member_name || '') === (member_name || ''))
     );
-    if (existingIndex !== -1) {
-        marketData[existingIndex] = {
-            ...marketData[existingIndex],
-            price,
-            seller: seller_wallet,
-            hash: hash || marketData[existingIndex].hash,
-            list_time: new Date().toISOString()
-        };
-    } else {
-        marketData.push({ level, id, name, price, seller: seller_wallet, hash: hash || '', list_time: new Date().toISOString() });
-    }
+
+    // Add new entry
+    marketData.push({
+        ...nftId, price: price,
+        seller: seller_wallet, hash: hash || '',
+        list_time: new Date().toISOString()
+    });
 
     fs.writeFileSync(marketFile, JSON.stringify(marketData, null, 2));
     res.json({ success: true, message: 'NFT listed successfully' });
@@ -1858,6 +1913,58 @@ app.post('/api/nft/buy', async (req, res) => {
         res.json({ success: false, error: 'Purchase processing failed: ' + error.message });
     } finally {
         marketLock = false;
+    }
+});
+
+// ============================================================
+// API: NFT TRANSFER
+// ============================================================
+app.post('/api/nft/transfer', async (req, res) => {
+    const { level, card_number, surname, citang_number, citang_name, member_number, member_name, from_wallet, to_wallet, hash } = req.body;
+
+    if (!level || !from_wallet || !to_wallet || !hash) {
+        return res.status(400).json({ success: false, error: 'Missing required parameters' });
+    }
+
+    // Validate wallet addresses (64 hex chars)
+    const walletRegex = /^[A-F0-9]{64}$/i;
+    if (!walletRegex.test(from_wallet) || !walletRegex.test(to_wallet)) {
+        return res.status(400).json({ success: false, error: 'Invalid wallet address format' });
+    }
+
+    if (from_wallet === to_wallet) {
+        return res.status(400).json({ success: false, error: 'Cannot transfer to yourself' });
+    }
+
+    try {
+        // 1. Remove NFT from sender
+        const removeResult = await removeNFT(from_wallet, hash);
+        if (!removeResult.success) {
+            return res.status(500).json({ success: false, error: 'Failed to remove NFT from sender: ' + (removeResult.error || '') });
+        }
+
+        // 2. Add NFT to recipient
+        // Determine NFT name (construct from data)
+        let nftName = '';
+        if (level === 'category') nftName = surname || card_number;
+        else if (level === 'subcategory') nftName = `${surname || ''} · ${citang_name || ''}`;
+        else if (level === 'item') nftName = `${surname || ''} · ${citang_name || ''} · ${member_name || ''}`;
+        else nftName = 'NFT';
+
+        const addResult = await addNFT(to_wallet, hash, nftName, 0); // Transfer price is 0 (no RC transfer)
+        if (!addResult.success) {
+            // Rollback: re-add to sender
+            await addNFT(from_wallet, hash, nftName, 0);
+            return res.status(500).json({ success: false, error: 'Failed to add NFT to recipient: ' + (addResult.error || '') });
+        }
+
+        // 3. Update transaction log (optional – you can add a transfer log entry)
+        // We'll skip for now to keep it simple, but you can call updateTransactionLog with price=0, seller=from_wallet, buyer=to_wallet
+
+        res.json({ success: true, message: 'NFT transferred successfully' });
+    } catch (error) {
+        console.error('Transfer failed:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
