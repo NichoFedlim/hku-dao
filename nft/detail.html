@@ -21,10 +21,7 @@
 
     <style>
         /* ===== DETAIL PAGE STYLES ===== */
-        .detail-container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+        .detail-container { max-width: 1000px; margin: 0 auto; }
 
         /* ===== BREADCRUMB ===== */
         .breadcrumb-bar {
@@ -97,45 +94,16 @@
             transition: var(--transition);
             font-size: 0.95rem;
         }
-        .detail-header .action-buttons .btn-edit {
-            background: var(--hku-gold);
-            color: var(--primary);
-        }
-        .detail-header .action-buttons .btn-edit:hover {
-            background: #b8922a;
-            transform: translateY(-2px);
-        }
-        .detail-header .action-buttons .btn-edit:disabled {
-            background: #ccc;
-            color: #888;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .detail-header .action-buttons .btn-back {
-            background: #f0f0f0;
-            color: #555;
-        }
-        .detail-header .action-buttons .btn-back:hover {
-            background: #e0e0e0;
-        }
-        .detail-header .action-buttons .btn-save {
-            background: #28a745;
-            color: white;
-        }
-        .detail-header .action-buttons .btn-save:hover {
-            background: #218838;
-        }
-        .detail-header .action-buttons .btn-save:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        .detail-header .action-buttons .btn-cancel {
-            background: #dc3545;
-            color: white;
-        }
-        .detail-header .action-buttons .btn-cancel:hover {
-            background: #c82333;
-        }
+        .btn-edit { background: var(--hku-gold); color: var(--primary); }
+        .btn-edit:hover { background: #b8922a; transform: translateY(-2px); }
+        .btn-edit:disabled { background: #ccc; color: #888; cursor: not-allowed; transform: none; }
+        .btn-back { background: #f0f0f0; color: #555; }
+        .btn-back:hover { background: #e0e0e0; }
+        .btn-save { background: #28a745; color: white; }
+        .btn-save:hover { background: #218838; }
+        .btn-save:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-cancel { background: #dc3545; color: white; }
+        .btn-cancel:hover { background: #c82333; }
 
         /* ===== NFT INFO CARD ===== */
         .nft-info-card {
@@ -246,24 +214,13 @@
             line-height: 1.7;
             color: #444;
         }
-        .content-section .content-body .empty-text {
-            color: #aaa;
-            font-style: italic;
-        }
+        .content-section .content-body .empty-text { color: #aaa; font-style: italic; }
 
         /* ===== EDIT MODE ===== */
-        .edit-mode .content-body {
-            display: none;
-        }
-        .edit-mode .edit-form {
-            display: block !important;
-        }
-        .edit-form {
-            display: none;
-        }
-        .edit-form .form-group {
-            margin-bottom: 16px;
-        }
+        .edit-mode .content-body { display: none; }
+        .edit-mode .edit-form { display: block !important; }
+        .edit-form { display: none; }
+        .edit-form .form-group { margin-bottom: 16px; }
         .edit-form .form-group label {
             display: block;
             font-weight: 600;
@@ -287,10 +244,7 @@
             border-color: var(--hku-gold);
             box-shadow: 0 0 0 2px rgba(204, 159, 46, 0.15);
         }
-        .edit-form .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
+        .edit-form .form-group textarea { min-height: 100px; resize: vertical; }
 
         /* ===== UPLOAD SECTION ===== */
         .upload-section {
@@ -312,9 +266,7 @@
             font-size: 0.85rem;
             background: white;
         }
-        .upload-section .upload-option:hover {
-            border-color: var(--hku-gold);
-        }
+        .upload-section .upload-option:hover { border-color: var(--hku-gold); }
         .upload-section .upload-option.active {
             border-color: var(--hku-gold);
             background: #fff8e8;
@@ -326,18 +278,14 @@
             background: #f8f9fa;
             border-radius: 8px;
         }
-        .upload-section .upload-content.active {
-            display: block;
-        }
+        .upload-section .upload-content.active { display: block; }
         .upload-section .file-input-wrapper {
             display: flex;
             gap: 10px;
             align-items: center;
             flex-wrap: wrap;
         }
-        .upload-section .file-input-wrapper input[type="file"] {
-            display: none;
-        }
+        .upload-section .file-input-wrapper input[type="file"] { display: none; }
         .upload-section .file-input-wrapper .file-label {
             padding: 8px 16px;
             background: var(--hku-green);
@@ -347,9 +295,7 @@
             font-size: 0.85rem;
             transition: var(--transition);
         }
-        .upload-section .file-input-wrapper .file-label:hover {
-            background: #002244;
-        }
+        .upload-section .file-input-wrapper .file-label:hover { background: #002244; }
         .upload-section .file-input-wrapper .file-name {
             font-size: 0.85rem;
             color: #666;
@@ -362,9 +308,7 @@
         }
 
         /* ===== ATTACHMENTS LIST ===== */
-        .attachments-list {
-            margin-top: 12px;
-        }
+        .attachments-list { margin-top: 12px; }
         .attachment-item {
             display: flex;
             justify-content: space-between;
@@ -375,9 +319,7 @@
             margin-bottom: 6px;
             transition: var(--transition);
         }
-        .attachment-item:hover {
-            background: #f0f0f0;
-        }
+        .attachment-item:hover { background: #f0f0f0; }
         .attachment-item .attach-info {
             display: flex;
             align-items: center;
@@ -404,26 +346,13 @@
             font-size: 0.75rem;
             transition: var(--transition);
         }
-        .attachment-item .attach-actions .btn-view {
-            background: var(--hku-gold);
-            color: var(--primary);
-        }
-        .attachment-item .attach-actions .btn-view:hover {
-            background: #b8922a;
-        }
-        .attachment-item .attach-actions .btn-delete {
-            background: #dc3545;
-            color: white;
-        }
-        .attachment-item .attach-actions .btn-delete:hover {
-            background: #c82333;
-        }
+        .btn-view { background: var(--hku-gold); color: var(--primary); }
+        .btn-view:hover { background: #b8922a; }
+        .btn-delete { background: #dc3545; color: white; }
+        .btn-delete:hover { background: #c82333; }
 
         /* ===== LOADING ===== */
-        .loading-spinner {
-            text-align: center;
-            padding: 60px;
-        }
+        .loading-spinner { text-align: center; padding: 60px; }
         .loader {
             border: 4px solid #f3f3f3;
             border-top: 4px solid var(--hku-gold);
@@ -471,7 +400,39 @@
             font-weight: 600;
         }
 
-        /* ===== BACK TO TOP BUTTON ===== */
+        /* ===== MOCK INDICATOR ===== */
+        #mock-indicator {
+            background: #ff9800;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 10px 0 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+        }
+        #mock-indicator .close-mock {
+            background: rgba(255,255,255,0.25);
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        #mock-indicator .close-mock:hover { background: rgba(255,255,255,0.4); }
+
+        /* ===== BACK TO TOP ===== */
         .back-to-top {
             position: fixed;
             bottom: 24px;
@@ -491,10 +452,7 @@
             visibility: hidden;
             z-index: 900;
         }
-        .back-to-top.visible {
-            opacity: 1;
-            visibility: visible;
-        }
+        .back-to-top.visible { opacity: 1; visibility: visible; }
         .back-to-top:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 16px rgba(0,0,0,0.2);
@@ -502,31 +460,13 @@
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            .detail-header .top-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .detail-header .title-section h1 {
-                font-size: 1.5rem;
-            }
-            .nft-info-card {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-            .nft-info-card .hash-section {
-                text-align: center;
-            }
-            .nft-info-card .qr-section .qr-wrapper .qrcode {
-                width: 120px;
-                height: 120px;
-            }
-            .content-section {
-                padding: 16px;
-            }
-            .upload-section .upload-options {
-                flex-direction: column;
-            }
+            .detail-header .top-row { flex-direction: column; align-items: stretch; }
+            .detail-header .title-section h1 { font-size: 1.5rem; }
+            .nft-info-card { flex-direction: column; align-items: center; text-align: center; }
+            .nft-info-card .hash-section { text-align: center; }
+            .nft-info-card .qr-section .qr-wrapper .qrcode { width: 120px; height: 120px; }
+            .content-section { padding: 16px; }
+            .upload-section .upload-options { flex-direction: column; }
         }
         @media (max-width: 480px) {
             .detail-header .action-buttons .btn {
@@ -534,13 +474,8 @@
                 font-size: 0.85rem;
                 width: 100%;
             }
-            .detail-header .action-buttons {
-                flex-direction: column;
-            }
-            .breadcrumb-bar {
-                font-size: 0.8rem;
-                padding: 8px 12px;
-            }
+            .detail-header .action-buttons { flex-direction: column; }
+            .breadcrumb-bar { font-size: 0.8rem; padding: 8px 12px; }
         }
     </style>
 </head>
@@ -602,7 +537,7 @@
                 <div class="hash-value" id="detail-hash">Loading...</div>
                 <div class="price-display" id="detail-price"></div>
                 <button class="btn btn-transaction" id="transaction-btn" onclick="viewTransactionHistory()" data-i18n="view_transactions">
-                    📜 View Transactions 
+                    📜 View Transactions
                 </button>
             </div>
         </div>
@@ -854,18 +789,18 @@
         let usingMockData = false; // flag to show mock indicator
 
         // ============================================================
-        // LOAD DETAIL DATA
+        // EXTENDED MOCK DETAIL DATA
         // ============================================================
         const MOCK_DETAIL_DATA = {
-            // Category level details
+            // ---- Categories (Faculties) ----
             'category_1': {
                 id: 1,
                 name: 'Architecture',
                 name_zh: '建筑学院',
                 type: 'category',
-                hash: '0xABC123DEF4567890ABC123DEF4567890ABC123DEF4567890ABC123DEF456789',
+                hash: '0xA1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6',
                 shortlink: 'https://hku.hk/architecture',
-                price: 100,
+                price: 1000,
                 description: 'The Faculty of Architecture at HKU offers programs in Architecture, Landscape Architecture, Urban Planning, and Real Estate.',
                 description_zh: '港大建筑学院提供建筑学、景观建筑、城市规划及房地产等课程。',
                 details: 'Founded in 1912. Located at the Main Campus.',
@@ -882,110 +817,313 @@
                 type: 'category',
                 hash: '0xB2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6',
                 shortlink: 'https://hku.hk/arts',
-                price: 120,
+                price: 1200,
                 description: 'The Faculty of Arts offers a wide range of humanities and language programs.',
                 description_zh: '文学院提供广泛的人文及语言课程。',
                 details: 'Established in 1912. Includes Schools of Chinese, English, Humanities, and Modern Languages.',
                 details_zh: '成立于1912年。包括中文学院、英文学院、人文学院及现代语言学院。',
                 attachments: []
             },
-            // Item level details (departments)
+            'category_3': {
+                id: 3,
+                name: 'Business & Economics',
+                name_zh: '商学院',
+                type: 'category',
+                hash: '0xC3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6',
+                shortlink: 'https://hku.hk/business',
+                price: 1500,
+                description: 'The Faculty of Business and Economics offers programs in Accounting, Economics, Finance, Management, and Marketing.',
+                description_zh: '商学院提供会计、经济、金融、管理及市场营销等课程。',
+                details: 'Established in 1990. Located at the Main Campus.',
+                details_zh: '成立于1990年。位于主校园。',
+                attachments: []
+            },
+            'category_4': {
+                id: 4,
+                name: 'Dentistry',
+                name_zh: '牙医学院',
+                type: 'category',
+                hash: '0xD4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6',
+                shortlink: 'https://hku.hk/dentistry',
+                price: 1400,
+                description: 'The Faculty of Dentistry provides education in clinical dentistry and research.',
+                description_zh: '牙医学院提供临床牙科教育和研究。',
+                details: 'Established in 1982. Located at the Prince Philip Dental Hospital.',
+                details_zh: '成立于1982年。位于菲腊牙科医院。',
+                attachments: []
+            },
+            'category_5': {
+                id: 5,
+                name: 'Education',
+                name_zh: '教育学院',
+                type: 'category',
+                hash: '0xE5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6',
+                shortlink: 'https://hku.hk/education',
+                price: 1100,
+                description: 'The Faculty of Education offers programs in teacher education, educational psychology, and policy.',
+                description_zh: '教育学院提供教师教育、教育心理学及政策等课程。',
+                details: 'Established in 1984. Located at the Main Campus.',
+                details_zh: '成立于1984年。位于主校园。',
+                attachments: []
+            },
+            'category_6': {
+                id: 6,
+                name: 'Engineering',
+                name_zh: '工程学院',
+                type: 'category',
+                hash: '0xF6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6',
+                shortlink: 'https://hku.hk/engineering',
+                price: 1300,
+                description: 'The Faculty of Engineering offers programs in civil, computer, electrical, mechanical, and industrial engineering.',
+                description_zh: '工程学院提供土木、计算机、电机、机械及工业工程等课程。',
+                details: 'Established in 1911. Located at the Main Campus.',
+                details_zh: '成立于1911年。位于主校园。',
+                attachments: []
+            },
+            'category_7': {
+                id: 7,
+                name: 'Law',
+                name_zh: '法学院',
+                type: 'category',
+                hash: '0xA1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6',
+                shortlink: 'https://hku.hk/law',
+                price: 1600,
+                description: 'The Faculty of Law offers programs in law, human rights, and corporate governance.',
+                description_zh: '法学院提供法律、人权及公司治理等课程。',
+                details: 'Established in 1969. Located at the Main Campus.',
+                details_zh: '成立于1969年。位于主校园。',
+                attachments: []
+            },
+            'category_8': {
+                id: 8,
+                name: 'Medicine',
+                name_zh: '李嘉诚医学院',
+                type: 'category',
+                hash: '0xB2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6',
+                shortlink: 'https://hku.hk/medicine',
+                price: 1800,
+                description: 'The Li Ka Shing Faculty of Medicine offers programs in medicine, nursing, and public health.',
+                description_zh: '李嘉诚医学院提供医学、护理及公共卫生等课程。',
+                details: 'Established in 1887. Located at the Medical Campus.',
+                details_zh: '成立于1887年。位于医疗校园。',
+                attachments: []
+            },
+            'category_9': {
+                id: 9,
+                name: 'Science',
+                name_zh: '理学院',
+                type: 'category',
+                hash: '0xC3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6',
+                shortlink: 'https://hku.hk/science',
+                price: 1250,
+                description: 'The Faculty of Science offers programs in chemistry, biology, physics, mathematics, and earth sciences.',
+                description_zh: '理学院提供化学、生物、物理、数学及地球科学等课程。',
+                details: 'Established in 1911. Located at the Main Campus.',
+                details_zh: '成立于1911年。位于主校园。',
+                attachments: []
+            },
+            'category_10': {
+                id: 10,
+                name: 'Social Sciences',
+                name_zh: '社会科学学院',
+                type: 'category',
+                hash: '0xD4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6',
+                shortlink: 'https://hku.hk/social-sciences',
+                price: 1150,
+                description: 'The Faculty of Social Sciences offers programs in geography, political science, psychology, and sociology.',
+                description_zh: '社会科学学院提供地理、政治、心理学及社会学等课程。',
+                details: 'Established in 1967. Located at the Main Campus.',
+                details_zh: '成立于1967年。位于主校园。',
+                attachments: []
+            },
+
+            // ---- Subcategories (Citang) ----
             'item_101': {
                 id: 101,
-                name: 'Architecture',
+                name: 'Department of Architecture',
                 name_zh: '建筑学系',
                 type: 'item',
                 parent: 'Architecture',
                 parent_zh: '建筑学院',
                 hash: '0x111222333444555666777888999000111222333444555666777888999000',
                 shortlink: 'https://hku.hk/arch',
-                price: 50,
+                price: 500,
                 description: 'The Department of Architecture offers professional education in architectural design, history, and theory.',
                 description_zh: '建筑学系提供建筑设计、历史及理论的专业教育。',
                 details: 'Programs: BA(Arch), MArch, PhD. Research areas include sustainable design.',
                 details_zh: '课程：建筑学士、建筑硕士、博士。研究方向包括可持续设计。',
                 attachments: []
+            },
+            'item_102': {
+                id: 102,
+                name: 'Department of Real Estate & Construction',
+                name_zh: '房地产及建设系',
+                type: 'item',
+                parent: 'Architecture',
+                parent_zh: '建筑学院',
+                hash: '0x222333444555666777888999000111222333444555666777888999000',
+                shortlink: 'https://hku.hk/real-estate',
+                price: 450,
+                description: 'The Department of Real Estate and Construction focuses on property development and construction management.',
+                description_zh: '房地产及建设系专注于房地产开发和建设管理。',
+                details: 'Programs: BSc(Real Estate), MSc(Construction).',
+                details_zh: '课程：房地产学士、建设管理硕士。',
+                attachments: []
+            },
+            'item_601': {
+                id: 601,
+                name: 'Department of Civil Engineering',
+                name_zh: '土木工程系',
+                type: 'item',
+                parent: 'Engineering',
+                parent_zh: '工程学院',
+                hash: '0x333444555666777888999000111222333444555666777888999000',
+                shortlink: 'https://hku.hk/civil',
+                price: 600,
+                description: 'The Department of Civil Engineering provides education in structural, geotechnical, and environmental engineering.',
+                description_zh: '土木工程系提供结构、岩土及环境工程教育。',
+                details: 'Programs: BEng(Civil), MSc(Civil).',
+                details_zh: '课程：土木工程学士、土木工程硕士。',
+                attachments: []
+            },
+            'item_602': {
+                id: 602,
+                name: 'Department of Computer Science',
+                name_zh: '计算机科学系',
+                type: 'item',
+                parent: 'Engineering',
+                parent_zh: '工程学院',
+                hash: '0x444555666777888999000111222333444555666777888999000',
+                shortlink: 'https://hku.hk/cs',
+                price: 650,
+                description: 'The Department of Computer Science offers programs in artificial intelligence, data science, and software engineering.',
+                description_zh: '计算机科学系提供人工智能、数据科学及软件工程等课程。',
+                details: 'Programs: BEng(CS), MSc(CS).',
+                details_zh: '课程：计算机科学学士、计算机科学硕士。',
+                attachments: []
+            },
+
+            // ---- Items (Members) ----
+            'item_10101': {
+                id: 10101,
+                name: 'Prof. John Smith',
+                name_zh: 'John Smith 教授',
+                type: 'item',
+                parent: 'Department of Architecture',
+                parent_zh: '建筑学系',
+                hash: '0x555666777888999000111222333444555666777888999000',
+                shortlink: 'https://hku.hk/arch/prof-smith',
+                price: 200,
+                description: 'Professor of Architecture, specializing in sustainable urban design.',
+                description_zh: '建筑系教授，专攻可持续城市设计。',
+                details: 'Research: Green buildings, urban resilience.',
+                details_zh: '研究：绿色建筑、城市韧性。',
+                attachments: []
+            },
+            'item_10102': {
+                id: 10102,
+                name: 'Dr. Jane Lee',
+                name_zh: 'Jane Lee 博士',
+                type: 'item',
+                parent: 'Department of Architecture',
+                parent_zh: '建筑学系',
+                hash: '0x666777888999000111222333444555666777888999000',
+                shortlink: 'https://hku.hk/arch/dr-lee',
+                price: 180,
+                description: 'Assistant Professor of Architecture, focusing on architectural history and preservation.',
+                description_zh: '建筑系助理教授，研究建筑历史与保护。',
+                details: 'Research: Heritage conservation, architectural theory.',
+                details_zh: '研究：遗产保护、建筑理论。',
+                attachments: []
             }
-            // Add more categories as needed...
         };
 
-
+        // ============================================================
+        // LOAD DETAIL
+        // ============================================================
         async function loadDetail() {
             const params = new URLSearchParams(window.location.search);
             const type = params.get('type') || 'item';
             const id = params.get('id');
-            
+
             itemType = type;
             itemId = id;
-            
+
             if (!id) {
                 showToast('Error', 'Missing item ID');
                 return;
             }
-            
+
             try {
-                let response;
-                let data;
-                
-                if (type === 'category') {
-                    // Fetch category detail API
-                    const url = `${API_BASE}/api/category/detail?id=${id}&name=`;
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error('Failed to fetch category');
-                    const data = await response.json();
-                    detailData = {
-                        id: data.card_number || id,
-                        name: data.name,
-                        name_zh: data.name_zh || data.name,
-                        type: 'category',
-                        hash: data.hash || '',
-                        shortlink: data.shortlink || '',
-                        price: data.price || 0,
-                        description: data.description || '',
-                        description_zh: data.description_zh || '',
-                        details: data.details || '',
-                        details_zh: data.details_zh || '',
-                        attachments: data.attachments || []
-                    };
-                } else if (type === 'subcategory' || type === 'item') {
-                    // Build URL from query params
-                    const categoryId = params.get('categoryId');
-                    const categoryName = params.get('categoryName');
-                    const subcategoryId = params.get('subcategoryId');
-                    const subcategoryName = params.get('subcategoryName');
-                    const itemNumber = params.get('itemNumber');
-                    const itemName = params.get('itemName');
-                    
-                    let url;
-                    if (type === 'subcategory') {
-                        url = `${API_BASE}/api/subcategory/detail?category_id=${categoryId}&category_name=${categoryName}&subcategory_id=${subcategoryId}&subcategory_name=${subcategoryName}`;
-                    } else {
-                        url = `${API_BASE}/api/item/detail?category_id=${categoryId}&category_name=${categoryName}&subcategory_id=${subcategoryId}&subcategory_name=${subcategoryName}&item_number=${itemNumber}&item_name=${itemName}`;
+                let response, data;
+                let usingMock = false;
+
+                // Try API first
+                try {
+                    if (type === 'category') {
+                        const url = `${API_BASE}/api/category/detail?id=${id}&name=`;
+                        response = await fetch(url);
+                        if (!response.ok) throw new Error('Failed to fetch category');
+                        data = await response.json();
+                        detailData = {
+                            id: data.card_number || id,
+                            name: data.name,
+                            name_zh: data.name_zh || data.name,
+                            type: 'category',
+                            hash: data.hash || '',
+                            shortlink: data.shortlink || '',
+                            price: data.price || 0,
+                            description: data.description || '',
+                            description_zh: data.description_zh || '',
+                            details: data.details || '',
+                            details_zh: data.details_zh || '',
+                            attachments: data.attachments || []
+                        };
+                    } else if (type === 'subcategory' || type === 'item') {
+                        const categoryId = params.get('categoryId');
+                        const categoryName = params.get('categoryName');
+                        const subcategoryId = params.get('subcategoryId');
+                        const subcategoryName = params.get('subcategoryName');
+                        const itemNumber = params.get('itemNumber');
+                        const itemName = params.get('itemName');
+
+                        let url;
+                        if (type === 'subcategory') {
+                            url = `${API_BASE}/api/subcategory/detail?category_id=${categoryId}&category_name=${categoryName}&subcategory_id=${subcategoryId}&subcategory_name=${subcategoryName}`;
+                        } else {
+                            url = `${API_BASE}/api/item/detail?category_id=${categoryId}&category_name=${categoryName}&subcategory_id=${subcategoryId}&subcategory_name=${subcategoryName}&item_number=${itemNumber}&item_name=${itemName}`;
+                        }
+                        response = await fetch(url);
+                        if (!response.ok) throw new Error('Failed to fetch detail');
+                        data = await response.json();
+                        detailData = {
+                            id: data.id || id,
+                            name: data.name,
+                            name_zh: data.name_zh || data.name,
+                            type: type,
+                            hash: data.hash || '',
+                            shortlink: data.shortlink || '',
+                            price: data.purchase_price || data.price || 0,
+                            description: data.description || '',
+                            description_zh: data.description_zh || '',
+                            details: data.details || '',
+                            details_zh: data.details_zh || '',
+                            attachments: data.attachments || []
+                        };
                     }
-                    
-                    response = await fetch(url);
-                    if (!response.ok) throw new Error('Failed to fetch detail');
-                    data = await response.json();
-                    detailData = {
-                        id: data.id || id,
-                        name: data.name,
-                        name_zh: data.name_zh || data.name,
-                        type: type,
-                        hash: data.hash || '',
-                        shortlink: data.shortlink || '',
-                        price: data.purchase_price || data.price || 0,
-                        description: data.description || '',
-                        description_zh: data.description_zh || '',
-                        details: data.details || '',
-                        details_zh: data.details_zh || '',
-                        attachments: data.attachments || []
-                    };
+                    usingMock = false;
+                } catch (apiError) {
+                    console.warn('API failed, using mock data:', apiError);
+                    usingMock = true;
+                    loadDetailFallback(type, id);
                 }
-                
-                originalData = { ...detailData };
-                renderDetail();
-                checkOwnership();
-                
+
+                if (!usingMock) {
+                    originalData = { ...detailData };
+                    renderDetail();
+                    checkOwnership();
+                }
+
             } catch (error) {
                 console.error('Failed to load detail:', error);
                 showToast('Failed to load data from server', 'error');
@@ -996,27 +1134,12 @@
             }
         }
 
-        function loadDetailFallback() {
-            const params = new URLSearchParams(window.location.search);
-            const type = params.get('type') || 'item';
-            const id = params.get('id');
-
-            itemType = type;
-            itemId = id;
-
-            if (!id) {
-                showToast('Error', 'Missing item ID');
-                return;
-            }
-
-            // Determine which key to use for mock data
+        function loadDetailFallback(type, id) {
             const key = `${type}_${id}`;
             const data = MOCK_DETAIL_DATA[key];
 
             if (!data) {
-                // Try to find in mock items data
-                showToast('Loading', 'Fetching data...');
-                // For demo, create fallback data
+                // Generate fallback
                 detailData = {
                     id: parseInt(id),
                     name: `Item ${id}`,
@@ -1035,13 +1158,36 @@
                 detailData = { ...data };
             }
 
+            usingMockData = true;
             originalData = { ...detailData };
             renderDetail();
             checkOwnership();
+
+            // Show mock indicator
+            showMockIndicator();
+            showToast('⚠️ Using mock data - backend API not available', 'warning');
+        }
+
+        function showMockIndicator() {
+            const existing = document.getElementById('mock-indicator');
+            if (existing) existing.remove();
+
+            if (usingMockData) {
+                const indicator = document.createElement('div');
+                indicator.id = 'mock-indicator';
+                indicator.innerHTML = `
+                    ⚠️ Using mock data (backend API not available)
+                    <button class="close-mock" onclick="this.parentElement.remove()">✕</button>
+                `;
+                const container = document.querySelector('.detail-container');
+                if (container) {
+                    container.insertBefore(indicator, container.firstChild);
+                }
+            }
         }
 
         // ============================================================
-        // VIEW TRANSACTION HISTORY – Unified for all types
+        // VIEW TRANSACTION HISTORY
         // ============================================================
         function viewTransactionHistory() {
             const type = detailData.type || 'item';
@@ -1077,8 +1223,7 @@
         // ============================================================
         function renderDetail() {
             const displayName = currentLang === 'zh' ? (detailData.name_zh || detailData.name) : detailData.name;
-            const displayDesc = currentLang === 'zh' ? (detailData.description_zh || detailData.description) : detailData
-            .description;
+            const displayDesc = currentLang === 'zh' ? (detailData.description_zh || detailData.description) : detailData.description;
             const displayDetails = currentLang === 'zh' ? (detailData.details_zh || detailData.details) : detailData.details;
 
             document.getElementById('detail-title').textContent = displayName;
@@ -1102,35 +1247,32 @@
             document.getElementById('breadcrumb-parent').href = parentLink;
             document.getElementById('breadcrumb-current').textContent = displayName;
 
-            // ===== TRANSACTION BUTTON =====
+            // Transaction button
             const txBtn = document.getElementById('transaction-btn');
-            if (txBtn) {
-                // Always show the button, but you could hide it if no transactions exist
-                txBtn.style.display = 'inline-block';
-            }
+            if (txBtn) txBtn.style.display = 'inline-block';
 
             // Hash
+            const hashEl = document.getElementById('detail-hash');
             if (detailData.hash) {
                 const hashParts = detailData.hash.match(/.{1,16}/g);
-                document.getElementById('detail-hash').innerHTML = hashParts ? hashParts.join('<br>') : detailData.hash;
+                hashEl.innerHTML = hashParts ? hashParts.join('<br>') : detailData.hash;
             } else {
-                document.getElementById('detail-hash').textContent = 'No hash available';
+                hashEl.textContent = 'No hash available';
             }
 
             // Price
+            const priceEl = document.getElementById('detail-price');
             if (detailData.price) {
-                document.getElementById('detail-price').textContent = `💰 ${detailData.price} root coins`;
+                priceEl.textContent = `💰 ${detailData.price} root coins`;
             } else {
-                document.getElementById('detail-price').textContent = '';
+                priceEl.textContent = '';
             }
 
             // Description
-            document.getElementById('description-display').innerHTML = displayDesc || '<span class="empty-text">' + t(
-                'no_description') + '</span>';
+            document.getElementById('description-display').innerHTML = displayDesc || '<span class="empty-text">' + t('no_description') + '</span>';
 
             // Details
-            document.getElementById('details-display').innerHTML = displayDetails || '<span class="empty-text">' + t(
-                'no_details') + '</span>';
+            document.getElementById('details-display').innerHTML = displayDetails || '<span class="empty-text">' + t('no_details') + '</span>';
 
             // Attachments
             renderAttachments();
@@ -1157,11 +1299,11 @@
                 }
             }
 
-            // Set edit form values
+            // Edit form values
             document.getElementById('edit-description').value = detailData.description || '';
             document.getElementById('edit-details').value = detailData.details || '';
 
-            // Update edit button visibility
+            // Edit button
             const editBtn = document.getElementById('edit-btn');
             if (hasOwnership) {
                 editBtn.disabled = false;
@@ -1170,6 +1312,9 @@
                 editBtn.disabled = true;
                 editBtn.textContent = t('login_to_edit');
             }
+
+            // Show mock indicator if needed
+            showMockIndicator();
         }
 
         function renderAttachments() {
@@ -1256,7 +1401,6 @@
                 handleLogin();
                 return;
             }
-
             isEditMode = !isEditMode;
 
             if (isEditMode) {
@@ -1266,7 +1410,6 @@
                 document.getElementById('edit-btn').style.display = 'none';
                 document.getElementById('save-btn').style.display = 'inline-block';
                 document.getElementById('cancel-btn').style.display = 'inline-block';
-
                 // Set form values from current data
                 document.getElementById('edit-description').value = detailData.description || '';
                 document.getElementById('edit-details').value = detailData.details || '';
@@ -1283,7 +1426,6 @@
             document.getElementById('edit-btn').style.display = 'inline-block';
             document.getElementById('save-btn').style.display = 'none';
             document.getElementById('cancel-btn').style.display = 'none';
-
             // Reset form values
             document.getElementById('edit-description').value = detailData.description || '';
             document.getElementById('edit-details').value = detailData.details || '';
@@ -1307,7 +1449,7 @@
             detailData.description = newDescription;
             detailData.details = newDetails;
 
-            // In production: save to server
+           // In production: save to server
             // const response = await fetch('${API_BASE}/api/detail/update', {
             //     method: 'POST',
             //     headers: { 'Content-Type': 'application/json' },
@@ -1319,16 +1461,11 @@
             //         wallet: checkLoginStatus()?.walletid
             //     })
             // });
-
             // Update display
-            const displayDesc = currentLang === 'zh' ? (detailData.description_zh || detailData.description) : detailData
-            .description;
             const displayDetails = currentLang === 'zh' ? (detailData.details_zh || detailData.details) : detailData.details;
 
-            document.getElementById('description-display').innerHTML = displayDesc || '<span class="empty-text">' + t(
-                'no_description') + '</span>';
-            document.getElementById('details-display').innerHTML = displayDetails || '<span class="empty-text">' + t(
-                'no_details') + '</span>';
+            document.getElementById('details-display').innerHTML = displayDetails || '<span class="empty-text">' + t('no_details') + '</span>';
+
 
             showToast(t('success'), t('changes_saved'));
 
@@ -1345,10 +1482,8 @@
         function selectUploadType(type) {
             document.querySelectorAll('.upload-option').forEach(el => el.classList.remove('active'));
             document.querySelector(`.upload-option[data-type="${type}"]`).classList.add('active');
-
             document.querySelectorAll('.upload-content').forEach(el => el.classList.remove('active'));
             document.getElementById(`upload-${type}`).classList.add('active');
-
             // Reset file selection
             selectedFile = null;
             selectedFileType = '';
@@ -1367,10 +1502,8 @@
                 document.getElementById(`${type}-file-name`).textContent = t('no_file');
                 return;
             }
-
             selectedFile = file;
             selectedFileType = type;
-
             document.getElementById(`${type}-file-name`).textContent = file.name;
 
             if (type === 'image') {
@@ -1389,13 +1522,7 @@
                 showToast(t('error'), t('enter_text'));
                 return;
             }
-
-            // Add to pending uploads
-            pendingUploads.push({
-                type: 'text',
-                content: text,
-                timestamp: Date.now()
-            });
+            showToast(t('error'), t('enter_text'));
 
             document.getElementById('upload-text-input').value = '';
             renderPendingUploads();
@@ -1407,20 +1534,13 @@
                 showToast(t('error'), t('select_image'));
                 return;
             }
-
-            pendingUploads.push({
-                type: 'image',
-                file: selectedFile,
-                name: selectedFile.name,
-                timestamp: Date.now()
-            });
+            showToast(t('error'), t('select_image'));
 
             selectedFile = null;
             selectedFileType = '';
             document.getElementById('image-file-input').value = '';
             document.getElementById('image-file-name').textContent = t('no_file');
             document.getElementById('image-preview').style.display = 'none';
-
             renderPendingUploads();
             showToast(t('success'), t('image_added_pending'));
         }
@@ -1430,19 +1550,11 @@
                 showToast(t('error'), t('select_pdf'));
                 return;
             }
-
-            pendingUploads.push({
-                type: 'pdf',
-                file: selectedFile,
-                name: selectedFile.name,
-                timestamp: Date.now()
-            });
-
+            showToast(t('error'), t('select_pdf'));
             selectedFile = null;
             selectedFileType = '';
             document.getElementById('pdf-file-input').value = '';
             document.getElementById('pdf-file-name').textContent = t('no_file');
-
             renderPendingUploads();
             showToast(t('success'), t('pdf_added_pending'));
         }
@@ -1453,7 +1565,6 @@
                 container.innerHTML = '<span style="color:#aaa;">' + t('no_pending_uploads') + '</span>';
                 return;
             }
-
             container.innerHTML = pendingUploads.map((item, index) => `
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px; background:#f8f9fa; border-radius:4px; margin-bottom:4px;">
                     <span>
@@ -1536,7 +1647,7 @@
             window.addEventListener('scroll', () => {
                 btn.classList.toggle('visible', window.scrollY > 400);
             });
-            
+
             btn.addEventListener('click', () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
