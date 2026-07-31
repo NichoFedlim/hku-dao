@@ -633,6 +633,7 @@
                                 <label class="file-label" for="image-file-input" data-i18n="choose_image">Choose Image</label>
                                 <input type="file" id="image-file-input" accept="image/*" onchange="handleFileSelect('image')" />
                                 <span class="file-name" id="image-file-name" data-i18n="no_file">No file chosen</span>
+                                <button type="button" class="clear-file-btn" id="image-clear-btn" style="display:none; background:#dc3545; color:white; border:none; border-radius:50%; width:24px; height:24px; font-size:14px; cursor:pointer; line-height:1; padding:0;" onclick="clearSelectedFile('image')">✕</button>
                             </div>
                             <div id="image-preview" style="margin-top:8px; display:none;">
                                 <img id="image-preview-img" class="preview-image" alt="Preview" />
@@ -646,6 +647,7 @@
                                 <label class="file-label" for="pdf-file-input" data-i18n="choose_pdf">Choose PDF</label>
                                 <input type="file" id="pdf-file-input" accept=".pdf" onchange="handleFileSelect('pdf')" />
                                 <span class="file-name" id="pdf-file-name" data-i18n="no_file">No file chosen</span>
+                                <button type="button" class="clear-file-btn" id="pdf-clear-btn" style="display:none; background:#dc3545; color:white; border:none; border-radius:50%; width:24px; height:24px; font-size:14px; cursor:pointer; line-height:1; padding:0;" onclick="clearSelectedFile('pdf')">✕</button>
                             </div>
                             <button class="btn btn-save" style="width:auto; padding:8px 20px; margin-top:8px;" onclick="uploadPDF()" data-i18n="upload_pdf">Upload PDF</button>
                         </div>
@@ -1317,6 +1319,9 @@
             showMockIndicator();
         }
 
+        // ============================================================
+        // RENDER ATTACHMENTS
+        // ============================================================
         function renderAttachments() {
             const container = document.getElementById('attachments-display');
             const attachments = detailData.attachments || [];
@@ -1339,11 +1344,49 @@
                         </div>
                         <div class="attach-actions">
                             <button class="btn-sm btn-view" onclick="viewAttachment('${att.url}')" data-i18n="view">View</button>
-                            ${hasOwnership ? `<button class="btn-sm btn-delete" onclick="deleteAttachment(${att.id})" data-i18n="delete">Delete</button>` : ''}
+                            ${hasOwnership ? `<button class="btn-sm btn-delete" onclick="deleteAttachment('${att.timestamp}')" data-i18n="delete">Delete</button>` : ''}
                         </div>
                     </div>
                 `).join('') +
                 '</div>';
+        }
+
+        // ============================================================
+        // REFRESH ATTACHMENTS (fetch from server)
+        // ============================================================
+        async function refreshAttachments() {
+            if (!detailData || !detailData.id) return;
+            try {
+                const params = new URLSearchParams();
+                params.set('level', detailData.type || 'category');
+                params.set('category_id', detailData.id);
+                params.set('category_name', detailData.name);
+                if (detailData.type === 'subcategory' || detailData.type === 'item') {
+                    params.set('subcategory_id', detailData.id);
+                    params.set('subcategory_name', detailData.name);
+                }
+                if (detailData.type === 'item') {
+                    params.set('item_number', detailData.id);
+                    params.set('item_name', detailData.name);
+                }
+
+                const url = `${API_BASE}/api/content/list?${params.toString()}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch attachments');
+                const data = await response.json();
+                // Convert the server response to our attachment format
+                detailData.attachments = data.map(item => ({
+                    id: item.timestamp,
+                    timestamp: item.timestamp,
+                    type: item.type,
+                    name: item.filename || 'file',
+                    url: item.path
+                }));
+                renderAttachments();
+            } catch (error) {
+                console.warn('Could not refresh attachments:', error);
+                // Keep the existing attachments if fetch fails
+            }
         }
 
         // ============================================================
@@ -1477,8 +1520,31 @@
         }
 
         // ============================================================
-        // UPLOAD FUNCTIONS
+        // UPLOAD FUNCTIONS (now with real API calls)
         // ============================================================
+        // Helper: build form data for file uploads
+        function getUploadFormData(type, file, text) {
+            const formData = new FormData();
+            formData.append('level', detailData.type || 'category');
+            formData.append('category_id', detailData.id);
+            formData.append('category_name', detailData.name);
+            if (detailData.type === 'subcategory' || detailData.type === 'item') {
+                formData.append('subcategory_id', detailData.id);
+                formData.append('subcategory_name', detailData.name);
+            }
+            if (detailData.type === 'item') {
+                formData.append('item_number', detailData.id);
+                formData.append('item_name', detailData.name);
+            }
+            formData.append('type', type);
+            if (type === 'text') {
+                formData.append('text', text);
+            } else {
+                formData.append('file', file);
+            }
+            return formData;
+        }
+
         function selectUploadType(type) {
             document.querySelectorAll('.upload-option').forEach(el => el.classList.remove('active'));
             document.querySelector(`.upload-option[data-type="${type}"]`).classList.add('active');
@@ -1495,16 +1561,23 @@
         function handleFileSelect(type) {
             const input = document.getElementById(type === 'image' ? 'image-file-input' : 'pdf-file-input');
             const file = input.files[0];
+            const clearBtn = document.getElementById(type === 'image' ? 'image-clear-btn' : 'pdf-clear-btn');
 
             if (!file) {
                 selectedFile = null;
                 selectedFileType = '';
                 document.getElementById(`${type}-file-name`).textContent = t('no_file');
+                if (clearBtn) clearBtn.style.display = 'none';
+                if (type === 'image') {
+                    document.getElementById('image-preview').style.display = 'none';
+                }
                 return;
             }
+
             selectedFile = file;
             selectedFileType = type;
             document.getElementById(`${type}-file-name`).textContent = file.name;
+            if (clearBtn) clearBtn.style.display = 'inline-block'; // show clear button
 
             if (type === 'image') {
                 const reader = new FileReader();
@@ -1516,47 +1589,123 @@
             }
         }
 
-        function uploadText() {
+        function clearSelectedFile(type) {
+            const input = document.getElementById(type === 'image' ? 'image-file-input' : 'pdf-file-input');
+            const clearBtn = document.getElementById(type === 'image' ? 'image-clear-btn' : 'pdf-clear-btn');
+
+            // Reset the file input
+            input.value = '';
+            selectedFile = null;
+            selectedFileType = '';
+            document.getElementById(`${type}-file-name`).textContent = t('no_file');
+            if (clearBtn) clearBtn.style.display = 'none';
+
+            if (type === 'image') {
+                document.getElementById('image-preview').style.display = 'none';
+                document.getElementById('image-preview-img').src = '';
+            }
+        }
+
+        async function uploadText() {
             const text = document.getElementById('upload-text-input').value.trim();
             if (!text) {
                 showToast(t('error'), t('enter_text'));
                 return;
             }
-            showToast(t('error'), t('enter_text'));
 
-            document.getElementById('upload-text-input').value = '';
-            renderPendingUploads();
-            showToast(t('success'), t('text_added_pending'));
+            const btn = document.querySelector('#upload-text .btn-save');
+            btn.disabled = true;
+            btn.textContent = 'Uploading...';
+
+            try {
+                const formData = getUploadFormData('text', null, text);
+                const response = await fetch(`${API_BASE}/api/content/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) throw new Error('Upload failed');
+                const result = await response.json();
+                showToast(t('success'), t('text_added_pending'));
+                document.getElementById('upload-text-input').value = '';
+                await refreshAttachments();
+            } catch (error) {
+                console.error('Upload failed:', error);
+                showToast(t('error'), error.message || t('upload_failed'));
+            } finally {
+                btn.disabled = false;
+                btn.textContent = t('add_text');
+            }
         }
 
-        function uploadImage() {
+        async function uploadImage() {
             if (!selectedFile || selectedFileType !== 'image') {
                 showToast(t('error'), t('select_image'));
                 return;
             }
-            showToast(t('error'), t('select_image'));
 
-            selectedFile = null;
-            selectedFileType = '';
-            document.getElementById('image-file-input').value = '';
-            document.getElementById('image-file-name').textContent = t('no_file');
-            document.getElementById('image-preview').style.display = 'none';
-            renderPendingUploads();
-            showToast(t('success'), t('image_added_pending'));
+            const btn = document.querySelector('#upload-image .btn-save');
+            btn.disabled = true;
+            btn.textContent = 'Uploading...';
+
+            try {
+                const formData = getUploadFormData('image', selectedFile);
+                const response = await fetch(`${API_BASE}/api/content/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) throw new Error('Upload failed');
+                const result = await response.json();
+                showToast(t('success'), t('image_added_pending'));
+                // Reset file input
+                selectedFile = null;
+                selectedFileType = '';
+                document.getElementById('image-file-input').value = '';
+                document.getElementById('image-file-name').textContent = t('no_file');
+                document.getElementById('image-preview').style.display = 'none';
+                await refreshAttachments();
+                clearSelectedFile('image');
+            } catch (error) {
+                console.error('Upload failed:', error);
+                showToast(t('error'), error.message || t('upload_failed'));
+            } finally {
+                btn.disabled = false;
+                btn.textContent = t('upload_image');
+            }
         }
 
-        function uploadPDF() {
+        async function uploadPDF() {
             if (!selectedFile || selectedFileType !== 'pdf') {
                 showToast(t('error'), t('select_pdf'));
                 return;
             }
-            showToast(t('error'), t('select_pdf'));
-            selectedFile = null;
-            selectedFileType = '';
-            document.getElementById('pdf-file-input').value = '';
-            document.getElementById('pdf-file-name').textContent = t('no_file');
-            renderPendingUploads();
-            showToast(t('success'), t('pdf_added_pending'));
+
+            const btn = document.querySelector('#upload-pdf .btn-save');
+            btn.disabled = true;
+            btn.textContent = 'Uploading...';
+
+            try {
+                const formData = getUploadFormData('pdf', selectedFile);
+                const response = await fetch(`${API_BASE}/api/content/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) throw new Error('Upload failed');
+                const result = await response.json();
+                showToast(t('success'), t('pdf_added_pending'));
+                // Reset file input
+                selectedFile = null;
+                selectedFileType = '';
+                document.getElementById('pdf-file-input').value = '';
+                document.getElementById('pdf-file-name').textContent = t('no_file');
+                await refreshAttachments();
+                clearSelectedFile('pdf');
+            } catch (error) {
+                console.error('Upload failed:', error);
+                showToast(t('error'), error.message || t('upload_failed'));
+            } finally {
+                btn.disabled = false;
+                btn.textContent = t('upload_pdf');
+            }
         }
 
         function renderPendingUploads() {
@@ -1588,12 +1737,37 @@
             window.open(url, '_blank');
         }
 
-        function deleteAttachment(id) {
-            if (confirm(t('confirm_delete'))) {
-                // In production: delete from server
-                detailData.attachments = detailData.attachments.filter(att => att.id !== id);
-                renderAttachments();
+        async function deleteAttachment(timestamp) {
+            if (!confirm(t('confirm_delete'))) return;
+
+            try {
+                const payload = {
+                    level: detailData.type || 'category',
+                    category_id: detailData.id,
+                    category_name: detailData.name,
+                    timestamp: timestamp
+                };
+                if (detailData.type === 'subcategory' || detailData.type === 'item') {
+                    payload.subcategory_id = detailData.id;
+                    payload.subcategory_name = detailData.name;
+                }
+                if (detailData.type === 'item') {
+                    payload.item_number = detailData.id;
+                    payload.item_name = detailData.name;
+                }
+
+                const response = await fetch(`${API_BASE}/api/content/delete`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error('Delete failed');
+                const result = await response.json();
                 showToast(t('success'), t('attachment_deleted'));
+                await refreshAttachments();
+            } catch (error) {
+                console.error('Delete failed:', error);
+                showToast(t('error'), error.message || t('delete_failed'));
             }
         }
 
@@ -1678,6 +1852,7 @@
                     showToast(t('login_success'));
                 }
             });
+
             initBackToTop();
 
             // Make functions globally accessible
@@ -1696,6 +1871,7 @@
             window.viewAttachment = viewAttachment;
             window.deleteAttachment = deleteAttachment;
             window.hideToast = hideToast;
+            window.refreshAttachments = refreshAttachments;
         }
 
         init();
