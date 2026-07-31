@@ -915,17 +915,36 @@ app.get('/api/categories/list', (req, res) => {
     }
 });
 
-// Get category detail
+// Get category detail – find by ID only
 app.get('/api/category/detail', (req, res) => {
-    const { id, name } = req.query;
-    if (!id || !name) return sendError(res, 400, 'Missing parameters');
-    const filePath = getNFTDataPath(id, name);
-    const contentFile = path.join(filePath, 'content.json');
-    if (!fs.existsSync(contentFile)) return sendError(res, 404, 'Category not found');
+    const { id } = req.query;
+    if (!id) return sendError(res, 400, 'Missing parameter: id');
+
+    const dataRoot = NFT_DATA_DIR;
+    if (!fs.existsSync(dataRoot)) return sendError(res, 404, 'Data directory not found');
+
+    const dirs = fs.readdirSync(dataRoot, { withFileTypes: true });
+    let foundDir = null;
+    for (const dir of dirs) {
+        if (dir.isDirectory()) {
+            const match = dir.name.match(/^(\d+)_(.+)$/);
+            if (match && match[1] === id) {
+                foundDir = dir.name;
+                break;
+            }
+        }
+    }
+    if (!foundDir) return sendError(res, 404, 'Category not found');
+
+    const filePath = path.join(dataRoot, foundDir, 'content.json');
+    if (!fs.existsSync(filePath)) return sendError(res, 404, 'Category data not found');
+
     try {
-        const data = JSON.parse(fs.readFileSync(contentFile, 'utf-8'));
+        const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
         res.json(data);
-    } catch (e) { sendError(res, 500, 'Parsing failed', e.message); }
+    } catch (e) {
+        sendError(res, 500, 'Parsing failed', e.message);
+    }
 });
 
 // Add category
@@ -1110,19 +1129,59 @@ app.get('/api/subcategories/list/:categoryId', (req, res) => {
 
 // Get subcategory detail
 app.get('/api/subcategory/detail', (req, res) => {
-    const { category_id, category_name, subcategory_id, subcategory_name } = req.query;
-    if (!category_id || !category_name || !subcategory_id || !subcategory_name) {
-        return sendError(res, 400, 'Missing parameters');
+    const { id } = req.query;
+    if (!id) return sendError(res, 400, 'Missing parameter: id');
+
+    const dataRoot = NFT_DATA_DIR;
+    if (!fs.existsSync(dataRoot)) return sendError(res, 404, 'Data directory not found');
+
+    // Find the subcategory by scanning all category folders
+    const categoryDirs = fs.readdirSync(dataRoot, { withFileTypes: true });
+    let foundSubcategory = null;
+    let foundCategory = null;
+
+    for (const catDir of categoryDirs) {
+        if (catDir.isDirectory()) {
+            const catMatch = catDir.name.match(/^(\d+)_(.+)$/);
+            if (catMatch) {
+                const categoryId = catMatch[1];
+                const categoryName = catMatch[2];
+                const subPath = path.join(dataRoot, catDir.name);
+                
+                // Check if this category contains the subcategory
+                const subDirs = fs.readdirSync(subPath, { withFileTypes: true });
+                for (const subDir of subDirs) {
+                    if (subDir.isDirectory()) {
+                        const subMatch = subDir.name.match(/^(\d+)_(.+)$/);
+                        if (subMatch && subMatch[1] === id) {
+                            foundSubcategory = {
+                                id: subMatch[1], name: subMatch[2], categoryId: categoryId, categoryName: categoryName
+                            };
+                            foundCategory = { id: categoryId, name: categoryName };
+                            break;
+                        }
+                    }
+                }
+                if (foundSubcategory) break;
+            }
+        }
     }
-    const filePath = getNFTDataPath(category_id, category_name, subcategory_id, subcategory_name);
+
+    if (!foundSubcategory) return sendError(res, 404, 'Subcategory not found');
+
+    const filePath = getNFTDataPath(foundCategory.id, foundCategory.name, foundSubcategory.id, foundSubcategory.name);
     const subFile = path.join(filePath, 'subcategory.json');
-    if (!fs.existsSync(subFile)) return sendError(res, 404, 'Subcategory not found');
+    if (!fs.existsSync(subFile)) return sendError(res, 404, 'Subcategory data not found');
+
     try {
         const data = JSON.parse(fs.readFileSync(subFile, 'utf-8'));
-        data.category_id = category_id;
-        data.subcategory_id = subcategory_id;
+        data.category_id = foundCategory.id;
+        data.category_name = foundCategory.name;
+        data.subcategory_id = foundSubcategory.id;
         res.json(data);
-    } catch (e) { sendError(res, 500, 'Parsing failed', e.message); }
+    } catch (e) {
+        sendError(res, 500, 'Parsing failed', e.message);
+    }
 });
 
 // Add subcategory
@@ -1257,19 +1316,79 @@ app.get('/api/items/list', (req, res) => {
     }
 });
 
-// Get item detail
+// Get item detail – find by ID only
 app.get('/api/item/detail', (req, res) => {
-    const { category_id, category_name, subcategory_id, subcategory_name, item_number, item_name } = req.query;
-    if (!category_id || !category_name || !subcategory_id || !subcategory_name || !item_number || !item_name) {
-        return sendError(res, 400, 'Missing parameters');
+    const { id } = req.query;
+    if (!id) return sendError(res, 400, 'Missing parameter: id');
+
+    const dataRoot = NFT_DATA_DIR;
+    if (!fs.existsSync(dataRoot)) return sendError(res, 404, 'Data directory not found');
+
+    // Find the item by scanning all category → subcategory → item folders
+    const categoryDirs = fs.readdirSync(dataRoot, { withFileTypes: true });
+    let foundItem = null;
+    let foundSubcategory = null;
+    let foundCategory = null;
+
+    for (const catDir of categoryDirs) {
+        if (catDir.isDirectory()) {
+            const catMatch = catDir.name.match(/^(\d+)_(.+)$/);
+            if (catMatch) {
+                const categoryId = catMatch[1];
+                const categoryName = catMatch[2];
+                const subPath = path.join(dataRoot, catDir.name);
+                
+                const subDirs = fs.readdirSync(subPath, { withFileTypes: true });
+                for (const subDir of subDirs) {
+                    if (subDir.isDirectory()) {
+                        const subMatch = subDir.name.match(/^(\d+)_(.+)$/);
+                        if (subMatch) {
+                            const subcategoryId = subMatch[1];
+                            const subcategoryName = subMatch[2];
+                            const itemPath = path.join(subPath, subDir.name);
+                            
+                            const itemDirs = fs.readdirSync(itemPath, { withFileTypes: true });
+                            for (const itemDir of itemDirs) {
+                                if (itemDir.isDirectory()) {
+                                    const itemMatch = itemDir.name.match(/^(\d+)_(.+)$/);
+                                    if (itemMatch && itemMatch[1] === id) {
+                                        foundItem = { id: itemMatch[1], name: itemMatch[2] };
+                                        foundSubcategory = { id: subcategoryId, name: subcategoryName };
+                                        foundCategory = { id: categoryId, name: categoryName };
+                                        break;
+                                    }
+                                }
+                            }
+                            if (foundItem) break;
+                        }
+                    }
+                    if (foundItem) break;
+                }
+                if (foundItem) break;
+            }
+        }
     }
-    const filePath = getNFTDataPath(category_id, category_name, subcategory_id, subcategory_name, item_number, item_name);
-    const itemFile = path.join(filePath, `${item_number}_${item_name}.json`);
-    if (!fs.existsSync(itemFile)) return sendError(res, 404, 'Item not found');
+    if (!foundItem) return sendError(res, 404, 'Item not found');
+
+    const filePath = getNFTDataPath(
+        foundCategory.id, foundCategory.name,
+        foundSubcategory.id, foundSubcategory.name,
+        foundItem.id, foundItem.name
+    );
+    const itemFile = path.join(filePath, `${foundItem.id}_${foundItem.name}.json`);
+    if (!fs.existsSync(itemFile)) return sendError(res, 404, 'Item data not found');
+
     try {
         const data = JSON.parse(fs.readFileSync(itemFile, 'utf-8'));
+        // Add parent info for breadcrumb
+        data.category_id = foundCategory.id;
+        data.category_name = foundCategory.name;
+        data.subcategory_id = foundSubcategory.id;
+        data.subcategory_name = foundSubcategory.name;
         res.json(data);
-    } catch (e) { sendError(res, 500, 'Parsing failed', e.message); }
+    } catch (e) {
+        sendError(res, 500, 'Parsing failed', e.message);
+    }
 });
 
 // Add item

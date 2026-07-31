@@ -1062,11 +1062,25 @@
 
                 // Try API first
                 try {
+                    // Build the endpoint based on type – all use only the id
+                    let endpoint = '';
                     if (type === 'category') {
-                        const url = `${API_BASE}/api/category/detail?id=${id}&name=`;
-                        response = await fetch(url);
-                        if (!response.ok) throw new Error('Failed to fetch category');
-                        data = await response.json();
+                        endpoint = `${API_BASE}/api/category/detail?id=${id}`;
+                    } else if (type === 'subcategory') {
+                        endpoint = `${API_BASE}/api/subcategory/detail?id=${id}`;
+                    } else if (type === 'item' || type === 'subitem') {
+                        endpoint = `${API_BASE}/api/item/detail?id=${id}`;
+                    } else {
+                        throw new Error('Unknown type: ' + type);
+                    }
+
+                    console.log('Fetching detail from:', endpoint);
+                    response = await fetch(endpoint);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    data = await response.json();
+
+                    // Map data to detailData
+                    if (type === 'category') {
                         detailData = {
                             id: data.card_number || id,
                             name: data.name,
@@ -1081,23 +1095,7 @@
                             details_zh: data.details_zh || '',
                             attachments: data.attachments || []
                         };
-                    } else if (type === 'subcategory' || type === 'item') {
-                        const categoryId = params.get('categoryId');
-                        const categoryName = params.get('categoryName');
-                        const subcategoryId = params.get('subcategoryId');
-                        const subcategoryName = params.get('subcategoryName');
-                        const itemNumber = params.get('itemNumber');
-                        const itemName = params.get('itemName');
-
-                        let url;
-                        if (type === 'subcategory') {
-                            url = `${API_BASE}/api/subcategory/detail?category_id=${categoryId}&category_name=${categoryName}&subcategory_id=${subcategoryId}&subcategory_name=${subcategoryName}`;
-                        } else {
-                            url = `${API_BASE}/api/item/detail?category_id=${categoryId}&category_name=${categoryName}&subcategory_id=${subcategoryId}&subcategory_name=${subcategoryName}&item_number=${itemNumber}&item_name=${itemName}`;
-                        }
-                        response = await fetch(url);
-                        if (!response.ok) throw new Error('Failed to fetch detail');
-                        data = await response.json();
+                    } else {
                         detailData = {
                             id: data.id || id,
                             name: data.name,
@@ -1110,9 +1108,17 @@
                             description_zh: data.description_zh || '',
                             details: data.details || '',
                             details_zh: data.details_zh || '',
-                            attachments: data.attachments || []
+                            attachments: data.attachments || [],
+                            // For breadcrumb
+                            parent: data.category_name || '',
+                            parent_zh: data.category_name || '',
+                            category_id: data.category_id || '',
+                            category_name: data.category_name || '',
+                            subcategory_id: data.subcategory_id || '',
+                            subcategory_name: data.subcategory_name || ''
                         };
                     }
+
                     usingMock = false;
                 } catch (apiError) {
                     console.warn('API failed, using mock data:', apiError);
@@ -1238,9 +1244,12 @@
             if (detailData.type === 'category') {
                 parentName = t('categories');
                 parentLink = '/nft/categories.html';
+            } else if (detailData.type === 'subcategory') {
+                parentName = detailData.category_name || t('categories');
+                parentLink = `/nft/items.html?level=category&id=${detailData.category_id || detailData.id}`;
             } else if (detailData.type === 'item') {
-                parentName = detailData.parent ? (currentLang === 'zh' ? (detailData.parent_zh || detailData.parent) : detailData.parent) : t('items');
-                parentLink = detailData.parent ? `/nft/items.html?level=category&id=${detailData.id}` : '/nft/categories.html';
+                parentName = detailData.subcategory_name || detailData.category_name || t('items');
+                parentLink = `/nft/items.html?level=subcategory&id=${detailData.subcategory_id || detailData.id}`;
             } else {
                 parentName = t('items');
                 parentLink = '/nft/categories.html';
