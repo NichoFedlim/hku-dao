@@ -30,13 +30,15 @@ To view: cmd + shift + v
 
 **港大道 (HKU DAO)** is a modern, bilingual frontend application built on top of the **RBAS blockchain**. It transforms the University of Hong Kong's cultural heritage into a digital NFT ecosystem where users can explore, collect, and trade NFTs representing HKU's faculties, buildings, history, and local culture.
 
-The application follows a **three‑level hierarchical structure**:
+The application follows a **three‑level+ hierarchical structure**:
 
 ```
-Level 1: Categories (e.g., Faculties, Buildings, History)
-    └── Level 2: Subcategories (e.g., Departments, Building Rooms)
-        └── Level 3: Items (e.g., Courses, Lecture Halls)
+Level 1: HKU DAO (Main page)
+    └── Level 2: Categories (e.g., Faculties, Buildings, History)
+        └── Level 3: Subcategories (e.g., Departments, Building Rooms)
+        └── Level 3.5: Items* (e.g., Courses, Lecture Halls)
 ```
+*Right now, Items is the same as subcategories. It is combined into one, items.
 
 ---
 
