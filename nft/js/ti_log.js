@@ -3,7 +3,9 @@
 // ============================================================
 
 // ===== USE MOCK DATA FOR DEVELOPMENT =====
-const USE_MOCK_DATA = true; // Set to false when backend is ready
+const USE_MOCK_DATA = false; // Set to false when backend is ready
+// ===== API BASE =====
+const API_BASE = (window.location.port === '5504' || window.location.port === '5500') ? 'http://127.0.0.1:5012' : '';
 
 // ===== I18N =====
 const LOCALES = {
@@ -647,7 +649,7 @@ async function fetchData() {
                 if (item_number) params.set('item_number', item_number);
                 if (item_name) params.set('item_name', item_name);
 
-                const endpoint = `/api/log/transaction?${params.toString()}`;
+                const endpoint = `${API_BASE}/api/log/transaction?${params.toString()}`;
                 const response = await fetch(endpoint);
 
                 if (!response.ok) {
