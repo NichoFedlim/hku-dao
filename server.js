@@ -2187,7 +2187,7 @@ app.get('/api/wallet-state/status', (req, res) => {
 // --- Development Mode: Disable Wallet Connection ---
 // The wallet server (192.168.1.26) is not accessible outside the office network.
 // For local development/testing, we skip connecting to it.
-const DEV_MODE = true; // Set to false when running inside the office network
+const DEV_MODE = false; // Set to false when running inside the office network
 
 // Initialize wallet state (reads from file, safe to run)
 initWalletState();
