@@ -21,6 +21,8 @@ const PERSISTENCE_DIR = path.join(__dirname, 'persistence');
 const WALLET_STATE_FILE = path.join(PERSISTENCE_DIR, 'wallet_state.json');
 const HKU_DAO_FILE = path.join(__dirname, 'hku_dao.json');
 const HKU_DAO_QUEUE_FILE = path.join(__dirname, 'hku_dao_queue.json'); // Queue for PS sync
+const TRASH_DIR = path.join(__dirname, 'nft', 'trash'); 
+const TRASH_LOG_FILE = path.join(TRASH_DIR, 'deletion_log.json'); 
 
 // ============================================================
 // CORS
@@ -182,6 +184,122 @@ function getNFTDataPath(categoryId, categoryName, subcategoryNumber = null, subc
         return path.join(NFT_DATA_DIR, `${categoryId}_${categoryName}`, `${subcategoryNumber}_${subcategoryName}`);
     }
     return path.join(NFT_DATA_DIR, `${categoryId}_${categoryName}`, `${subcategoryNumber}_${subcategoryName}`, `${itemNumber}_${itemName}`);
+}
+
+// ============================================================
+// SOFT DELETE / TRASH FUNCTIONS
+// ============================================================
+
+function moveToTrash(sourcePath, entityType, entityId, entityName, wallet) {
+    ensureDir(TRASH_DIR);
+    
+    // Create a unique name for the trash item
+    const timestamp = Date.now();
+    const trashName = `${timestamp}_${entityType}_${entityId}_${entityName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    const trashPath = path.join(TRASH_DIR, trashName);
+    
+    // Move the folder to trash
+    fs.renameSync(sourcePath, trashPath);
+    
+    // Log the deletion
+    let logs = [];
+    if (fs.existsSync(TRASH_LOG_FILE)) {
+        try {
+            logs = JSON.parse(fs.readFileSync(TRASH_LOG_FILE, 'utf-8'));
+        } catch (e) {
+            console.warn('Failed to read trash log, creating new one');
+        }
+    }
+    
+    const logEntry = {
+        id: timestamp,
+        originalPath: sourcePath,
+        trashPath: trashPath,
+        trashName: trashName,
+        entityType: entityType,
+        entityId: entityId,
+        entityName: entityName,
+        deletedBy: wallet,
+        deletedAt: new Date().toISOString(),
+        deletedAtFormatted: getFormattedDateTime(),
+        restored: false
+    };
+    
+    logs.push(logEntry);
+    fs.writeFileSync(TRASH_LOG_FILE, JSON.stringify(logs, null, 2));
+    
+    return trashPath;
+}
+
+function getTrashItems() {
+    ensureDir(TRASH_DIR);
+    if (!fs.existsSync(TRASH_LOG_FILE)) {
+        return [];
+    }
+    try {
+        const logs = JSON.parse(fs.readFileSync(TRASH_LOG_FILE, 'utf-8'));
+        // Filter out restored items
+        return logs.filter(item => !item.restored);
+    } catch (e) {
+        console.error('Failed to read trash log:', e);
+        return [];
+    }
+}
+
+function restoreFromTrash(trashId) {
+    const logs = JSON.parse(fs.readFileSync(TRASH_LOG_FILE, 'utf-8'));
+    const index = logs.findIndex(item => item.id === trashId && !item.restored);
+    
+    if (index === -1) {
+        throw new Error('Item not found in trash or already restored');
+    }
+    
+    const item = logs[index];
+    const sourcePath = item.trashPath;
+    const originalPath = item.originalPath;
+    
+    // Check if original path already exists
+    if (fs.existsSync(originalPath)) {
+        // Append a timestamp to avoid conflict
+        const dirname = path.dirname(originalPath);
+        const basename = path.basename(originalPath);
+        const newBasename = basename + '_' + Date.now();
+        const newPath = path.join(dirname, newBasename);
+        fs.renameSync(sourcePath, newPath);
+        item.restoredAt = new Date().toISOString();
+        item.restoredTo = newPath;
+    } else {
+        // Move back to original location
+        fs.renameSync(sourcePath, originalPath);
+        item.restoredAt = new Date().toISOString();
+        item.restoredTo = originalPath;
+    }
+    
+    item.restored = true;
+    fs.writeFileSync(TRASH_LOG_FILE, JSON.stringify(logs, null, 2));
+    
+    return item;
+}
+
+function permanentDeleteFromTrash(trashId) {
+    const logs = JSON.parse(fs.readFileSync(TRASH_LOG_FILE, 'utf-8'));
+    const index = logs.findIndex(item => item.id === trashId && !item.restored);
+    
+    if (index === -1) {
+        throw new Error('Item not found in trash or already restored');
+    }
+    
+    const item = logs[index];
+    // Delete the folder permanently
+    if (fs.existsSync(item.trashPath)) {
+        fs.rmSync(item.trashPath, { recursive: true, force: true });
+    }
+    
+    // Remove from log (or mark as permanently deleted)
+    logs.splice(index, 1);
+    fs.writeFileSync(TRASH_LOG_FILE, JSON.stringify(logs, null, 2));
+    
+    return true;
 }
 
 // ============================================================
@@ -1013,6 +1131,7 @@ app.post('/api/category/add', async (req, res) => {
         name: category_name,
         hash: category_hash,
         card_number: category_number,
+        type: category_type || 'other',  // Defaults to 'other' if not specified
         population: 0,
         percent: 0,
         source: [],
@@ -1069,6 +1188,82 @@ app.post('/api/category/add', async (req, res) => {
         shortlink: shortlinkData.shortlink,
         short_code: shortlinkData.short_code
     });
+});
+
+// API: DELETE CATEGORY (Soft Delete)
+app.delete('/api/category/delete', async (req, res) => {
+    const { category_id, wallet } = req.body;
+    if (!category_id || !wallet) {
+        return res.status(400).json({ success: false, error: 'Missing parameters' });
+    }
+    const walletRegex = /^[A-F0-9]{64}$/i;
+    if (!walletRegex.test(wallet)) {
+        return res.status(400).json({ success: false, error: 'Invalid wallet address' });
+    }
+
+    const dataRoot = NFT_DATA_DIR;
+    if (!fs.existsSync(dataRoot)) {
+        return res.status(404).json({ success: false, error: 'Data directory not found' });
+    }
+
+    let categoryDir = null;
+    let categoryName = '';
+    const dirs = fs.readdirSync(dataRoot, { withFileTypes: true });
+    for (const dir of dirs) {
+        if (dir.isDirectory()) {
+            const match = dir.name.match(/^(\d+)_(.+)$/);
+            if (match && match[1] === String(category_id)) {
+                categoryDir = dir.name;
+                categoryName = match[2];
+                break;
+            }
+        }
+    }
+    if (!categoryDir) {
+        return res.status(404).json({ success: false, error: 'Category not found' });
+    }
+
+    // Check ownership via log
+    const logPath = path.join(dataRoot, categoryDir, 'content_log.json');
+    if (!fs.existsSync(logPath)) {
+        return res.status(404).json({ success: false, error: 'Category log not found' });
+    }
+    let logData;
+    try {
+        logData = JSON.parse(fs.readFileSync(logPath, 'utf-8'));
+    } catch (e) {
+        return res.status(500).json({ success: false, error: 'Failed to read log' });
+    }
+    const logs = logData.log || [];
+    if (logs.length === 0) {
+        return res.status(403).json({ success: false, error: 'No ownership record' });
+    }
+    const sorted = logs.sort((a, b) => (b.thread || 0) - (a.thread || 0));
+    const latest = sorted[0];
+    if (latest.buyer !== wallet) {
+        return res.status(403).json({ success: false, error: 'You do not own this category NFT' });
+    }
+
+    // Remove from market.json
+    const marketFile = path.join(NFT_DATA_DIR, 'market.json');
+    if (fs.existsSync(marketFile)) {
+        let marketData = JSON.parse(fs.readFileSync(marketFile, 'utf-8'));
+        marketData = marketData.filter(item => item.card_number !== String(category_id));
+        fs.writeFileSync(marketFile, JSON.stringify(marketData, null, 2));
+    }
+
+    // Soft delete: Move to trash
+    const fullPath = path.join(dataRoot, categoryDir);
+    try {
+        const trashPath = moveToTrash(fullPath, 'category', category_id, categoryName, wallet);
+        res.json({ 
+            success: true, 
+            message: 'Category moved to trash. You can restore it from the trash page.',
+            trashId: trashPath
+        });
+    } catch (e) {
+        return res.status(500).json({ success: false, error: 'Failed to move to trash: ' + e.message });
+    }
 });
 
 // ============================================================
@@ -1276,6 +1471,77 @@ app.post('/subcategory/:categoryId/:categoryName/subcategory', async (req, res) 
     });
 });
 
+// API: DELETE SUBCATEGORY (Soft Delete)
+app.delete('/api/subcategory/delete', async (req, res) => {
+    const { category_id, category_name, subcategory_id, subcategory_name, wallet } = req.body;
+    if (!category_id || !category_name || !subcategory_id || !subcategory_name || !wallet) {
+        return res.status(400).json({ success: false, error: 'Missing parameters' });
+    }
+    const walletRegex = /^[A-F0-9]{64}$/i;
+    if (!walletRegex.test(wallet)) {
+        return res.status(400).json({ success: false, error: 'Invalid wallet address' });
+    }
+
+    const dataRoot = NFT_DATA_DIR;
+    if (!fs.existsSync(dataRoot)) {
+        return res.status(404).json({ success: false, error: 'Data directory not found' });
+    }
+
+    const categoryFolder = path.join(dataRoot, `${category_id}_${category_name}`);
+    if (!fs.existsSync(categoryFolder)) {
+        return res.status(404).json({ success: false, error: 'Category not found' });
+    }
+
+    const subFolder = path.join(categoryFolder, `${subcategory_id}_${subcategory_name}`);
+    if (!fs.existsSync(subFolder)) {
+        return res.status(404).json({ success: false, error: 'Subcategory not found' });
+    }
+
+    // Check ownership via log
+    const logPath = path.join(subFolder, 'subcategory_log.json');
+    if (!fs.existsSync(logPath)) {
+        return res.status(404).json({ success: false, error: 'Subcategory log not found' });
+    }
+    let logData;
+    try {
+        logData = JSON.parse(fs.readFileSync(logPath, 'utf-8'));
+    } catch (e) {
+        return res.status(500).json({ success: false, error: 'Failed to read log' });
+    }
+    const logs = logData.log || [];
+    if (logs.length === 0) {
+        return res.status(403).json({ success: false, error: 'No ownership record' });
+    }
+    const sorted = logs.sort((a, b) => (b.thread || 0) - (a.thread || 0));
+    const latest = sorted[0];
+    if (latest.buyer !== wallet) {
+        return res.status(403).json({ success: false, error: 'You do not own this subcategory NFT' });
+    }
+
+    // Remove from market.json
+    const marketFile = path.join(NFT_DATA_DIR, 'market.json');
+    if (fs.existsSync(marketFile)) {
+        let marketData = JSON.parse(fs.readFileSync(marketFile, 'utf-8'));
+        marketData = marketData.filter(item => {
+            return !(item.card_number === String(category_id) && item.citang_number === String(subcategory_id));
+        });
+        fs.writeFileSync(marketFile, JSON.stringify(marketData, null, 2));
+    }
+
+    // Soft delete: Move to trash
+    try {
+        const entityName = `${category_name} / ${subcategory_name}`;
+        const trashPath = moveToTrash(subFolder, 'subcategory', subcategory_id, entityName, wallet);
+        res.json({ 
+            success: true, 
+            message: 'Subcategory moved to trash. You can restore it from the trash page.',
+            trashId: trashPath
+        });
+    } catch (e) {
+        return res.status(500).json({ success: false, error: 'Failed to move to trash: ' + e.message });
+    }
+});
+
 // ============================================================
 // API: ITEM (Level 3)
 // ============================================================
@@ -1316,7 +1582,7 @@ app.get('/api/items/list', (req, res) => {
     }
 });
 
-// Get item detail – find by ID only
+// API: GET ITEM DETAIL (unified for subcategories & items)
 app.get('/api/item/detail', (req, res) => {
     const { id } = req.query;
     if (!id) return sendError(res, 400, 'Missing parameter: id');
@@ -1330,6 +1596,7 @@ app.get('/api/item/detail', (req, res) => {
     let foundSubcategory = null;
     let foundCategory = null;
 
+    // First, try to find an item (level 3)
     for (const catDir of categoryDirs) {
         if (catDir.isDirectory()) {
             const catMatch = catDir.name.match(/^(\d+)_(.+)$/);
@@ -1337,7 +1604,6 @@ app.get('/api/item/detail', (req, res) => {
                 const categoryId = catMatch[1];
                 const categoryName = catMatch[2];
                 const subPath = path.join(dataRoot, catDir.name);
-                
                 const subDirs = fs.readdirSync(subPath, { withFileTypes: true });
                 for (const subDir of subDirs) {
                     if (subDir.isDirectory()) {
@@ -1346,7 +1612,6 @@ app.get('/api/item/detail', (req, res) => {
                             const subcategoryId = subMatch[1];
                             const subcategoryName = subMatch[2];
                             const itemPath = path.join(subPath, subDir.name);
-                            
                             const itemDirs = fs.readdirSync(itemPath, { withFileTypes: true });
                             for (const itemDir of itemDirs) {
                                 if (itemDir.isDirectory()) {
@@ -1368,26 +1633,79 @@ app.get('/api/item/detail', (req, res) => {
             }
         }
     }
-    if (!foundItem) return sendError(res, 404, 'Item not found');
 
-    const filePath = getNFTDataPath(
-        foundCategory.id, foundCategory.name,
-        foundSubcategory.id, foundSubcategory.name,
-        foundItem.id, foundItem.name
-    );
-    const itemFile = path.join(filePath, `${foundItem.id}_${foundItem.name}.json`);
-    if (!fs.existsSync(itemFile)) return sendError(res, 404, 'Item data not found');
+    // If item not found, try to find a subcategory (level 2) with the same ID
+    if (!foundItem) {
+        for (const catDir of categoryDirs) {
+            if (catDir.isDirectory()) {
+                const catMatch = catDir.name.match(/^(\d+)_(.+)$/);
+                if (catMatch) {
+                    const categoryId = catMatch[1];
+                    const categoryName = catMatch[2];
+                    const subPath = path.join(dataRoot, catDir.name);
+                    const subDirs = fs.readdirSync(subPath, { withFileTypes: true });
+                    for (const subDir of subDirs) {
+                        if (subDir.isDirectory()) {
+                            const subMatch = subDir.name.match(/^(\d+)_(.+)$/);
+                            if (subMatch && subMatch[1] === id) {
+                                foundSubcategory = { id: subMatch[1], name: subMatch[2] };
+                                foundCategory = { id: categoryId, name: categoryName };
+                                break;
+                            }
+                        }
+                    }
+                    if (foundSubcategory) break;
+                }
+            }
+            if (foundSubcategory) break;
+        }
+    }
 
-    try {
-        const data = JSON.parse(fs.readFileSync(itemFile, 'utf-8'));
-        // Add parent info for breadcrumb
-        data.category_id = foundCategory.id;
-        data.category_name = foundCategory.name;
-        data.subcategory_id = foundSubcategory.id;
-        data.subcategory_name = foundSubcategory.name;
-        res.json(data);
-    } catch (e) {
-        sendError(res, 500, 'Parsing failed', e.message);
+    // Return data based on what was found
+    if (foundItem) {
+        const filePath = getNFTDataPath(
+            foundCategory.id, foundCategory.name,
+            foundSubcategory.id, foundSubcategory.name,
+            foundItem.id, foundItem.name
+        );
+        const itemFile = path.join(filePath, `${foundItem.id}_${foundItem.name}.json`);
+        if (!fs.existsSync(itemFile)) return sendError(res, 404, 'Item data not found');
+        try {
+            const data = JSON.parse(fs.readFileSync(itemFile, 'utf-8'));
+            data.category_id = foundCategory.id;
+            data.category_name = foundCategory.name;
+            data.subcategory_id = foundSubcategory.id;
+            data.subcategory_name = foundSubcategory.name;
+            data.type = 'item';          // mark as item
+            res.json(data);
+        } catch (e) {
+            sendError(res, 500, 'Parsing failed', e.message);
+        }
+    } else if (foundSubcategory) {
+        const subDir = getNFTDataPath(foundCategory.id, foundCategory.name, foundSubcategory.id, foundSubcategory.name);
+        const subFile = path.join(subDir, 'subcategory.json');
+        if (!fs.existsSync(subFile)) return sendError(res, 404, 'Subcategory data not found');
+        try {
+            const data = JSON.parse(fs.readFileSync(subFile, 'utf-8'));
+            data.category_id = foundCategory.id;
+            data.category_name = foundCategory.name;
+            data.subcategory_id = foundSubcategory.id;
+            data.subcategory_name = foundSubcategory.name;
+            data.type = 'subcategory';   // mark as subcategory, but frontend will treat as 'item' level
+            // Ensure fields expected by frontend exist
+            data.description = data.description || '';
+            data.description_zh = data.description_zh || '';
+            data.details = data.details || '';
+            data.details_zh = data.details_zh || '';
+            data.attachments = data.attachments || [];
+            data.price = data.purchase_price || 0;
+            // Use subcategory name as display name
+            res.json(data);
+        } catch (e) {
+            sendError(res, 500, 'Parsing failed', e.message);
+        }
+    } else {
+        sendError(res, 404, 'Item not found');
     }
 });
 
@@ -1494,6 +1812,164 @@ app.post('/subcategory/:categoryId/:categoryName/:subcategoryNumber/:subcategory
         short_code: shortlinkData.short_code,
         ...item
     });
+});
+
+// API: DELETE ITEM (Soft Delete)
+app.delete('/api/item/delete', async (req, res) => {
+    const { category_id, category_name, subcategory_id, subcategory_name, item_number, item_name, wallet } = req.body;
+    if (!category_id || !category_name || !subcategory_id || !subcategory_name || !item_number || !item_name || !wallet) {
+        return res.status(400).json({ success: false, error: 'Missing parameters' });
+    }
+    const walletRegex = /^[A-F0-9]{64}$/i;
+    if (!walletRegex.test(wallet)) {
+        return res.status(400).json({ success: false, error: 'Invalid wallet address' });
+    }
+
+    const dataRoot = NFT_DATA_DIR;
+    if (!fs.existsSync(dataRoot)) {
+        return res.status(404).json({ success: false, error: 'Data directory not found' });
+    }
+
+    const categoryFolder = path.join(dataRoot, `${category_id}_${category_name}`);
+    if (!fs.existsSync(categoryFolder)) {
+        return res.status(404).json({ success: false, error: 'Category not found' });
+    }
+
+    const subFolder = path.join(categoryFolder, `${subcategory_id}_${subcategory_name}`);
+    if (!fs.existsSync(subFolder)) {
+        return res.status(404).json({ success: false, error: 'Subcategory not found' });
+    }
+
+    const itemFolder = path.join(subFolder, `${item_number}_${item_name}`);
+    if (!fs.existsSync(itemFolder)) {
+        return res.status(404).json({ success: false, error: 'Item not found' });
+    }
+
+    // Check ownership via log
+    const logPath = path.join(itemFolder, `${item_number}_${item_name}_log.json`);
+    if (!fs.existsSync(logPath)) {
+        return res.status(404).json({ success: false, error: 'Item log not found' });
+    }
+    let logData;
+    try {
+        logData = JSON.parse(fs.readFileSync(logPath, 'utf-8'));
+    } catch (e) {
+        return res.status(500).json({ success: false, error: 'Failed to read log' });
+    }
+    const logs = logData.log || [];
+    if (logs.length === 0) {
+        return res.status(403).json({ success: false, error: 'No ownership record' });
+    }
+    const sorted = logs.sort((a, b) => (b.thread || 0) - (a.thread || 0));
+    const latest = sorted[0];
+    if (latest.buyer !== wallet) {
+        return res.status(403).json({ success: false, error: 'You do not own this item NFT' });
+    }
+
+    // Remove from market.json
+    const marketFile = path.join(NFT_DATA_DIR, 'market.json');
+    if (fs.existsSync(marketFile)) {
+        let marketData = JSON.parse(fs.readFileSync(marketFile, 'utf-8'));
+        marketData = marketData.filter(item => {
+            return !(item.card_number === String(category_id) &&
+                     item.citang_number === String(subcategory_id) &&
+                     item.member_number === String(item_number));
+        });
+        fs.writeFileSync(marketFile, JSON.stringify(marketData, null, 2));
+    }
+
+    // Soft delete: Move to trash
+    try {
+        const entityName = `${category_name} / ${subcategory_name} / ${item_name}`;
+        const trashPath = moveToTrash(itemFolder, 'item', item_number, entityName, wallet);
+        res.json({ 
+            success: true, 
+            message: 'Item moved to trash. You can restore it from the trash page.',
+            trashId: trashPath
+        });
+    } catch (e) {
+        return res.status(500).json({ success: false, error: 'Failed to move to trash: ' + e.message });
+    }
+});
+
+// ============================================================
+// API: TRASH MANAGEMENT
+// ============================================================
+
+// Get all trash items
+app.get('/api/trash/list', (req, res) => {
+    try {
+        const items = getTrashItems();
+        res.json({ success: true, data: items });
+    } catch (error) {
+        console.error('Failed to get trash items:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Restore from trash
+app.post('/api/trash/restore', (req, res) => {
+    const { trashId, wallet } = req.body;
+    if (!trashId) {
+        return res.status(400).json({ success: false, error: 'Missing trashId' });
+    }
+    try {
+        const result = restoreFromTrash(parseInt(trashId));
+        res.json({ 
+            success: true, 
+            message: 'Item restored successfully',
+            restored: result
+        });
+    } catch (error) {
+        console.error('Failed to restore:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Permanent delete from trash
+app.delete('/api/trash/permanent-delete', (req, res) => {
+    const { trashId } = req.body;
+    if (!trashId) {
+        return res.status(400).json({ success: false, error: 'Missing trashId' });
+    }
+    try {
+        permanentDeleteFromTrash(parseInt(trashId));
+        res.json({ 
+            success: true, 
+            message: 'Item permanently deleted from trash'
+        });
+    } catch (error) {
+        console.error('Failed to permanently delete:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Empty trash (delete all)
+app.delete('/api/trash/empty', (req, res) => {
+    try {
+        if (!fs.existsSync(TRASH_DIR)) {
+            return res.json({ success: true, message: 'Trash is already empty' });
+        }
+        
+        // Delete all files in trash
+        const files = fs.readdirSync(TRASH_DIR);
+        for (const file of files) {
+            const filePath = path.join(TRASH_DIR, file);
+            if (file !== 'deletion_log.json') {
+                fs.rmSync(filePath, { recursive: true, force: true });
+            }
+        }
+        
+        // Clear the log (keep the file but reset)
+        if (fs.existsSync(TRASH_LOG_FILE)) {
+            fs.writeFileSync(TRASH_LOG_FILE, JSON.stringify([], null, 2));
+        }
+        
+        res.json({ success: true, message: 'Trash emptied successfully' });
+    } catch (error) {
+        console.error('Failed to empty trash:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
 // ============================================================
@@ -2187,7 +2663,7 @@ app.get('/api/wallet-state/status', (req, res) => {
 // --- Development Mode: Disable Wallet Connection ---
 // The wallet server (192.168.1.26) is not accessible outside the office network.
 // For local development/testing, we skip connecting to it.
-const DEV_MODE = false; // Set to false when running inside the office network
+const DEV_MODE = true; // Set to false when running inside the office network
 
 // Initialize wallet state (reads from file, safe to run)
 initWalletState();

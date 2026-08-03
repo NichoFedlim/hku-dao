@@ -804,6 +804,8 @@
     <!-- ======================== JAVASCRIPT =========================== -->
     <!-- ============================================================ -->
     <script>
+        // Detect dev server (Live Server) and use backend port
+        const API_BASE = (window.location.port === '5504' || window.location.port === '5500') ? 'http://127.0.0.1:5012' : '';
         // ============================================================
         // I18N SYSTEM
         // ============================================================
@@ -963,6 +965,14 @@
         // ============================================================
         // MOCK DATA GENERATOR (fallback)
         // ============================================================
+        function generateLongHash() {
+            let hash = '';
+            for (let i = 0; i < 8; i++) {
+                hash += Math.random().toString(16).substring(2, 10);
+            }
+            return hash.toUpperCase();
+        }
+
         function getMockNFTs() {
             return [
                 {
@@ -977,14 +987,14 @@
                     surname: 'Engineering',
                     card_number: 6,
                     purchase_price: 800,
-                    hash: '0xB2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6'
+                    hash: generateLongHash()
                 },
                 {
                     level: 'surname',
                     surname: 'Medicine',
                     card_number: 8,
                     purchase_price: 1200,
-                    hash: '0xC3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6'
+                    hash: generateLongHash()
                 },
                 {
                     level: 'citang',
@@ -995,7 +1005,7 @@
                     purchase_price: 500,
                     province: 'Hong Kong',
                     district: 'Main Campus',
-                    hash: '0xD4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6'
+                    hash: generateLongHash()
                 },
                 {
                     level: 'citang',
@@ -1006,7 +1016,7 @@
                     purchase_price: 600,
                     province: 'Hong Kong',
                     district: 'Main Campus',
-                    hash: '0xE5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6'
+                    hash: generateLongHash()
                 },
                 {
                     level: 'member',
@@ -1019,7 +1029,7 @@
                     purchase_price: 200,
                     gender: 'Male',
                     birth: '1975-03-15',
-                    hash: '0xF6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6'
+                    hash: generateLongHash()
                 }
             ];
         }
@@ -1054,7 +1064,7 @@
 
                 // Try real API
                 try {
-                    const response = await fetch(`/api/user/nfts?wallet=${wallet}`);
+                    const response = await fetch(`${API_BASE}/api/user/nfts?wallet=${wallet}`);
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     userNfts = await response.json();
                     console.log('✅ Loaded real user NFTs');
@@ -1070,7 +1080,7 @@
 
                 // Fetch on-sale NFTs (try real API, fallback to empty)
                 try {
-                    const saleResponse = await fetch('/api/nfts/onsale');
+                    const saleResponse = await fetch(`${API_BASE}/api/nfts/onsale`);
                     if (saleResponse.ok) {
                         onSaleNFTs = await saleResponse.json();
                     } else {
@@ -1186,17 +1196,26 @@
                 }
 
                 const newHTML = batchNFTs.map(nft => {
+                    // Map backend level names to frontend display functions
                     switch (nft.level) {
-                        case 'surname': return renderSurnameCard(nft);
-                        case 'citang': return renderCitangCard(nft);
-                        case 'member': return renderMemberCard(nft);
-                        default: return '';
+                        case 'category':
+                        case 'surname':
+                            return renderSurnameCard(nft);
+                        case 'subcategory':
+                        case 'citang':
+                            return renderCitangCard(nft);
+                        case 'item':
+                        case 'member':
+                            return renderMemberCard(nft);
+                        default:
+                            console.warn('Unknown level:', nft.level);
+                            return '';
                     }
                 }).join('');
 
                 gridContainer.insertAdjacentHTML('beforeend', newHTML);
 
-                // Generate QR codes
+                // Generate QR codes after DOM update
                 setTimeout(() => generateAllQRCodes(batchNFTs), 100);
                 setTimeout(() => resolve(), 50);
             });
@@ -1214,6 +1233,9 @@
             const purchasePrice = nft.purchase_price || 0;
             const levelTag = `#${nft.card_number}`;
 
+            // Helper to escape strings for HTML attributes
+            const esc = (str) => escapeHtml(str || '').replace(/'/g, "\\'");
+
             return `
                 <div class="card-container">
                     <div class="card-body">
@@ -1227,7 +1249,7 @@
                         </div>
                         <div class="card-qr-section">
                             <div class="qr-wrapper">
-                                <div class="qrcode" id="qr-surname-${nft.card_number}"></div>
+                                <div class="qrcode" id="qr-surname-${nft.card_number}" data-content="${nft.shortlink || nft.hash || ''}"></div>
                             </div>
                             <div class="nft-hash">${formatNft(displayHash)}</div>
                         </div>
@@ -1236,22 +1258,22 @@
                         <span class="price-display">💰 <span class="rc">${purchasePrice} RC</span></span>
                         <div class="btn-group">
                             <div class="btn-row">
-                                <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory(...)">
+                                <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory('${nft.level}', ${nft.card_number}, '${esc(nft.surname)}', null, '', null, '')">
                                     ${t('view_transactions')}
                                 </button>
-                                <button class="btn-sm btn-sm-transfer" onclick="openTransferModal(...)">
+                                <button class="btn-sm btn-sm-transfer" onclick="openTransferModal('${nft.level}', ${nft.card_number}, '${esc(nft.surname)}', null, '', null, '')">
                                     ${t('transfer')}
                                 </button>
                             </div>
                             <div class="btn-row">
                                 ${isOnSale ? `
                                     <span class="price-info-tag">${t('selling_price')}: <span class="value">${saleInfo?.price || 0} RC</span></span>
-                                    <button class="btn-sm btn-sm-cancel" onclick="cancelSale(...)">
+                                    <button class="btn-sm btn-sm-cancel" onclick="cancelSale('${nft.level}', ${nft.card_number}, '${esc(nft.surname)}', null, '', null, '')">
                                         ${t('cancel_sale')}
                                     </button>
                                 ` : `
                                     <input type="number" class="price-input" id="price-${nft.level}-${nft.card_number}" placeholder="${t('enter_price')}" min="1">
-                                    <button class="btn-sm btn-sm-sell" onclick="sellNFT(...)">
+                                    <button class="btn-sm btn-sm-sell" onclick="sellNFT('${nft.level}', ${nft.card_number}, '${esc(nft.surname)}', null, '', null, '')">
                                         ${t('list_for_sale')}
                                     </button>
                                 `}
@@ -1274,6 +1296,9 @@
             const purchasePrice = nft.purchase_price || 0;
             const levelTag = `#${nft.card_number}.${nft.citang_number}`;
 
+            // Helper to escape strings for HTML attributes
+            const esc = (str) => escapeHtml(str || '').replace(/'/g, "\\'");
+
             return `
                 <div class="card-container">
                     <div class="card-body">
@@ -1289,7 +1314,7 @@
                         </div>
                         <div class="card-qr-section">
                             <div class="qr-wrapper">
-                                <div class="qrcode" id="qr-citang-${nft.card_number}-${nft.citang_number}"></div>
+                                <div class="qrcode" id="qr-citang-${nft.card_number}-${nft.citang_number}" data-content="${nft.shortlink || nft.hash || ''}"></div>
                             </div>
                             <div class="nft-hash">${formatNft(displayHash)}</div>
                         </div>
@@ -1298,22 +1323,22 @@
                         <span class="price-display">💰 <span class="rc">${purchasePrice} RC</span></span>
                         <div class="btn-group">
                             <div class="btn-row">
-                                <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory(...)">
+                                <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory('${nft.level}', ${nft.card_number}, '${esc(nft.surname)}', ${nft.citang_number}, '${esc(nft.citang_name)}', null, '')">
                                     ${t('view_transactions')}
                                 </button>
-                                <button class="btn-sm btn-sm-transfer" onclick="openTransferModal(...)">
+                                <button class="btn-sm btn-sm-transfer" onclick="openTransferModal('${nft.level}', ${nft.card_number}, '${esc(nft.surname)}', ${nft.citang_number}, '${esc(nft.citang_name)}', null, '')">
                                     ${t('transfer')}
                                 </button>
                             </div>
                             <div class="btn-row">
                                 ${isOnSale ? `
                                     <span class="price-info-tag">${t('selling_price')}: <span class="value">${saleInfo?.price || 0} RC</span></span>
-                                    <button class="btn-sm btn-sm-cancel" onclick="cancelSale(...)">
+                                    <button class="btn-sm btn-sm-cancel" onclick="cancelSale('${nft.level}', ${nft.card_number}, '${esc(nft.surname)}', ${nft.citang_number}, '${esc(nft.citang_name)}', null, '')">
                                         ${t('cancel_sale')}
                                     </button>
                                 ` : `
                                     <input type="number" class="price-input" id="price-${nft.level}-${nft.card_number}" placeholder="${t('enter_price')}" min="1">
-                                    <button class="btn-sm btn-sm-sell" onclick="sellNFT(...)">
+                                    <button class="btn-sm btn-sm-sell" onclick="sellNFT('${nft.level}', ${nft.card_number}, '${esc(nft.surname)}', ${nft.citang_number}, '${esc(nft.citang_name)}', null, '')">
                                         ${t('list_for_sale')}
                                     </button>
                                 `}
@@ -1338,6 +1363,9 @@
             const purchasePrice = nft.purchase_price || 0;
             const levelTag = `#${nft.card_number}.${nft.citang_number}.${nft.member_number}`;
 
+            // Helper to escape strings for HTML attributes
+            const esc = (str) => escapeHtml(str || '').replace(/'/g, "\\'");
+
             return `
                 <div class="card-container">
                     <div class="card-body">
@@ -1353,7 +1381,7 @@
                         </div>
                         <div class="card-qr-section">
                             <div class="qr-wrapper">
-                                <div class="qrcode" id="qr-member-${nft.card_number}-${nft.citang_number}-${nft.member_number}"></div>
+                                <div class="qrcode" id="qr-member-${nft.card_number}-${nft.citang_number}-${nft.member_number}" data-content="${nft.shortlink || nft.hash || ''}"></div>
                             </div>
                             <div class="nft-hash">${formatNft(displayHash)}</div>
                         </div>
@@ -1362,22 +1390,22 @@
                         <span class="price-display">💰 <span class="rc">${purchasePrice} RC</span></span>
                         <div class="btn-group">
                             <div class="btn-row">
-                                <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory(...)">
+                                <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory('${nft.level}', ${nft.card_number}, '${esc(nft.surname)}', ${nft.citang_number}, '${esc(nft.citang_name)}', ${nft.member_number}, '${esc(nft.member_name)}')">
                                     ${t('view_transactions')}
                                 </button>
-                                <button class="btn-sm btn-sm-transfer" onclick="openTransferModal(...)">
+                                <button class="btn-sm btn-sm-transfer" onclick="openTransferModal('${nft.level}', ${nft.card_number}, '${esc(nft.surname)}', ${nft.citang_number}, '${esc(nft.citang_name)}', ${nft.member_number}, '${esc(nft.member_name)}')">
                                     ${t('transfer')}
                                 </button>
                             </div>
                             <div class="btn-row">
                                 ${isOnSale ? `
                                     <span class="price-info-tag">${t('selling_price')}: <span class="value">${saleInfo?.price || 0} RC</span></span>
-                                    <button class="btn-sm btn-sm-cancel" onclick="cancelSale(...)">
+                                    <button class="btn-sm btn-sm-cancel" onclick="cancelSale('${nft.level}', ${nft.card_number}, '${esc(nft.surname)}', ${nft.citang_number}, '${esc(nft.citang_name)}', ${nft.member_number}, '${esc(nft.member_name)}')">
                                         ${t('cancel_sale')}
                                     </button>
                                 ` : `
                                     <input type="number" class="price-input" id="price-${nft.level}-${nft.card_number}" placeholder="${t('enter_price')}" min="1">
-                                    <button class="btn-sm btn-sm-sell" onclick="sellNFT(...)">
+                                    <button class="btn-sm btn-sm-sell" onclick="sellNFT('${nft.level}', ${nft.card_number}, '${esc(nft.surname)}', ${nft.citang_number}, '${esc(nft.citang_name)}', ${nft.member_number}, '${esc(nft.member_name)}')">
                                         ${t('list_for_sale')}
                                     </button>
                                 `}
@@ -1386,6 +1414,7 @@
                     </div>
                 </div>`;
         }
+
 
         // ===== UTILITY FUNCTIONS =====
         function escapeHtml(str) {
@@ -1398,22 +1427,41 @@
             return nft.match(/.{1,16}/g)?.join('<br>') || nft;
         }
 
-        function generateAllQRCodes(nfts) {
+        function generateAllQRCodes(nfts) { 
             nfts.forEach(nft => {
                 let id = '';
-                if (nft.level === 'surname') id = `qr-surname-${nft.card_number}`;
-                else if (nft.level === 'citang') id = `qr-citang-${nft.card_number}-${nft.citang_number}`;
-                else id = `qr-member-${nft.card_number}-${nft.citang_number}-${nft.member_number}`;
+                if (nft.level === 'category' || nft.level === 'surname') {
+                    id = `qr-surname-${nft.card_number}`;
+                } else if (nft.level === 'subcategory' || nft.level === 'citang') {
+                    id = `qr-citang-${nft.card_number}-${nft.citang_number}`;
+                } else {
+                    id = `qr-member-${nft.card_number}-${nft.citang_number}-${nft.member_number}`;
+                }
+                
                 const el = document.getElementById(id);
-                if (el && el.innerHTML.trim() === '' && nft.hash) {
-                    new QRCode(el, {
-                        text: nft.hash,
-                        width: 130,
-                        height: 130,
-                        colorDark: '#000000',
-                        colorLight: '#ffffff',
-                        correctLevel: QRCode.CorrectLevel.L
-                    });
+                if (el && el.innerHTML.trim() === '') {
+                    // Use shortlink if available, otherwise use hash
+                    const content = el.dataset.content || nft.shortlink || nft.hash || '';
+                    if (content) {
+                        const size = window.innerWidth <= 480 ? 100 : 130;
+                        new QRCode(el, {
+                            text: content,
+                            width: size,
+                            height: size,
+                            colorDark: '#003153',
+                            colorLight: '#ffffff',
+                            correctLevel: QRCode.CorrectLevel.L
+                        });
+                        // Ensure canvas fills the container
+                        const canvas = el.querySelector('canvas');
+                        if (canvas) {
+                            canvas.style.width = '100%';
+                            canvas.style.height = '100%';
+                            canvas.style.display = 'block';
+                        }
+                    } else {
+                        el.innerHTML = `<div style="width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;background:#f0f0f0;color:#999;font-size:10px;text-align:center;">No QR</div>`;
+                    }
                 }
             });
         }
@@ -1536,7 +1584,7 @@
 
             try {
                 const wallet = loginInfo.walletid || loginInfo.wallet;
-                const response = await fetch('/api/nft/list', {
+                const response = await fetch(`${API_BASE}/api/nft/list`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1583,7 +1631,7 @@
             }
 
             try {
-                const response = await fetch('/api/nft/cancel-sale', {
+                const response = await fetch(`${API_BASE}/api/nft/cancel-sale`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1708,7 +1756,7 @@
 
             try {
                 const wallet = loginInfo.walletid || loginInfo.wallet;
-                const response = await fetch('/api/nft/transfer', {
+                const response = await fetch(`${API_BASE}/api/nft/transfer`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

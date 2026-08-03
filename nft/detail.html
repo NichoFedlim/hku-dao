@@ -520,6 +520,7 @@
                     <button class="btn btn-edit" id="edit-btn" onclick="toggleEditMode()" data-i18n="edit">Edit</button>
                     <button class="btn btn-save" id="save-btn" style="display:none;" onclick="saveChanges()" data-i18n="save">Save</button>
                     <button class="btn btn-cancel" id="cancel-btn" style="display:none;" onclick="cancelEdit()" data-i18n="cancel">Cancel</button>
+                    <button class="btn" id="delete-btn" style="background:#dc3545; color:white; display:none;" onclick="deleteEntity()" data-i18n="delete">Delete</button>
                 </div>
             </div>
         </div>
@@ -1435,12 +1436,15 @@
 
         function updateEditUI() {
             const editBtn = document.getElementById('edit-btn');
+            const deleteBtn = document.getElementById('delete-btn');
             if (hasOwnership) {
                 editBtn.disabled = false;
                 editBtn.textContent = t('edit');
+                deleteBtn.style.display = 'inline-block';
             } else {
                 editBtn.disabled = true;
                 editBtn.textContent = t('login_to_edit');
+                deleteBtn.style.display = 'none';
             }
         }
 
@@ -1483,6 +1487,80 @@
             document.getElementById('edit-details').value = detailData.details || '';
             pendingUploads = [];
             document.getElementById('pending-list').innerHTML = '';
+        }
+
+        // ============================================================
+        // DELETE MODE
+        // ============================================================
+        async function deleteEntity() {
+            const type = detailData.type || 'category';
+            const id = detailData.id;
+            const name = detailData.name;
+            const wallet = checkLoginStatus()?.walletid;
+            if (!wallet) {
+                showToast(t('please_login'), 'warning');
+                return;
+            }
+
+            let confirmMsg = t('confirm_delete_entity') || `Are you sure you want to delete this ${type}?`;
+            if (!confirm(confirmMsg)) return;
+
+            let endpoint = '';
+            let body = { wallet };
+
+            if (type === 'category') {
+                endpoint = '/api/category/delete';
+                body.category_id = id;
+            } else if (type === 'subcategory' || type === 'item') {
+                // For subcategory or item we need parent info
+                const categoryId = detailData.category_id || detailData.id;
+                const categoryName = detailData.category_name || detailData.name;
+                const subId = detailData.subcategory_id || detailData.id;
+                const subName = detailData.subcategory_name || detailData.name;
+                if (type === 'subcategory') {
+                    endpoint = '/api/subcategory/delete';
+                    body.category_id = categoryId;
+                    body.category_name = categoryName;
+                    body.subcategory_id = subId;
+                    body.subcategory_name = subName;
+                } else { // item
+                    endpoint = '/api/item/delete';
+                    body.category_id = categoryId;
+                    body.category_name = categoryName;
+                    body.subcategory_id = subId;
+                    body.subcategory_name = subName;
+                    body.item_number = id;
+                    body.item_name = name;
+                }
+            } else {
+                showToast('Unknown type', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message || 'Deleted', 'success');
+                    // Redirect to parent page or categories
+                    setTimeout(() => {
+                        if (type === 'category') {
+                            window.location.href = '/nft/categories.html';
+                        } else {
+                            window.location.href = `/nft/items.html?level=category&id=${body.category_id}`;
+                        }
+                    }, 1000);
+                } else {
+                    showToast(result.error || 'Deletion failed', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('Network error', 'error');
+            }
         }
 
         // ============================================================

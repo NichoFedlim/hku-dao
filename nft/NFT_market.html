@@ -1041,8 +1041,8 @@
                     <div class="phone-group-wrapper">
                         <div class="country-code-select">
                             <select id="buyCountryCode">
-                                <option value="+86">🇨🇳 China +86</option>
                                 <option value="+852">🇭🇰 Hong Kong +852</option>
+                                <option value="+86">🇨🇳 China +86</option>
                                 <option value="+853">🇲🇴 Macau +853</option>
                                 <option value="+886">🇨🇳 Taiwan +886</option>
                                 <option value="+1">🇺🇸 USA/Canada +1</option>
@@ -1109,8 +1109,8 @@
                     <div class="phone-group-wrapper">
                         <div class="country-code-select">
                             <select id="loginCountryCode">
-                                <option value="+86">🇨🇳 China +86</option>
                                 <option value="+852">🇭🇰 Hong Kong +852</option>
+                                <option value="+86">🇨🇳 China +86</option>
                                 <option value="+853">🇲🇴 Macau +853</option>
                                 <option value="+886">🇨🇳 Taiwan +886</option>
                                 <option value="+1">🇺🇸 USA/Canada +1</option>
@@ -1186,6 +1186,8 @@
     <!-- ============================================================ -->
     <script src="js/qrcode.min.js"></script>
     <script>
+        // Detect dev server (Live Server) and use backend port
+        const API_BASE = (window.location.port === '5504' || window.location.port === '5500') ? 'http://127.0.0.1:5012' : '';
         // ============================================================
         // I18N SYSTEM
         // ============================================================
@@ -1725,7 +1727,7 @@
 
                 try {
                     // Try real API
-                    const res = await fetch('/api/nfts/onsale');
+                    const res = await fetch(`${API_BASE}/api/nfts/onsale`);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     nfts = await res.json();
                     console.log('✅ Loaded real NFT market data');
@@ -1789,11 +1791,11 @@
             const key = `${nft.level}_${nft.card_number}_${nft.citang_number || ''}_${nft.member_number || ''}`;
             if (nftDataCache[key]) return nftDataCache[key];
             let url = '';
-            if (nft.level === 'surname') url = `/citang-data/${nft.card_number}${nft.surname}/content.json`;
-            else if (nft.level === 'citang') url =
-                `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/citang.json`;
-            else url =
-                `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/${nft.member_number}${nft.member_name}/${nft.member_number}${nft.member_name}.json`;
+            if (nft.level === 'surname') {url = `${API_BASE}/citang-data/${nft.card_number}${nft.surname}/content.json`;
+            } else if (nft.level === 'citang') {url =
+                `${API_BASE}/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/citang.json`;
+            } else { url =
+                `${API_BASE}/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/${nft.member_number}${nft.member_name}/${nft.member_number}${nft.member_name}.json`; }
             try {
                 const r = await fetch(url);
                 if (!r.ok) throw new Error();
@@ -1809,8 +1811,7 @@
         async function getCitangDetails(nft) {
             const key = `citang_${nft.card_number}_${nft.citang_number}`;
             if (citangDetailsCache[key]) return citangDetailsCache[key];
-            const url =
-                `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/citang.json`;
+            const url = `${API_BASE}/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/citang.json`;
             try {
                 const r = await fetch(url);
                 if (!r.ok) return {};
@@ -1826,8 +1827,7 @@
         async function getMemberDetails(nft) {
             const key = `member_${nft.card_number}_${nft.citang_number}_${nft.member_number}`;
             if (memberDetailsCache[key]) return memberDetailsCache[key];
-            const url =
-                `/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/${nft.member_number}${nft.member_name}/${nft.member_number}${nft.member_name}.json`;
+            const url = `${API_BASE}/citang-data/${nft.card_number}${nft.surname}/${nft.citang_number}${nft.citang_name}/${nft.member_number}${nft.member_name}/${nft.member_number}${nft.member_name}.json`;
             try {
                 const r = await fetch(url);
                 if (!r.ok) return {};
@@ -2122,7 +2122,7 @@
             }
             setButtonLoading(btn, true, t('send_code'));
             try {
-                const res = await fetch('/api/send-code', {
+                const res = await fetch(`${API_BASE}/api/send-code`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ type: 'login', name, phone: phone })
@@ -2180,7 +2180,7 @@
             }
             setButtonLoading(btn, true, t('confirm_login'));
             try {
-                const res = await fetch('/api/login', {
+                const res = await fetch(`${API_BASE}/api/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, phone: phone, code })
@@ -2221,7 +2221,7 @@
             if (!info) return;
             try {
                 // Try real API
-                const res = await fetch(`/api/user/nfts?wallet=${info.wallet}`);
+                const res = await fetch(`${API_BASE}/api/user/nfts?wallet=${info.wallet}`);
                 let userNFTs;
                 if (res.ok) {
                     userNFTs = await res.json();
@@ -2237,7 +2237,7 @@
                     showToast('⚠️ Using mock data for your NFTs', 'warning');
                 }
 
-                const onsaleRes = await fetch('/api/nfts/onsale');
+                const onsaleRes = await fetch(`${API_BASE}/api/nfts/onsale`);
                 const onsaleList = onsaleRes.ok ? await onsaleRes.json() : [];
 
                 const tbody = document.getElementById('nftTableBody');
@@ -2386,7 +2386,7 @@
             for (const act of pendingSellActions) {
                 try {
                     const h = await getNFTData(act.nft);
-                    await fetch('/api/nft/list', {
+                    await fetch(`${API_BASE}/api/nft/list`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -2406,7 +2406,7 @@
             }
             for (const act of pendingCancelActions) {
                 try {
-                    await fetch('/api/nft/cancel-sale', {
+                    await fetch(`${API_BASE}/api/nft/cancel-sale`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -2452,7 +2452,7 @@
             }
             setButtonLoading(btn, true, t('login_and_buy'));
             try {
-                const res = await fetch('/api/login', {
+                const res = await fetch(`${API_BASE}/api/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, phone: phone, code })
@@ -2492,7 +2492,7 @@
             const btn = document.getElementById('confirmBuyBtn');
             setButtonLoading(btn, true, t('confirm'));
             try {
-                const res = await fetch('/api/nft/buy', {
+                const res = await fetch(`${API_BASE}/api/nft/buy`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

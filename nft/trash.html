@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trash - HKU DAO</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+        .trash-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .trash-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .trash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .trash-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 4px solid #ff9800;
+        }
+        .trash-item .item-type {
+            font-size: 0.7rem;
+            color: #fff;
+            background: #ff9800;
+            padding: 2px 10px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .trash-item .item-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 8px 0 4px;
+        }
+        .trash-item .item-meta {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        .trash-item .item-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .btn-restore {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-restore:hover { background: #218838; }
+        .btn-delete-permanent {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-delete-permanent:hover { background: #c82333; }
+        .btn-empty-trash {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-empty-trash:hover { background: #5a6268; }
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #888;
+            grid-column: 1/-1;
+        }
+        .empty-state .empty-icon { font-size: 3rem; display: block; margin-bottom: 16px; }
+        .back-link {
+            color: var(--hku-gold);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover { text-decoration: underline; }
+        .toast-global {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 14px 28px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            transition: opacity 0.3s;
+            max-width: 90%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-inner container">
+            <h1 class="logo" onclick="window.location.href='/nft/index_main.html'">港大道 Gang Da Dao</h1>
+            <nav class="nav">
+                <button class="nav-btn" onclick="window.location.href='/nft/categories.html'">Categories</button>
+                <button class="nav-btn" onclick="window.location.href='/nft/items.html'">Items</button>
+                <button class="nav-btn" onclick="window.location.href='/nft/NFT_market.html'">NFT Market</button>
+                <button class="nav-btn" onclick="window.location.href='/nft/portfolio.html'">Portfolio</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container trash-container">
+        <div class="trash-header">
+            <div>
+                <h2>🗑️ Trash / Recycle Bin</h2>
+                <p style="color:#888; font-size:0.9rem;">Deleted items are kept here for recovery</p>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-empty-trash" onclick="emptyTrash()">Empty Trash</button>
+                <a href="/nft/categories.html" class="back-link">← Back</a>
+            </div>
+        </div>
+
+        <div class="trash-grid" id="trash-grid">
+            <div class="empty-state">
+                <span class="empty-icon">📭</span>
+                <h3>Trash is empty</h3>
+                <p>No items have been deleted yet.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = (window.location.port === '5504' || window.location.port === '5500') ? 'http://127.0.0.1:5012' : '';
+
+        function showToast(message, type = 'info') {
+            const existing = document.querySelector('.toast-global');
+            if (existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast-global';
+            const colors = { success: '#28a745', error: '#dc3545', warning: '#ff9800', info: '#4cb7db' };
+            toast.style.background = colors[type] || colors.info;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        async function loadTrash() {
+            try {
+                const response = await fetch(`${API_BASE}/api/trash/list`);
+                const result = await response.json();
+                if (!result.success) throw new Error(result.error);
+                
+                const grid = document.getElementById('trash-grid');
+                const items = result.data || [];
+                
+                if (items.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <span class="empty-icon">📭</span>
+                            <h3>Trash is empty</h3>
+                            <p>No items have been deleted yet.</p>
+                            <a href="/nft/categories.html" class="back-link">← Back to Categories</a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                grid.innerHTML = items.map(item => `
+                    <div class="trash-item">
+                        <span class="item-type">${item.entityType}</span>
+                        <div class="item-name">${item.entityName}</div>
+                        <div class="item-meta">
+                            ID: ${item.entityId} | Deleted: ${item.deletedAtFormatted}
+                            <br><small>Deleted by: ${item.deletedBy ? item.deletedBy.slice(0, 8) + '...' : 'Unknown'}</small>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn-restore" onclick="restoreItem(${item.id})">↩️ Restore</button>
+                            <button class="btn-delete-permanent" onclick="permanentDelete(${item.id})">🗑️ Delete Forever</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Failed to load trash:', error);
+                showToast('Failed to load trash items', 'error');
+            }
+        }
+
+        async function restoreItem(trashId) {
+            if (!confirm('Restore this item?')) return;
+            try {
+                const response = await fetch(`${API_BASE}/api/trash/restore`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ trashId })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Item restored successfully!', 'success');
+                    loadTrash();
+                } else {
+                    showToast(result.error || 'Restore failed', 'error');
+                }
+            } catch (error) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        async function permanentDelete(trashId) {
+            if (!confirm('Permanently delete this item? This cannot be undone!')) return;
+            try {
+                const response = await fetch(`${API_BASE}/api/trash/permanent-delete`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ trashId })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Item permanently deleted', 'success');
+                    loadTrash();
+                } else {
+                    showToast(result.error || 'Delete failed', 'error');
+                }
+            } catch (error) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        async function emptyTrash() {
+            if (!confirm('Empty the entire trash? This cannot be undone!')) return;
+            try {
+                const response = await fetch(`${API_BASE}/api/trash/empty`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Trash emptied', 'success');
+                    loadTrash();
+                } else {
+                    showToast(result.error || 'Failed to empty trash', 'error');
+                }
+            } catch (error) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        // Initial load
+        loadTrash();
+    </script>
+
+    <footer class="footer">
+        <p>© 2026 Gang Da Dao · Built on RBAS Blockchain</p>
+    </footer>
+</body>
+</html>

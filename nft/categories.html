@@ -665,6 +665,10 @@
                 <span data-i18n="filter_culture">Local Culture</span>
                 <span class="count-badge" id="count-culture">0</span>
             </button>
+            <button class="filter-btn" data-filter="other" onclick="applyFilter('other')">
+                <span data-i18n="filter_other">Other</span>
+                <span class="count-badge" id="count-other">0</span>
+            </button>
             <button class="filter-clear hidden" id="filter-clear-btn" onclick="clearFilter()" data-i18n="clear_filter">✕ Clear Filter</button>
         </div>
 
@@ -951,6 +955,9 @@
             culture: [
                 { id: 701, name: 'Dim Sum', name_zh: '点心', subcount: 0, nft: '0xD4E5F6A1B2C3D4E5F6', shortlink: 'https://hku.hk/dim-sum' },
                 { id: 702, name: 'Peak Hiking Trails', name_zh: '山顶行山径', subcount: 0, nft: '0xE5F6A1B2C3D4E5F6', shortlink: 'https://hku.hk/peak-hiking' }
+            ],
+            other: [
+                { id: 999, name: 'Other Category', name_zh: '其他分类', subcount: 0, nft: '0xF6A1B2C3D4E5F6A1B2C3D4E5F6', shortlink: 'https://hku.hk/other' }
             ]
         };
 
@@ -1038,6 +1045,9 @@
                 { id: 702, name: 'Peak Hiking Trails', name_zh: '山顶行山径', subcount: 0 },
                 { id: 703, name: 'Two-Dish Rice', name_zh: '两餸饭', subcount: 0 },
                 { id: 704, name: 'Siu Mei (Roast Meats)', name_zh: '烧味', subcount: 0 }
+            ],
+            other: [
+                { id: 999, name: 'Other Category', name_zh: '其他分类', subcount: 0 }
             ]
         };
         // ===== MERGE FUNCTION =====
@@ -1329,6 +1339,8 @@
 
         // ===== RENDER CATEGORY NFT CARDS =====
         function renderCategories(items) {
+            const info = checkLoginStatus();
+
             if (!items || items.length === 0) {
                 grid.innerHTML = `<div class="empty-state">
                     <div class="empty-icon">📭</div>
@@ -1348,7 +1360,8 @@
                 medical: t('filter_medical') || 'Medical',
                 sports: t('filter_sports') || 'Sports',
                 history: t('filter_history') || 'History',
-                culture: t('filter_culture') || 'Culture'
+                culture: t('filter_culture') || 'Culture',
+                other: t('filter_other') || 'Other'
             };
             const qrSize = window.innerWidth <= 480 ? 100 : 120;
 
@@ -1376,6 +1389,7 @@
                             <span class="card-number">#${item.id}</span>
                             <button class="action-btn" onclick="event.stopPropagation(); viewSubcategories(${item.id})" data-i18n="view_subcategories">View Sub-Items</button>
                             <button class="action-btn" style="background:#f0f0f0; color:#555;" onclick="event.stopPropagation(); viewDetail(${item.id})" data-i18n="view_detail">Detail</button>
+                            ${info ? `<button class="action-btn" style="background:#dc3545; color:white;" onclick="event.stopPropagation(); deleteCategory(${item.id})" data-i18n="delete">Delete</button>` : ''}
                         </div>
                     </div>
                 `;
@@ -1429,6 +1443,37 @@
 
         function viewSubcategories(categoryId) {
             window.location.href = `/nft/items.html?level=category&id=${categoryId}`;
+        }
+
+        async function deleteCategory(categoryId) {
+            if (!confirm(t('confirm_delete_category') || 'Are you sure you want to delete this category and all its sub-items?')) return;
+            const info = checkLoginStatus();
+            if (!info) {
+                showToast(t('please_login'), 'warning');
+                return;
+            }
+            const wallet = info.walletid;
+            try {
+                const response = await fetch(`${API_BASE}/api/category/delete`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category_id: categoryId, wallet })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message || 'Deleted', 'success');
+                    // Reload categories
+                    allCategories = await buildAllCategories();
+                    filteredCategories = [...allCategories];
+                    updateFilterBadges();
+                    renderCurrentView();
+                } else {
+                    showToast(result.error || 'Deletion failed', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('Network error', 'error');
+            }
         }
 
         function renderCurrentView() {

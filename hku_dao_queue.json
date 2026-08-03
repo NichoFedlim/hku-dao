@@ -1,0 +1,26 @@
+[
+  {
+    "seq": 1,
+    "hash": "CF31AF8178E1BA56357F9A5D3CE98DA667DDEB4A2BD0E18A0A946041FBAC5E98",
+    "type": "category",
+    "created_at": "2026/08/03 12:33:32"
+  },
+  {
+    "seq": 2,
+    "verification_code": "C06E15DC5E322FDD697FA714B85D0E76706A621C136157D3FBF5136FD478CA66",
+    "type": "purchase",
+    "created_at": "2026/08/03 12:33:32"
+  },
+  {
+    "seq": 3,
+    "hash": "CF31AF8178E1BA56357F9A5D3CE98DA667DDEB4A2BD0E18A0A946041FBAC5E98",
+    "type": "category",
+    "created_at": "2026/08/03 12:34:37"
+  },
+  {
+    "seq": 4,
+    "verification_code": "3720D9B12103D35268964F5190E8CE240D4027CBD6B44718476610B3C15ECA0E",
+    "type": "purchase",
+    "created_at": "2026/08/03 12:34:37"
+  }
+]

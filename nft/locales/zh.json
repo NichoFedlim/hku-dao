@@ -177,6 +177,7 @@
     "filter_sports": "体育",
     "filter_history": "历史",
     "filter_culture": "当地文化",
+    "filter_other": "其他",
     "clear_filter": "清除筛选条件",
     "showing": "正在显示",
     "of": "的",
@@ -294,5 +295,11 @@
     "success": "成功",
     "error": "错误",
     "categories": "类别",
-    "items": "项目"
+    "items": "项目",
+
+    "confirm_delete_category": "确定要删除此分类及其所有子项吗？",
+    "confirm_delete_subcategory": "确定要删除此子分类及其所有项目吗？",
+    "confirm_delete_entity": "确定要删除此项目吗？",
+    "delete_success": "删除成功",
+    "delete_entity": "删除项目"
 }

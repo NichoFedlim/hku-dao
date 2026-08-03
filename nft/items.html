@@ -1306,6 +1306,8 @@
 
         // ===== RENDER ITEMS =====
         function renderItems(itemsList) {
+            const info = checkLoginStatus();
+            
             if (!itemsList || itemsList.length === 0) {
                 grid.innerHTML = `
                     <div class="empty-state">
@@ -1344,6 +1346,7 @@
                         <div class="card-footer">
                             <span class="card-number">#${item.id || index + 1}</span>
                             <button class="action-btn" onclick="event.stopPropagation(); viewDetail(${item.id})" data-i18n="view_detail">View Detail</button>
+                            ${info ? `<button class="action-btn" style="background:#dc3545; color:white;" onclick="event.stopPropagation(); deleteSubcategory(${item.id}, '${item.name}')" data-i18n="delete">Delete</button>` : ''}
                         </div>
                     </div>
                 `;
@@ -1391,6 +1394,40 @@
         function viewDetail(id) {
             const type = currentLevel === 'category' || currentLevel === 'level1' ? 'item' : 'subitem';
             window.location.href = `/nft/detail.html?type=${type}&id=${id}`;
+        }
+
+        async function deleteSubcategory(subId, subName) {
+            if (!confirm(t('confirm_delete_subcategory') || `Are you sure you want to delete "${subName}" and all its items?`)) return;
+            const info = checkLoginStatus();
+            if (!info) {
+                showToast(t('please_login'), 'warning');
+                return;
+            }
+            const wallet = info.walletid;
+            try {
+                const response = await fetch(`${API_BASE}/api/subcategory/delete`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        category_id: parentId,
+                        category_name: parentName,
+                        subcategory_id: subId,
+                        subcategory_name: subName,
+                        wallet
+                    })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message || 'Deleted', 'success');
+                    // Reload items
+                    await loadItems();
+                } else {
+                    showToast(result.error || 'Deletion failed', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('Network error', 'error');
+            }
         }
 
         // ===== PAGINATION =====
