@@ -2273,6 +2273,72 @@ app.delete('/api/content/delete', (req, res) => {
     }
 });
 
+// Rename content (file)
+app.put('/api/content/rename', (req, res) => {
+    const { level, category_id, category_name, subcategory_id, subcategory_name, item_number, item_name, timestamp, new_name } = req.body;
+    if (!level || !category_id || !category_name || !timestamp || !new_name) {
+        return sendError(res, 400, 'Missing required parameters');
+    }
+
+    try {
+        let targetDir;
+        if (level === 'category') {
+            targetDir = getNFTDataPath(category_id, category_name);
+        } else if (level === 'subcategory') {
+            if (!subcategory_id || !subcategory_name) return sendError(res, 400, 'Missing subcategory parameters');
+            targetDir = getNFTDataPath(category_id, category_name, subcategory_id, subcategory_name);
+        } else if (level === 'item') {
+            if (!subcategory_id || !subcategory_name || !item_number || !item_name) return sendError(res, 400, 'Missing item parameters');
+            targetDir = getNFTDataPath(category_id, category_name, subcategory_id, subcategory_name, item_number, item_name);
+        } else {
+            return sendError(res, 400, 'Invalid level');
+        }
+
+        const contentDir = path.join(targetDir, 'contents');
+        const metaPath = path.join(contentDir, 'meta.json');
+        if (!fs.existsSync(metaPath)) return sendError(res, 404, 'No attachments found');
+
+        let meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
+        const itemIndex = meta.findIndex(item => String(item.timestamp) === String(timestamp));
+        if (itemIndex === -1) return sendError(res, 404, 'Attachment not found');
+
+        const item = meta[itemIndex];
+        const oldPath = item.path; // full relative path
+        const oldFileName = path.basename(oldPath);
+        const ext = path.extname(oldFileName);
+        // Build new file name: use timestamp (keep same) + new_name + extension? Actually we want to rename the file itself.
+        // We'll rename the file keeping the same timestamp and extension, but user can change the display name (filename) only.
+        // But the user may want to change the actual file name. For simplicity, we'll just change the filename in meta.json (display name) and optionally rename the file.
+        // Let's allow changing the actual file name: new_name without extension? We'll keep extension as original.
+        // We'll rename the file to new_name + ext, and update meta.json path.
+
+        const oldFilePath = path.join(contentDir, oldFileName);
+        if (!fs.existsSync(oldFilePath)) {
+            return sendError(res, 404, 'File not found');
+        }
+
+        // Generate new file name: keep extension, but use new_name (sanitize)
+        const sanitizedNewName = new_name.replace(/[^a-zA-Z0-9\-_. ]/g, '_');
+        const newFileName = sanitizedNewName + ext;
+        const newFilePath = path.join(contentDir, newFileName);
+
+        // Rename the file
+        fs.renameSync(oldFilePath, newFilePath);
+
+        // Update meta.json path and filename
+        const newPath = oldPath.replace(oldFileName, newFileName);
+        item.path = newPath;
+        item.filename = sanitizedNewName + ext; // update display name
+        meta[itemIndex] = item;
+        fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2));
+
+        res.json({ success: true, message: 'File renamed successfully', newPath, newFileName });
+    } catch (error) {
+        console.error('Rename failed:', error);
+        sendError(res, 500, 'Rename failed', error.message);
+    }
+});
+
 // ============================================================
 // API: NFT MARKET
 // ============================================================

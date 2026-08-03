@@ -348,6 +348,8 @@
         }
         .btn-view { background: var(--hku-gold); color: var(--primary); }
         .btn-view:hover { background: #b8922a; }
+        .btn-rename { background: #17a2b8; color: white; }
+        .btn-rename:hover { background: #138496; }
         .btn-delete { background: #dc3545; color: white; }
         .btn-delete:hover { background: #c82333; }
 
@@ -1341,40 +1343,11 @@
                 return;
             }
 
-            // Build the base path (without filename) for fallback
-            let basePath = '';
-            const level = detailData.type || 'category';
-            const categoryId = detailData.category_id || detailData.id;
-            const categoryName = detailData.category_name || detailData.name;
-
-            if (level === 'category') {
-                basePath = `/subcategory-data/${categoryId}_${categoryName}`;
-            } else if (level === 'subcategory') {
-                const subId = detailData.id;
-                const subName = detailData.name;
-                basePath = `/subcategory-data/${categoryId}_${categoryName}/${subId}_${subName}`;
-            } else if (level === 'item') {
-                const subId = detailData.subcategory_id || detailData.id;
-                const subName = detailData.subcategory_name || detailData.name;
-                const itemId = detailData.id;
-                const itemName = detailData.name;
-                basePath = `/subcategory-data/${categoryId}_${categoryName}/${subId}_${subName}/${itemId}_${itemName}`;
-            }
-
             container.innerHTML = '<div class="attachments-list">' +
                 attachments.map(att => {
-                    // Prefer server-provided path, otherwise construct from basePath and filename
-                    let fullPath = att.path || '';
-                    if (!fullPath) {
-                        // Fallback: build from basePath and filename (using timestamp and type)
-                        const ext = att.type === 'text' ? 'txt' : (att.type === 'pdf' ? 'pdf' : 'png');
-                        const fileName = `${att.timestamp}.${ext}`;
-                        fullPath = `${basePath}/contents/${fileName}`;
-                    }
-
-                    // Display name: use att.filename or 'file'
-                    const displayName = att.filename || att.name || 'file';
-
+                    // Use the path from the server directly – it already has the correct full URL
+                    const fullPath = att.path || '';
+                    const displayName = att.name || 'file';
                     return `
                         <div class="attachment-item">
                             <div class="attach-info">
@@ -1387,6 +1360,7 @@
                             </div>
                             <div class="attach-actions">
                                 <button class="btn-sm btn-view" onclick="viewAttachment('${fullPath}')" data-i18n="view">View</button>
+                                ${hasOwnership ? `<button class="btn-sm btn-rename" onclick="renameAttachment('${att.timestamp}')" data-i18n="rename">Rename</button>` : ''}
                                 ${hasOwnership ? `<button class="btn-sm btn-delete" onclick="deleteAttachment('${att.timestamp}')" data-i18n="delete">Delete</button>` : ''}
                             </div>
                         </div>
@@ -1894,7 +1868,7 @@
         }
 
         // ============================================================
-        // ATTACHMENT ACTIONS (View, Delete)
+        // ATTACHMENT ACTIONS (View, Delete, Rename)
         // ============================================================
         function viewAttachment(url) {
             window.open(url, '_blank');
@@ -1934,6 +1908,58 @@
             } catch (error) {
                 console.error('Delete failed:', error);
                 showToast(t('error'), error.message || t('delete_failed'));
+            }
+        }
+
+        async function renameAttachment(timestamp) {
+            // Find the attachment in detailData
+            const attachment = detailData.attachments.find(a => String(a.timestamp) === String(timestamp));
+            if (!attachment) {
+                showToast(t('error'), 'Attachment not found');
+                return;
+            }
+
+            const currentName = attachment.name || attachment.filename || 'file';
+            const newName = prompt(t('rename_prompt') || 'Enter new name for the file:', currentName);
+            if (newName === null || newName.trim() === '') return; // canceled or empty
+
+            if (!hasOwnership) {
+                showToast(t('permission_denied'), t('login_to_edit'));
+                return;
+            }
+
+            try {
+                const level = detailData.type || 'category';
+                const payload = {
+                    level: level,
+                    category_id: detailData.category_id || detailData.id,
+                    category_name: detailData.category_name || detailData.name,
+                    timestamp: timestamp,
+                    new_name: newName.trim()
+                };
+
+                if (level === 'subcategory') {
+                    payload.subcategory_id = detailData.id;
+                    payload.subcategory_name = detailData.name;
+                } else if (level === 'item') {
+                    payload.subcategory_id = detailData.subcategory_id || detailData.id;
+                    payload.subcategory_name = detailData.subcategory_name || detailData.name;
+                    payload.item_number = detailData.id;
+                    payload.item_name = detailData.name;
+                }
+
+                const response = await fetch(`${API_BASE}/api/content/rename`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error('Rename failed');
+                const result = await response.json();
+                showToast(t('success'), t('rename_success') || 'File renamed');
+                await refreshAttachments();
+            } catch (error) {
+                console.error('Rename failed:', error);
+                showToast(t('error'), error.message || t('rename_failed'));
             }
         }
 
@@ -2036,6 +2062,7 @@
             window.removePendingUpload = removePendingUpload;
             window.viewAttachment = viewAttachment;
             window.deleteAttachment = deleteAttachment;
+            window.renameAttachment = renameAttachment;
             window.hideToast = hideToast;
             window.refreshAttachments = refreshAttachments;
         }

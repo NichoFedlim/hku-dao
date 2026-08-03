@@ -307,5 +307,10 @@
     "confirm_delete_subcategory": "确定要删除此子分类及其所有项目吗？",
     "confirm_delete_entity": "确定要删除此项目吗？",
     "delete_success": "删除成功",
-    "delete_entity": "删除项目"
+    "delete_entity": "删除项目",
+
+    "rename": "重命名",
+    "rename_prompt": "输入文件的新名称:",
+    "rename_success": "文件重命名成功",
+    "rename_failed": "重命名失败"
 }
