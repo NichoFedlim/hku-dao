@@ -1656,8 +1656,8 @@
                     </div>
                 `;
                 paginationBar.style.display = 'none';
-                // Show mock notice if using mock
-                if (usingMock) {
+                // Show mock notice if using mock data
+                if (usingMockData) {
                     const notice = document.createElement('div');
                     notice.className = 'mock-notice';
                     notice.textContent = '⚠️ Using mock data (backend API not available)';
@@ -1844,7 +1844,14 @@
         // SORT & RENDER
         // ============================================================
         function applySortAndRender(type) {
-            if (!allNFTs.length) return;
+            // If no NFTs, render empty state immediately
+            if (!allNFTs || allNFTs.length === 0) {
+                renderCurrentView(); // This calls renderMarketCards([]) and shows empty state
+                // Clear sort button highlights
+                document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+                return;
+            }
+            
             const sorted = sortNFTs(type, filteredNFTs);
             currentSortedNFTs = sorted;
             filteredNFTs = sorted;

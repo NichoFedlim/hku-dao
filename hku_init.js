@@ -399,6 +399,61 @@ CATEGORIES.forEach(cat => {
     });
 });
 
+// ============================================================
+// 5. GENERATE MOCK MARKET DATA (for testing)
+// ============================================================
+function generateMockMarketData() {
+    const marketFile = path.join(DATA_ROOT, 'market.json');
+    
+    // Check if market data already exists
+    if (fs.existsSync(marketFile)) {
+        console.log('⚠️ market.json already exists. Delete it first to regenerate.');
+        return;
+    }
+    
+    // Read all categories to get their hashes
+    const categories = [];
+    const dirs = fs.readdirSync(DATA_ROOT, { withFileTypes: true });
+    for (const dir of dirs) {
+        if (dir.isDirectory()) {
+            const match = dir.name.match(/^(\d+)_(.+)$/);
+            if (match) {
+                const contentPath = path.join(DATA_ROOT, dir.name, 'content.json');
+                if (fs.existsSync(contentPath)) {
+                    const content = JSON.parse(fs.readFileSync(contentPath, 'utf-8'));
+                    categories.push({
+                        card_number: match[1],
+                        surname: match[2],
+                        hash: content.hash || '',
+                        price: 100 + Math.floor(Math.random() * 500)
+                    });
+                }
+            }
+        }
+    }
+    
+    // Create market entries for a few categories (simulating owners listing them)
+    const marketData = categories.slice(0, 10).map(cat => ({
+        level: 'surname',
+        card_number: cat.card_number,
+        surname: cat.surname,
+        citang_number: '',
+        citang_name: '',
+        member_number: '',
+        member_name: '',
+        price: cat.price,
+        seller: '18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E',
+        hash: cat.hash,
+        list_time: new Date().toISOString()
+    }));
+    
+    fs.writeFileSync(marketFile, JSON.stringify(marketData, null, 2));
+    console.log(`✅ Created ${marketData.length} mock market listings`);
+}
+
+// Call it at the end of the script
+generateMockMarketData();
+
 console.log(`\n🎉 All data generated under ${DATA_ROOT}`);
 console.log(`Total categories: ${CATEGORIES.length}`);
 console.log('✅ Done.');
