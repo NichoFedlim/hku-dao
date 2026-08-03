@@ -1227,17 +1227,21 @@
             const start = showAllMode ? 1 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
             const end = showAllMode ? total : Math.min(currentPage * ITEMS_PER_PAGE, total);
 
-            const infoEls = document.querySelectorAll('#pagination-info, #pagination-info-bottom');
-            infoEls.forEach(el => {
-                if (el) {
-                    const startEl = el.querySelector('#showing-start') || el.querySelector('[data-start]');
-                    const endEl = el.querySelector('#showing-end') || el.querySelector('[data-end]');
-                    const totalEl = el.querySelector('#total-count') || el.querySelector('[data-total]');
-                    if (startEl) startEl.textContent = total > 0 ? start : 0;
-                    if (endEl) endEl.textContent = total > 0 ? end : 0;
-                    if (totalEl) totalEl.textContent = total;
-                }
-            });
+            // Update TOP pagination
+            const topStart = document.getElementById('showing-start');
+            const topEnd = document.getElementById('showing-end');
+            const topTotal = document.getElementById('total-count');
+            if (topStart) topStart.textContent = total > 0 ? start : 0;
+            if (topEnd) topEnd.textContent = total > 0 ? end : 0;
+            if (topTotal) topTotal.textContent = total;
+
+            // Update BOTTOM pagination
+            const bottomStart = document.getElementById('showing-start-bottom');
+            const bottomEnd = document.getElementById('showing-end-bottom');
+            const bottomTotal = document.getElementById('total-count-bottom');
+            if (bottomStart) bottomStart.textContent = total > 0 ? start : 0;
+            if (bottomEnd) bottomEnd.textContent = total > 0 ? end : 0;
+            if (bottomTotal) bottomTotal.textContent = total;
 
             const pageNumberContainers = document.querySelectorAll('#page-numbers, #page-numbers-bottom');
             const prevBtns = document.querySelectorAll('#prev-page-btn');
