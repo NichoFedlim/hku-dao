@@ -1101,7 +1101,7 @@
                             id: data.id || id,
                             name: data.name,
                             name_zh: data.name_zh || data.name,
-                            type: type,
+                            type: data.type || type,
                             hash: data.hash || '',
                             shortlink: data.shortlink || '',
                             price: data.purchase_price || data.price || 0,
@@ -1110,7 +1110,7 @@
                             details: data.details || '',
                             details_zh: data.details_zh || '',
                             attachments: data.attachments || [],
-                            // For breadcrumb
+                            // For breadcrumb and parent info
                             parent: data.category_name || '',
                             parent_zh: data.category_name || '',
                             category_id: data.category_id || '',
@@ -1341,23 +1341,57 @@
                 return;
             }
 
+            // Build the base path (without filename) for fallback
+            let basePath = '';
+            const level = detailData.type || 'category';
+            const categoryId = detailData.category_id || detailData.id;
+            const categoryName = detailData.category_name || detailData.name;
+
+            if (level === 'category') {
+                basePath = `/subcategory-data/${categoryId}_${categoryName}`;
+            } else if (level === 'subcategory') {
+                const subId = detailData.id;
+                const subName = detailData.name;
+                basePath = `/subcategory-data/${categoryId}_${categoryName}/${subId}_${subName}`;
+            } else if (level === 'item') {
+                const subId = detailData.subcategory_id || detailData.id;
+                const subName = detailData.subcategory_name || detailData.name;
+                const itemId = detailData.id;
+                const itemName = detailData.name;
+                basePath = `/subcategory-data/${categoryId}_${categoryName}/${subId}_${subName}/${itemId}_${itemName}`;
+            }
+
             container.innerHTML = '<div class="attachments-list">' +
-                attachments.map(att => `
-                    <div class="attachment-item">
-                        <div class="attach-info">
-                            <span class="attach-icon">
-                                ${att.type === 'image' ? '<i class="fas fa-image"></i>' :
-                                  att.type === 'pdf' ? '<i class="fas fa-file-pdf"></i>' :
-                                  '<i class="fas fa-file"></i>'}
-                            </span>
-                            <span class="attach-name">${att.name}</span>
+                attachments.map(att => {
+                    // Prefer server-provided path, otherwise construct from basePath and filename
+                    let fullPath = att.path || '';
+                    if (!fullPath) {
+                        // Fallback: build from basePath and filename (using timestamp and type)
+                        const ext = att.type === 'text' ? 'txt' : (att.type === 'pdf' ? 'pdf' : 'png');
+                        const fileName = `${att.timestamp}.${ext}`;
+                        fullPath = `${basePath}/contents/${fileName}`;
+                    }
+
+                    // Display name: use att.filename or 'file'
+                    const displayName = att.filename || att.name || 'file';
+
+                    return `
+                        <div class="attachment-item">
+                            <div class="attach-info">
+                                <span class="attach-icon">
+                                    ${att.type === 'image' ? '<i class="fas fa-image"></i>' :
+                                    att.type === 'pdf' ? '<i class="fas fa-file-pdf"></i>' :
+                                    '<i class="fas fa-file"></i>'}
+                                </span>
+                                <span class="attach-name">${displayName}</span>
+                            </div>
+                            <div class="attach-actions">
+                                <button class="btn-sm btn-view" onclick="viewAttachment('${fullPath}')" data-i18n="view">View</button>
+                                ${hasOwnership ? `<button class="btn-sm btn-delete" onclick="deleteAttachment('${att.timestamp}')" data-i18n="delete">Delete</button>` : ''}
+                            </div>
                         </div>
-                        <div class="attach-actions">
-                            <button class="btn-sm btn-view" onclick="viewAttachment('${att.url}')" data-i18n="view">View</button>
-                            ${hasOwnership ? `<button class="btn-sm btn-delete" onclick="deleteAttachment('${att.timestamp}')" data-i18n="delete">Delete</button>` : ''}
-                        </div>
-                    </div>
-                `).join('') +
+                    `;
+                }).join('') +
                 '</div>';
         }
 
@@ -1368,14 +1402,21 @@
             if (!detailData || !detailData.id) return;
             try {
                 const params = new URLSearchParams();
-                params.set('level', detailData.type || 'category');
-                params.set('category_id', detailData.id);
-                params.set('category_name', detailData.name);
-                if (detailData.type === 'subcategory' || detailData.type === 'item') {
-                    params.set('subcategory_id', detailData.id);
-                    params.set('subcategory_name', detailData.name);
+                const level = detailData.type || 'category';
+                params.set('level', level);
+
+                const categoryId = detailData.category_id || detailData.id;
+                const categoryName = detailData.category_name || detailData.name;
+                params.set('category_id', categoryId);
+                params.set('category_name', categoryName);
+
+                if (level === 'subcategory' || level === 'item') {
+                    const subcategoryId = (level === 'subcategory') ? detailData.id : detailData.subcategory_id;
+                    const subcategoryName = (level === 'subcategory') ? detailData.name : detailData.subcategory_name;
+                    params.set('subcategory_id', subcategoryId);
+                    params.set('subcategory_name', subcategoryName);
                 }
-                if (detailData.type === 'item') {
+                if (level === 'item') {
                     params.set('item_number', detailData.id);
                     params.set('item_name', detailData.name);
                 }
@@ -1384,13 +1425,14 @@
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Failed to fetch attachments');
                 const data = await response.json();
+
                 // Convert the server response to our attachment format
                 detailData.attachments = data.map(item => ({
                     id: item.timestamp,
                     timestamp: item.timestamp,
                     type: item.type,
                     name: item.filename || 'file',
-                    url: item.path
+                    path: item.path || '' // Keep the full path from server
                 }));
                 renderAttachments();
             } catch (error) {
@@ -1571,39 +1613,56 @@
                 showToast(t('permission_denied'), t('login_to_edit'));
                 return;
             }
-
             const newDescription = document.getElementById('edit-description').value.trim();
             const newDetails = document.getElementById('edit-details').value.trim();
 
-            // Update data
-            detailData.description = newDescription;
-            detailData.details = newDetails;
+            const payload = {
+                level: detailData.type, // 'category', 'subcategory', or 'item'
+                category_id: detailData.category_id || detailData.id,
+                category_name: detailData.category_name || detailData.name,
+                description: newDescription,
+                details: newDetails,
+                wallet: checkLoginStatus()?.walletid
+            };
 
-           // In production: save to server
-            // const response = await fetch('${API_BASE}/api/detail/update', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({
-            //         type: itemType,
-            //         id: itemId,
-            //         description: newDescription,
-            //         details: newDetails,
-            //         wallet: checkLoginStatus()?.walletid
-            //     })
-            // });
-            // Update display
-            const displayDetails = currentLang === 'zh' ? (detailData.details_zh || detailData.details) : detailData.details;
+            // Add extra fields based on level
+            if (detailData.type === 'subcategory') {
+                payload.subcategory_id = detailData.id;
+                payload.subcategory_name = detailData.name;
+            } else if (detailData.type === 'item') {
+                payload.subcategory_id = detailData.subcategory_id;
+                payload.subcategory_name = detailData.subcategory_name;
+                payload.item_number = detailData.id;
+                payload.item_name = detailData.name;
+            }
 
-            document.getElementById('details-display').innerHTML = displayDetails || '<span class="empty-text">' + t('no_details') + '</span>';
-
-
-            showToast(t('success'), t('changes_saved'));
-
-            // Exit edit mode
-            cancelEdit();
-
-            // Reload data from server in production
-            // loadDetail();
+            try {
+                const response = await fetch(`${API_BASE}/api/content/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast(t('success'), t('changes_saved'));
+                    // Update local data
+                    detailData.description = newDescription;
+                    detailData.details = newDetails;
+                    // Re-render view mode
+                    const displayDesc = currentLang === 'zh' ? (detailData.description_zh || detailData.description) : detailData.description;
+                    const displayDetails = currentLang === 'zh' ? (detailData.details_zh || detailData.details) : detailData.details;
+                    document.getElementById('description-display').innerHTML = displayDesc || '<span class="empty-text">' + t('no_description') + '</span>';
+                    document.getElementById('details-display').innerHTML = displayDetails || '<span class="empty-text">' + t('no_details') + '</span>';
+                    // Exit edit mode
+                    cancelEdit();
+                } else {
+                    showToast(t('error'), result.error || t('save_failed'));
+                }
+            } catch (error) {
+                console.error('Save failed:', error);
+                showToast(t('error'), t('network_error'));
+            }
         }
 
         // ============================================================
@@ -1612,17 +1671,29 @@
         // Helper: build form data for file uploads
         function getUploadFormData(type, file, text) {
             const formData = new FormData();
-            formData.append('level', detailData.type || 'category');
-            formData.append('category_id', detailData.id);
-            formData.append('category_name', detailData.name);
-            if (detailData.type === 'subcategory' || detailData.type === 'item') {
-                formData.append('subcategory_id', detailData.id);
-                formData.append('subcategory_name', detailData.name);
+            const level = detailData.type || 'category';
+            formData.append('level', level);
+
+            // Category info – use category_id/name from detailData, fallback to id/name
+            const categoryId = detailData.category_id || detailData.id;
+            const categoryName = detailData.category_name || detailData.name;
+            formData.append('category_id', categoryId);
+            formData.append('category_name', categoryName);
+
+            // Subcategory info (if level is subcategory or item)
+            if (level === 'subcategory' || level === 'item') {
+                const subcategoryId = (level === 'subcategory') ? detailData.id : detailData.subcategory_id;
+                const subcategoryName = (level === 'subcategory') ? detailData.name : detailData.subcategory_name;
+                formData.append('subcategory_id', subcategoryId);
+                formData.append('subcategory_name', subcategoryName);
             }
-            if (detailData.type === 'item') {
+
+            // Item info (if level is item)
+            if (level === 'item') {
                 formData.append('item_number', detailData.id);
                 formData.append('item_name', detailData.name);
             }
+
             formData.append('type', type);
             if (type === 'text') {
                 formData.append('text', text);
@@ -1664,7 +1735,15 @@
             selectedFile = file;
             selectedFileType = type;
             document.getElementById(`${type}-file-name`).textContent = file.name;
-            if (clearBtn) clearBtn.style.display = 'inline-block'; // show clear button
+            if (clearBtn) clearBtn.style.display = 'inline-block';
+
+            // Add to pending uploads
+            pendingUploads.push({
+                type: type,
+                name: file.name,
+                content: type === 'text' ? '' : ''
+            });
+            renderPendingUploads();
 
             if (type === 'image') {
                 const reader = new FileReader();
@@ -1703,7 +1782,7 @@
             const btn = document.querySelector('#upload-text .btn-save');
             btn.disabled = true;
             btn.textContent = 'Uploading...';
-
+            
             try {
                 const formData = getUploadFormData('text', null, text);
                 const response = await fetch(`${API_BASE}/api/content/upload`, {
@@ -1711,10 +1790,9 @@
                     body: formData
                 });
                 if (!response.ok) throw new Error('Upload failed');
-                const result = await response.json();
-                showToast(t('success'), t('text_added_pending'));
-                document.getElementById('upload-text-input').value = '';
                 await refreshAttachments();
+                document.getElementById('upload-text-input').value = '';
+                showToast(t('success'), t('text_added'));
             } catch (error) {
                 console.error('Upload failed:', error);
                 showToast(t('error'), error.message || t('upload_failed'));
@@ -1741,16 +1819,15 @@
                     body: formData
                 });
                 if (!response.ok) throw new Error('Upload failed');
-                const result = await response.json();
-                showToast(t('success'), t('image_added_pending'));
+                await refreshAttachments();
                 // Reset file input
                 selectedFile = null;
                 selectedFileType = '';
                 document.getElementById('image-file-input').value = '';
                 document.getElementById('image-file-name').textContent = t('no_file');
                 document.getElementById('image-preview').style.display = 'none';
-                await refreshAttachments();
                 clearSelectedFile('image');
+                showToast(t('success'), t('image_added'));
             } catch (error) {
                 console.error('Upload failed:', error);
                 showToast(t('error'), error.message || t('upload_failed'));
@@ -1777,15 +1854,14 @@
                     body: formData
                 });
                 if (!response.ok) throw new Error('Upload failed');
-                const result = await response.json();
-                showToast(t('success'), t('pdf_added_pending'));
+                await refreshAttachments();
                 // Reset file input
                 selectedFile = null;
                 selectedFileType = '';
                 document.getElementById('pdf-file-input').value = '';
                 document.getElementById('pdf-file-name').textContent = t('no_file');
-                await refreshAttachments();
                 clearSelectedFile('pdf');
+                showToast(t('success'), t('pdf_added'));
             } catch (error) {
                 console.error('Upload failed:', error);
                 showToast(t('error'), error.message || t('upload_failed'));
@@ -1818,7 +1894,7 @@
         }
 
         // ============================================================
-        // ATTACHMENT ACTIONS
+        // ATTACHMENT ACTIONS (View, Delete)
         // ============================================================
         function viewAttachment(url) {
             window.open(url, '_blank');
@@ -1828,17 +1904,20 @@
             if (!confirm(t('confirm_delete'))) return;
 
             try {
+                const level = detailData.type || 'category';
                 const payload = {
-                    level: detailData.type || 'category',
-                    category_id: detailData.id,
-                    category_name: detailData.name,
+                    level: level,
+                    category_id: detailData.category_id || detailData.id,
+                    category_name: detailData.category_name || detailData.name,
                     timestamp: timestamp
                 };
-                if (detailData.type === 'subcategory' || detailData.type === 'item') {
+
+                if (level === 'subcategory') {
                     payload.subcategory_id = detailData.id;
                     payload.subcategory_name = detailData.name;
-                }
-                if (detailData.type === 'item') {
+                } else if (level === 'item') {
+                    payload.subcategory_id = detailData.subcategory_id || detailData.id;
+                    payload.subcategory_name = detailData.subcategory_name || detailData.name;
                     payload.item_number = detailData.id;
                     payload.item_name = detailData.name;
                 }

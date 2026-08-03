@@ -2038,6 +2038,51 @@ app.get('/api/content/list', (req, res) => {
     }
 });
 
+// API: UPDATE CONTENT (description, details)
+app.post('/api/content/update', (req, res) => {
+    const { level, category_id, category_name, subcategory_id, subcategory_name, item_number, item_name, description, description_zh, details, details_zh, wallet } = req.body;
+    if (!level || !category_id || !category_name) {
+        return sendError(res, 400, 'Missing required parameters');
+    }
+    try {
+        let targetFile;
+        if (level === 'category') {
+            const dir = getNFTDataPath(category_id, category_name);
+            targetFile = path.join(dir, 'content.json');
+        } else if (level === 'subcategory') {
+            if (!subcategory_id || !subcategory_name) {
+                return sendError(res, 400, 'Missing subcategory parameters');
+            }
+            const dir = getNFTDataPath(category_id, category_name, subcategory_id, subcategory_name);
+            targetFile = path.join(dir, 'subcategory.json');
+        } else if (level === 'item') {
+            if (!subcategory_id || !subcategory_name || !item_number || !item_name) {
+                return sendError(res, 400, 'Missing item parameters');
+            }
+            const dir = getNFTDataPath(category_id, category_name, subcategory_id, subcategory_name, item_number, item_name);
+            targetFile = path.join(dir, `${item_number}_${item_name}.json`);
+        } else {
+            return sendError(res, 400, 'Invalid level');
+        }
+
+        if (!fs.existsSync(targetFile)) {
+            return sendError(res, 404, 'Data file not found');
+        }
+        
+        let data = JSON.parse(fs.readFileSync(targetFile, 'utf-8'));
+        // Update only provided fields
+        if (description !== undefined) data.description = description;
+        if (description_zh !== undefined) data.description_zh = description_zh;
+        if (details !== undefined) data.details = details;
+        if (details_zh !== undefined) data.details_zh = details_zh;
+        fs.writeFileSync(targetFile, JSON.stringify(data, null, 2));
+        res.json({ success: true, message: 'Content updated successfully' });
+    } catch (error) {
+        console.error('Failed to update content:', error);
+        sendError(res, 500, 'Update failed', error.message);
+    }
+});
+
 // Upload content (single)
 app.post('/api/content/upload', upload.single('file'), async (req, res) => {
     try {
@@ -2061,6 +2106,7 @@ app.post('/api/content/upload', upload.single('file'), async (req, res) => {
         ensureDir(contentDir);
         const timestamp = Date.now();
         let result = { type, timestamp, path: '', content: '' };
+        let relativePath = '';
 
         if (type === 'text') {
             const text = req.body.text || '';
@@ -2068,17 +2114,34 @@ app.post('/api/content/upload', upload.single('file'), async (req, res) => {
             const filePath = path.join(contentDir, fileName);
             fs.writeFileSync(filePath, text, 'utf-8');
             result.content = text;
-            result.path = `/subcategory-data/${category_id}_${category_name}/contents/${fileName}`;
+            // Build correct relative path based on level
+            if (level === 'category') {
+                relativePath = `/subcategory-data/${category_id}_${category_name}/contents/${fileName}`;
+            } else if (level === 'subcategory') {
+                relativePath = `/subcategory-data/${category_id}_${category_name}/${subcategory_id}_${subcategory_name}/contents/${fileName}`;
+            } else { // item
+                relativePath = `/subcategory-data/${category_id}_${category_name}/${subcategory_id}_${subcategory_name}/${item_number}_${item_name}/contents/${fileName}`;
+            }
+            result.path = relativePath;
         } else {
             if (!req.file) return sendError(res, 400, 'No file uploaded');
             const ext = path.extname(req.file.originalname) || '.jpg';
             const fileName = `${timestamp}${ext}`;
             const filePath = path.join(contentDir, fileName);
             fs.renameSync(req.file.path, filePath);
-            result.path = `/subcategory-data/${category_id}_${category_name}/contents/${fileName}`;
+            // Build correct relative path based on level
+            if (level === 'category') {
+                relativePath = `/subcategory-data/${category_id}_${category_name}/contents/${fileName}`;
+            } else if (level === 'subcategory') {
+                relativePath = `/subcategory-data/${category_id}_${category_name}/${subcategory_id}_${subcategory_name}/contents/${fileName}`;
+            } else { // item
+                relativePath = `/subcategory-data/${category_id}_${category_name}/${subcategory_id}_${subcategory_name}/${item_number}_${item_name}/contents/${fileName}`;
+            }
+            result.path = relativePath;
             result.filename = req.file.originalname;
         }
 
+        // Update meta.json
         const metaPath = path.join(contentDir, 'meta.json');
         let meta = [];
         if (fs.existsSync(metaPath)) meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
