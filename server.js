@@ -38,6 +38,8 @@ const corsOptions = {
             'https://dao002.rbas.top',
             'http://localhost:5012',
             'http://127.0.0.1:5012',
+            'http://localhost:5013',
+            'http://127.0.0.1:5013',
             // Add Live Server ports
             'http://localhost:5504',
             'http://127.0.0.1:5504',
