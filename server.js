@@ -9,7 +9,7 @@ const crypto = require('crypto');
 const WebSocket = require('ws');
 
 const app = express();
-const PORT = 5012;
+const PORT = process.env.PORT || 5013;
 const IP = ip.address();
 
 // ============================================================
