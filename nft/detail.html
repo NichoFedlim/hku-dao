@@ -1096,7 +1096,9 @@
                             description_zh: data.description_zh || '',
                             details: data.details || '',
                             details_zh: data.details_zh || '',
-                            attachments: data.attachments || []
+                            attachments: data.attachments || [],
+                            category_id: data.card_number || id,
+                            category_name: data.name
                         };
                     } else {
                         detailData = {
@@ -1132,6 +1134,7 @@
                 if (!usingMock) {
                     originalData = { ...detailData };
                     renderDetail();
+                    await refreshAttachments();
                     checkOwnership();
                 }
 
@@ -1210,16 +1213,28 @@
                 // For category level: use card_number from the data
                 const cardNumber = detailData.card_number || id;
                 const name = encodeURIComponent(detailData.name || '');
-                url = `/nft/ti_log.html?level=surname&card_number=${cardNumber}&name=${name}`;
+                url = `/nft/ti_log.html?level=category&card_number=${cardNumber}&name=${name}`;
+            } else if (type === 'subcategory') {
+                // For subcategory
+                const categoryId = detailData.category_id || id;
+                const categoryName = encodeURIComponent(detailData.category_name || '');
+                const subcategoryId = detailData.id;
+                const subcategoryName = encodeURIComponent(detailData.name || '');
+                url = `/nft/ti_log.html?level=subcategory&category_id=${categoryId}&category_name=${categoryName}&subcategory_id=${subcategoryId}&subcategory_name=${subcategoryName}`;
             } else if (type === 'item' || type === 'subitem') {
-                // For item/subitem level: use the ID
-                const level = type === 'item' ? 'subcategory' : 'item';
-                url = `/nft/ti_log.html?level=${level}&id=${id}`;
+                // For item
+                const categoryId = detailData.category_id || id;
+                const categoryName = encodeURIComponent(detailData.category_name || '');
+                const subcategoryId = detailData.subcategory_id || id;
+                const subcategoryName = encodeURIComponent(detailData.subcategory_name || '');
+                const itemNumber = detailData.id;
+                const itemName = encodeURIComponent(detailData.name || '');
+                url = `/nft/ti_log.html?level=item&category_id=${categoryId}&category_name=${categoryName}&subcategory_id=${subcategoryId}&subcategory_name=${subcategoryName}&item_number=${itemNumber}&item_name=${itemName}`;
             } else {
-                // Fallback: try to use card_number if available
+                // Fallback
                 const cardNumber = detailData.card_number || id;
                 const name = encodeURIComponent(detailData.name || '');
-                url = `/nft/ti_log.html?level=surname&card_number=${cardNumber}&name=${name}`;
+                url = `/nft/ti_log.html?level=category&card_number=${cardNumber}&name=${name}`;
             }
 
             if (url) {
@@ -1345,23 +1360,38 @@
 
             container.innerHTML = '<div class="attachments-list">' +
                 attachments.map(att => {
-                    // Use the path from the server directly – it already has the correct full URL
-                    const fullPath = att.path || '';
-                    const displayName = att.name || 'file';
+                    // Build full file path using stored relative path
+                    let fullPath = att.path || '';
+                    if (fullPath && !fullPath.startsWith('http') && !fullPath.startsWith('/')) {
+                        fullPath = '/' + fullPath;
+                    }
+                    if (typeof API_BASE !== 'undefined' && API_BASE && fullPath.startsWith('/')) {
+                        fullPath = API_BASE + fullPath;
+                    }
+
+                    const displayName = att.filename || att.name || 'file';
+                    const timestamp = att.timestamp;
+
+                    // Determine icon based on file type
+                    let icon = '<i class="fas fa-file"></i>';
+                    if (att.type === 'image') {
+                        icon = '<i class="fas fa-image"></i>';
+                    } else if (att.type === 'pdf') {
+                        icon = '<i class="fas fa-file-pdf"></i>';
+                    } else if (att.type === 'text') {
+                        icon = '<i class="fas fa-file-alt"></i>';
+                    }
+
                     return `
                         <div class="attachment-item">
                             <div class="attach-info">
-                                <span class="attach-icon">
-                                    ${att.type === 'image' ? '<i class="fas fa-image"></i>' :
-                                    att.type === 'pdf' ? '<i class="fas fa-file-pdf"></i>' :
-                                    '<i class="fas fa-file"></i>'}
-                                </span>
+                                <span class="attach-icon">${icon}</span>
                                 <span class="attach-name">${displayName}</span>
                             </div>
                             <div class="attach-actions">
                                 <button class="btn-sm btn-view" onclick="viewAttachment('${fullPath}')" data-i18n="view">View</button>
-                                ${hasOwnership ? `<button class="btn-sm btn-rename" onclick="renameAttachment('${att.timestamp}')" data-i18n="rename">Rename</button>` : ''}
-                                ${hasOwnership ? `<button class="btn-sm btn-delete" onclick="deleteAttachment('${att.timestamp}')" data-i18n="delete">Delete</button>` : ''}
+                                ${hasOwnership ? `<button class="btn-sm btn-rename" onclick="renameAttachment('${timestamp}')" data-i18n="rename">Rename</button>` : ''}
+                                ${hasOwnership ? `<button class="btn-sm btn-delete" onclick="deleteAttachment('${timestamp}')" data-i18n="delete">Delete</button>` : ''}
                             </div>
                         </div>
                     `;
@@ -1433,13 +1463,34 @@
                 const response = await fetch(url);
                 if (response.ok) {
                     const userNFTs = await response.json();
-                    // Check if user owns this specific NFT
-                    hasOwnership = userNFTs.some(nft =>
-                        nft.level === detailData.type &&
-                        nft.id === detailData.id
-                    ) || true; // For demo, allow editing if logged in
+                    
+                    // Check if user owns this specific NFT based on the actual structure
+                    const level = detailData.type || 'item';
+                    const id = String(detailData.id);
+                    
+                    hasOwnership = userNFTs.some(nft => {
+                        // Check based on level
+                        if (level === 'category') {
+                            return nft.level === 'category' && 
+                                String(nft.card_number) === id;
+                        } else if (level === 'subcategory') {
+                            return nft.level === 'subcategory' && 
+                                String(nft.citang_number) === id;
+                        } else if (level === 'item') {
+                            return nft.level === 'item' && 
+                                String(nft.member_number) === id;
+                        }
+                        return false;
+                    });
+                    
+                    // For development/demo: if API fails or returns empty, allow editing
+                    if (!hasOwnership && userNFTs.length === 0) {
+                        console.log('No NFTs found, allowing edit for demo');
+                        hasOwnership = true;
+                    }
                 } else {
-                    // For demo, allow editing if logged in
+                    // For demo, allow editing if logged in but API fails
+                    console.warn('Ownership API failed, allowing edit for demo');
                     hasOwnership = true;
                 }
             } catch (e) {
@@ -1462,6 +1513,8 @@
                 editBtn.textContent = t('login_to_edit');
                 deleteBtn.style.display = 'none';
             }
+            // Re-render attachments to show/hide rename/delete buttons
+            renderAttachments();
         }
 
         // ============================================================

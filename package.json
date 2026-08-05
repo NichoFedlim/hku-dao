@@ -14,11 +14,11 @@
     "async-mutex": "^0.5.0",
     "axios": "^1.7.9",
     "cors": "^2.8.6",
+    "crypto": "latest",
     "express": "^4.21.2",
     "ip": "^2.0.1",
     "multer": "^2.0.2",
     "node-fetch": "^3.3.2",
-    "ws": "^8.21.1",
-    "crypto": "latest"
+    "ws": "^8.21.1"
   }
 }

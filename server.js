@@ -1678,6 +1678,8 @@ app.get('/api/item/detail', (req, res) => {
             data.category_name = foundCategory.name;
             data.subcategory_id = foundSubcategory.id;
             data.subcategory_name = foundSubcategory.name;
+            data.item_number = foundItem.id;
+            data.item_name = foundItem.name;
             data.type = 'item';          // mark as item
             res.json(data);
         } catch (e) {
@@ -2598,17 +2600,43 @@ app.post('/api/nft/buy', async (req, res) => {
             return res.json({ success: false, error: 'NFT addition failed and has been completely rolled back.' });
         }
 
-        // Step 5: update transaction log
-        // We'll assume it's a category level for now, but we need to pass proper parameters.
-        // For a full implementation, we'd need to know the actual category id/name from the market entry.
-        // We'll use the id and name from the market entry (which should be the category id/name).
-        const logResult = await updateTransactionLog(
-            'category',
-            id, name,
-            null, null,
-            null, null,
-            price, sellerWallet, buyer_wallet
-        );
+        // Step 5: update transaction log based on the actual level
+        let logResult = { success: false };
+        const nftLevel = nftForSale.level || 'category';
+        if (nftLevel === 'category') {
+            logResult = await updateTransactionLog(
+                'category',
+                nftForSale.card_number, nftForSale.surname,
+                null, null,
+                null, null,
+                price, sellerWallet, buyer_wallet
+            );
+        } else if (nftLevel === 'subcategory') {
+            logResult = await updateTransactionLog(
+                'subcategory',
+                nftForSale.card_number, nftForSale.surname,
+                nftForSale.citang_number, nftForSale.citang_name,
+                null, null,
+                price, sellerWallet, buyer_wallet
+            );
+        } else if (nftLevel === 'item') {
+            logResult = await updateTransactionLog(
+                'item',
+                nftForSale.card_number, nftForSale.surname,
+                nftForSale.citang_number, nftForSale.citang_name,
+                nftForSale.member_number, nftForSale.member_name,
+                price, sellerWallet, buyer_wallet
+            );
+        } else {
+            // fallback to category
+            logResult = await updateTransactionLog(
+                'category',
+                nftForSale.card_number, nftForSale.surname,
+                null, null,
+                null, null,
+                price, sellerWallet, buyer_wallet
+            );
+        }
 
         if (logResult.success) {
             saveToQueue('purchase', logResult.log.verification_code);
