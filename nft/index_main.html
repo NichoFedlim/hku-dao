@@ -740,7 +740,9 @@
             }
 
             // Generate QR code
-            const qrContent = data.shortlink?.trim() || data.hash?.trim() || 'https://hku.hk';
+            const baseUrl = window.location.origin;         // e.g., http://127.0.0.1:5504 or https://d3.p2.rbas.top
+            const detailUrl = `${baseUrl}/nft/index_main.html`;
+            const qrContent = data.shortlink?.trim() || detailUrl || data.hash?.trim() || 'https://hku.hk';
             const qrContainer = document.getElementById('dao-qrcode');
             if (qrContainer && qrContent) {
                 qrContainer.innerHTML = '';

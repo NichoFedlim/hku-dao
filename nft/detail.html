@@ -1307,7 +1307,10 @@
             renderAttachments();
 
             // QR Code
-            const qrContent = detailData.shortlink?.trim() || detailData.hash?.trim() || 'https://hku.hk';
+            // Build a proper detail URL
+            const baseUrl = window.location.origin;             // e.g., http://127.0.0.1:5504 or https://d3.p2.rbas.top
+            const detailUrl = `${baseUrl}/nft/detail.html?type=${detailData.type || 'item'}&id=${detailData.id}`;
+            const qrContent = detailData.shortlink?.trim() || detailUrl || 'https://hku.hk';
             const qrContainer = document.getElementById('detail-qrcode');
             if (qrContainer) {
                 qrContainer.innerHTML = '';

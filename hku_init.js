@@ -5,6 +5,16 @@ const crypto = require('crypto');
 const path = require('path');
 
 // ============================================================
+// 0. CONFIGURATION - Change this based on your environment
+// ============================================================
+// For local development:
+// const BASE_URL = 'http://127.0.0.1:5504';
+// For production:
+const BASE_URL = 'https://d3.p2.rbas.top';
+// Or make it dynamic based on environment:
+// const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:5504';
+
+// ============================================================
 // 1. DAO CONFIG
 // ============================================================
 const DAO_HASH = crypto.createHash('sha256').update('HKU DAO 港大道').digest('hex').toUpperCase();
@@ -288,6 +298,15 @@ function generateVerificationCode(thread, time, price, seller, buyer, chain) {
     return crypto.createHash('sha256').update(displayData).digest('hex').toUpperCase();
 }
 
+// Helper to generate detail URL
+function getDetailUrl(level, id, name, categoryId = null, categoryName = null, subcategoryId = null, subcategoryName = null) {
+    let url = `${BASE_URL}/nft/detail.html?type=${level}&id=${id}`;
+    if (categoryId) url += `&categoryId=${categoryId}&categoryName=${encodeURIComponent(categoryName || '')}`;
+    if (subcategoryId) url += `&subcategoryId=${subcategoryId}&subcategoryName=${encodeURIComponent(subcategoryName || '')}`;
+    if (name) url += `&name=${encodeURIComponent(name)}`;
+    return url;
+}
+
 // ============================================================
 // 4. GENERATE ALL NFT FILES
 // ============================================================
@@ -296,11 +315,14 @@ function ensureDir(dir) {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 }
 
+console.log(`🌐 Using BASE_URL: ${BASE_URL}`);
+console.log('');
+
 // --- DAO config ---
 const daoConfig = {
     name: 'HKU DAO',
     hash: DAO_HASH,
-    shortlink: 'https://hku.hk/dao', 
+    shortlink: `${BASE_URL}/nft/index_main.html`,
     created: getFormattedTime(),
     total_categories: CATEGORIES.length
 };
@@ -319,6 +341,9 @@ CATEGORIES.forEach(cat => {
     const catDir = path.join(DATA_ROOT, `${cat.id}_${cat.name}`);
     ensureDir(catDir);
 
+    // Generate category detail URL
+    const catDetailUrl = getDetailUrl('category', cat.id, cat.name);
+
     // content.json
     const contentData = {
         name: cat.name,
@@ -333,7 +358,7 @@ CATEGORIES.forEach(cat => {
         history: [],
         modern: [],
         nft_holder: { wallet: SYSTEM_WALLET, phone_number: '', email: '', other: '......' },
-        shortlink: `https://hku.hk/category/${cat.id}`,
+        shortlink: catDetailUrl,
         short_code: ''
     };
     fs.writeFileSync(path.join(catDir, 'content.json'), JSON.stringify(contentData, null, 2));
@@ -363,6 +388,9 @@ CATEGORIES.forEach(cat => {
         const subDir = path.join(catDir, `${sub.id}_${sub.name}`);
         ensureDir(subDir);
 
+        // Generate subcategory detail URL
+        const subDetailUrl = getDetailUrl('item', sub.id, sub.name, cat.id, cat.name);
+
         // subcategory.json
         const subData = {
             id: sub.id,
@@ -372,7 +400,7 @@ CATEGORIES.forEach(cat => {
             category_id: cat.id,
             category_name: cat.name,
             purchase_price: 100,
-            shortlink: `https://hku.hk/subcategory/${sub.id}`,
+            shortlink: subDetailUrl,
             short_code: '',
             description: '',
             description_zh: ''
@@ -457,3 +485,4 @@ generateMockMarketData();
 console.log(`\n🎉 All data generated under ${DATA_ROOT}`);
 console.log(`Total categories: ${CATEGORIES.length}`);
 console.log('✅ Done.');
+console.log(`\n💡 To switch environment, change BASE_URL at the top of this file.`);

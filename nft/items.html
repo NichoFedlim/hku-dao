@@ -1324,7 +1324,10 @@
             const qrSize = window.innerWidth <= 480 ? 100 : 120;
 
             grid.innerHTML = itemsList.map((item, index) => {
-                const qrContent = item.shortlink?.trim() || item.nft?.trim() || '';
+                // Build a proper detail URL
+                const baseUrl = window.location.origin;             // e.g., http://127.0.0.1:5504 or https://d3.p2.rbas.top
+                const detailUrl = `${baseUrl}/nft/detail.html?type=item&id=${item.id}`;
+                const qrContent = item.shortlink?.trim() || detailUrl || item.nft?.trim() || 'https://hku.hk';
                 const hashDisplay = item.nft ? item.nft.match(/.{1,16}/g)?.join('<br>') || item.nft : 'No hash';
                 const priceDisplay = item.price ? `${item.price} rc` : '';
 

@@ -403,77 +403,22 @@ function batchSaveToQueue(items) {
 }
 
 // ============================================================
-// SHORTLINK GENERATION
+// SHORTLINK GENERATION (no external API, uses baseUrl)
 // ============================================================
-async function generateShortLink(originalUrl) {
-    const SHORTEN_API = 'https://dao002.rbas.top/shorten-api/shorten';
-    return new Promise((resolve, reject) => {
-        const url = new URL(SHORTEN_API);
-        const postData = JSON.stringify({ url: originalUrl });
-        const options = {
-            hostname: url.hostname,
-            port: url.port,
-            path: url.pathname,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(postData)
-            },
-            rejectUnauthorized: false
-        };
-        const req = https.request(options, (res) => {
-            let data = '';
-            res.on('data', chunk => data += chunk);
-            res.on('end', () => {
-                try {
-                    const result = JSON.parse(data);
-                    if (result.success) {
-                        resolve({ short_code: result.short_code, short_url: result.short_url });
-                    } else {
-                        reject(new Error(result.error || 'Short link generation failed'));
-                    }
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        });
-        req.on('error', reject);
-        req.write(postData);
-        req.end();
-    });
+async function generateCategoryShortlink(categoryId, categoryName, baseUrl) {
+    const detailUrl = `${baseUrl}/nft/detail.html?type=category&id=${categoryId}&name=${encodeURIComponent(categoryName)}`;
+    // No external shortening; return the full URL as shortlink
+    return { detailUrl, shortlink: detailUrl, short_code: '' };
 }
 
-async function generateCategoryShortlink(categoryId, categoryName) {
-    const detailUrl = `https://dao002.rbas.top/nft/detail.html?type=category&id=${categoryId}&name=${encodeURIComponent(categoryName)}`;
-    try {
-        const result = await generateShortLink(detailUrl);
-        return { detailUrl, shortlink: result.short_url, short_code: result.short_code };
-    } catch (error) {
-        console.error(`Failed to generate short links for categories: ${error.message}`);
-        return { detailUrl, shortlink: '', short_code: '' };
-    }
+async function generateSubcategoryShortlink(categoryId, categoryName, subcategoryId, subcategoryName, baseUrl) {
+    const detailUrl = `${baseUrl}/nft/detail.html?type=subcategory&categoryId=${categoryId}&categoryName=${encodeURIComponent(categoryName)}&subcategoryId=${subcategoryId}&subcategoryName=${encodeURIComponent(subcategoryName)}`;
+    return { detailUrl, shortlink: detailUrl, short_code: '' };
 }
 
-async function generateSubcategoryShortlink(categoryId, categoryName, subcategoryId, subcategoryName) {
-    const detailUrl = `https://dao002.rbas.top/nft/detail.html?type=subcategory&categoryId=${categoryId}&categoryName=${encodeURIComponent(categoryName)}&subcategoryId=${subcategoryId}&subcategoryName=${encodeURIComponent(subcategoryName)}`;
-    try {
-        const result = await generateShortLink(detailUrl);
-        return { detailUrl, shortlink: result.short_url, short_code: result.short_code };
-    } catch (error) {
-        console.error(`Failed to generate short links for subcategories: ${error.message}`);
-        return { detailUrl, shortlink: '', short_code: '' };
-    }
-}
-
-async function generateItemShortlink(categoryId, categoryName, subcategoryId, subcategoryName, itemNumber, itemName) {
-    const detailUrl = `https://dao002.rbas.top/nft/detail.html?type=item&categoryId=${categoryId}&categoryName=${encodeURIComponent(categoryName)}&subcategoryId=${subcategoryId}&subcategoryName=${encodeURIComponent(subcategoryName)}&itemNumber=${itemNumber}&itemName=${encodeURIComponent(itemName)}`;
-    try {
-        const result = await generateShortLink(detailUrl);
-        return { detailUrl, shortlink: result.short_url, short_code: result.short_code };
-    } catch (error) {
-        console.error(`Failed to generate short links for items: ${error.message}`);
-        return { detailUrl, shortlink: '', short_code: '' };
-    }
+async function generateItemShortlink(categoryId, categoryName, subcategoryId, subcategoryName, itemNumber, itemName, baseUrl) {
+    const detailUrl = `${baseUrl}/nft/detail.html?type=item&categoryId=${categoryId}&categoryName=${encodeURIComponent(categoryName)}&subcategoryId=${subcategoryId}&subcategoryName=${encodeURIComponent(subcategoryName)}&itemNumber=${itemNumber}&itemName=${encodeURIComponent(itemName)}`;
+    return { detailUrl, shortlink: detailUrl, short_code: '' };
 }
 
 // ============================================================
@@ -1126,7 +1071,9 @@ app.post('/api/category/add', async (req, res) => {
     console.log(`✅ Payment successful: ${price} RC`);
 
     // Generate shortlink
-    const shortlinkData = await generateCategoryShortlink(category_number, category_name);
+    // Get the base URL from the request origin (or use a fallback)
+    const baseUrl = req.headers.origin || req.protocol + '://' + req.get('host');
+    const shortlinkData = await generateCategoryShortlink(category_number, category_name, baseUrl);
 
     // Create category data
     const category_data = {
@@ -1416,7 +1363,8 @@ app.post('/subcategory/:categoryId/:categoryName/subcategory', async (req, res) 
     }
 
     // Generate shortlink
-    const shortlinkData = await generateSubcategoryShortlink(categoryId, categoryName, data.subcategory_number, data.name);
+    const baseUrl = req.headers.origin || req.protocol + '://' + req.get('host');
+    const shortlinkData = await generateSubcategoryShortlink(categoryId, categoryName, data.subcategory_number, data.name, baseUrl);
 
     // Create subcategory directory and files
     const dir = getNFTDataPath(categoryId, categoryName, data.subcategory_number, data.name);
@@ -1757,7 +1705,8 @@ app.post('/subcategory/:categoryId/:categoryName/:subcategoryNumber/:subcategory
     }
 
     // Generate shortlink
-    const shortlinkData = await generateItemShortlink(categoryId, categoryName, subcategoryNumber, subcategoryName, item.number, item.name);
+    const baseUrl = req.headers.origin || req.protocol + '://' + req.get('host');
+    const shortlinkData = await generateItemShortlink(categoryId, categoryName, subcategoryNumber, subcategoryName, item.number, item.name, baseUrl);
 
     // Create item directory and files
     const itemDir = getNFTDataPath(categoryId, categoryName, subcategoryNumber, subcategoryName, item.number, item.name);
@@ -2280,6 +2229,7 @@ app.delete('/api/content/delete', (req, res) => {
 // Rename content (file)
 app.put('/api/content/rename', (req, res) => {
     const { level, category_id, category_name, subcategory_id, subcategory_name, item_number, item_name, timestamp, new_name } = req.body;
+    console.log('📝 Rename request:', { level, category_id, category_name, timestamp, new_name });
     if (!level || !category_id || !category_name || !timestamp || !new_name) {
         return sendError(res, 400, 'Missing required parameters');
     }
@@ -2300,45 +2250,123 @@ app.put('/api/content/rename', (req, res) => {
 
         const contentDir = path.join(targetDir, 'contents');
         const metaPath = path.join(contentDir, 'meta.json');
-        if (!fs.existsSync(metaPath)) return sendError(res, 404, 'No attachments found');
+        
+        console.log('📂 Content directory:', contentDir);
+        console.log('📄 Meta path:', metaPath);
+        
+        if (!fs.existsSync(metaPath)) {
+            return sendError(res, 404, 'No attachments found');
+        }
 
         let meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
         const itemIndex = meta.findIndex(item => String(item.timestamp) === String(timestamp));
-        if (itemIndex === -1) return sendError(res, 404, 'Attachment not found');
-
-        const item = meta[itemIndex];
-        const oldPath = item.path; // full relative path
-        const oldFileName = path.basename(oldPath);
-        const ext = path.extname(oldFileName);
-        // Build new file name: use timestamp (keep same) + new_name + extension? Actually we want to rename the file itself.
-        // We'll rename the file keeping the same timestamp and extension, but user can change the display name (filename) only.
-        // But the user may want to change the actual file name. For simplicity, we'll just change the filename in meta.json (display name) and optionally rename the file.
-        // Let's allow changing the actual file name: new_name without extension? We'll keep extension as original.
-        // We'll rename the file to new_name + ext, and update meta.json path.
-
-        const oldFilePath = path.join(contentDir, oldFileName);
-        if (!fs.existsSync(oldFilePath)) {
-            return sendError(res, 404, 'File not found');
+        
+        if (itemIndex === -1) {
+            console.error('❌ Attachment not found for timestamp:', timestamp);
+            console.log('Available timestamps:', meta.map(item => item.timestamp));
+            return sendError(res, 404, 'Attachment not found');
         }
 
-        // Generate new file name: keep extension, but use new_name (sanitize)
+        const item = meta[itemIndex];
+        console.log('📎 Found attachment:', item);
+        
+        // Get the filename from the path or directly from item
+        let oldFileName = '';
+        let oldFilePath = '';
+        
+        // Try to find the file in the content directory
+        // The filename might be stored separately or we need to find it
+        if (item.path) {
+            // The path might be a URL path like "/subcategory-data/.../contents/filename.ext"
+            // Extract just the filename from the path
+            oldFileName = path.basename(item.path);
+            oldFilePath = path.join(contentDir, oldFileName);
+            
+            // If the file doesn't exist at that path, try to find it by matching the timestamp
+            if (!fs.existsSync(oldFilePath)) {
+                console.warn('⚠️ File not found at expected path:', oldFilePath);
+                
+                // Try to find a file that starts with the timestamp
+                const files = fs.readdirSync(contentDir);
+                const matchingFile = files.find(f => f.startsWith(String(timestamp)));
+                
+                if (matchingFile) {
+                    oldFileName = matchingFile;
+                    oldFilePath = path.join(contentDir, oldFileName);
+                    console.log('✅ Found matching file:', oldFileName);
+                } else {
+                    // If still not found, look for any file that might match the timestamp pattern
+                    const timestampMatch = files.find(f => {
+                        const base = path.basename(f, path.extname(f));
+                        return base === String(timestamp) || base.startsWith(String(timestamp));
+                    });
+                    
+                    if (timestampMatch) {
+                        oldFileName = timestampMatch;
+                        oldFilePath = path.join(contentDir, oldFileName);
+                        console.log('✅ Found timestamp-matching file:', oldFileName);
+                    } else {
+                        return sendError(res, 404, 'File not found: ' + oldFileName);
+                    }
+                }
+            }
+        } else {
+            // If no path, try to find file by timestamp
+            const files = fs.readdirSync(contentDir);
+            const matchingFile = files.find(f => f.startsWith(String(timestamp)));
+            
+            if (matchingFile) {
+                oldFileName = matchingFile;
+                oldFilePath = path.join(contentDir, oldFileName);
+                console.log('✅ Found file by timestamp:', oldFileName);
+            } else {
+                return sendError(res, 404, 'No file found for timestamp ' + timestamp);
+            }
+        }
+
+        // Get the extension from the old file
+        const ext = path.extname(oldFileName);
+        
+        // Generate new file name
         const sanitizedNewName = new_name.replace(/[^a-zA-Z0-9\-_. ]/g, '_');
         const newFileName = sanitizedNewName + ext;
         const newFilePath = path.join(contentDir, newFileName);
 
-        // Rename the file
-        fs.renameSync(oldFilePath, newFilePath);
+        console.log(`📝 Renaming: ${oldFileName} → ${newFileName}`);
+
+        // Check if a file with the new name already exists
+        if (fs.existsSync(newFilePath) && newFileName !== oldFileName) {
+            return sendError(res, 409, 'A file with this name already exists');
+        }
+
+        // Rename the file (only if the name is different)
+        if (oldFileName !== newFileName) {
+            fs.renameSync(oldFilePath, newFilePath);
+            console.log('✅ File renamed successfully');
+        } else {
+            console.log('ℹ️ File name unchanged');
+        }
 
         // Update meta.json path and filename
-        const newPath = oldPath.replace(oldFileName, newFileName);
+        const newPath = item.path ? item.path.replace(oldFileName, newFileName) : newFileName;
         item.path = newPath;
-        item.filename = sanitizedNewName + ext; // update display name
+        item.filename = newFileName; // Update display name
+        item.name = newFileName; // Also update name field if it exists
         meta[itemIndex] = item;
         fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2));
 
-        res.json({ success: true, message: 'File renamed successfully', newPath, newFileName });
+        console.log('✅ Meta.json updated');
+
+        res.json({ 
+            success: true, 
+            message: 'File renamed successfully', 
+            newPath, 
+            newFileName,
+            oldFileName,
+            newFilePath
+        });
     } catch (error) {
-        console.error('Rename failed:', error);
+        console.error('❌ Rename failed:', error);
         sendError(res, 500, 'Rename failed', error.message);
     }
 });
