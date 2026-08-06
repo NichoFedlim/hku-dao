@@ -1,7 +1,7 @@
 # 港大道 (HKU DAO) – NFT Trading Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![RBAS](https://img.shields.io/badge/Blockchain-RBAS-blue.svg)](https://github.com/your-repo)
+[![RBAS](https://img.shields.io/badge/Blockchain-RBAS-blue.svg)](https://github.com/NichoFedlim/hku-dao)
 
 ---
 
@@ -18,7 +18,7 @@ Level 1: HKU DAO (Main page)
         └── Level 3: Subcategories (e.g., Departments, Building Rooms)
         └── Level 3.5: Items* (e.g., Courses, Lecture Halls)
 ```
-*Right now, Items is the same as subcategories. It is combined into one, items.
+*Right now, Items is the same as subcategories. It is combined into one level, Items.
 
 ---
 
@@ -46,7 +46,7 @@ Frontend (HTML/JS) → Backend APIs (Node.js) → JSON Files → RBAS Wallet (We
 | File | Purpose |
 |------|---------|
 | `categories.html` | Level 1 – displays all HKU categories as NFT cards with QR & hash |
-| `items.html` | Unified grid for subcategories & items |
+| `items.html` | Level 2 unified grid for subcategories & items |
 | `detail.html` | Unified detail & edit page for any NFT |
 | `index_main.html` | Homepage – featured DAO card, search, and category preview |
 
@@ -67,7 +67,7 @@ project-root/
 ├── nft/
 │   ├── index_main.html        # Homepage
 │   ├── categories.html        # Level 1 list
-│   ├── items.html             # Unified grid
+│   ├── items.html             # Level 2 unified grid
 │   ├── detail.html            # Unified detail + edit
 │   ├── NFT_market.html        # Marketplace (buy/sell/list)
 │   ├── portfolio.html         # User's owned NFTs
@@ -147,13 +147,13 @@ node server.js
 
 The backend serves all frontend files automatically. Access:
 ```
-http://localhost:5012/nft/index_main.html
+http://localhost:5013/nft/index_main.html
 ```
 
 ### Environment Variables (`.env`)
 
 ```bash
-PORT=5012
+PORT=5013
 DEV_MODE=true          # true = wallet disabled, false = wallet enabled
 WALLET_URL=ws://192.168.1.26:5000
 ```
@@ -216,24 +216,31 @@ With `DEV_MODE=true`, the wallet connection is disabled – perfect for testing 
 
 ### API Testing
 
+You can run 
+```
+chmod +x test_api.sh
+./test_api.sh
+```
+OR
+
 ```bash
 # List categories
-curl http://localhost:5012/api/categories/list
+curl http://localhost:5013/api/categories/list
 
 # Get category detail
-curl "http://localhost:5012/api/category/detail?id=1"
+curl "http://localhost:5013/api/category/detail?id=1"
 
 # Get subcategories
-curl http://localhost:5012/api/subcategories/list/1
+curl http://localhost:5013/api/subcategories/list/1
 
 # Get item detail
-curl "http://localhost:5012/api/item/detail?id=10101"
+curl "http://localhost:5013/api/item/detail?id=10101"
 
 # Search
-curl "http://localhost:5012/api/search?q=architecture"
+curl "http://localhost:5013/api/search?q=architecture"
 
 # Wallet status
-curl http://localhost:5012/api/wallet-state/status
+curl http://localhost:5013/api/wallet-state/status
 ```
 
 ---
