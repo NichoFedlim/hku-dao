@@ -9,7 +9,7 @@ const crypto = require('crypto');
 const WebSocket = require('ws');
 
 const app = express();
-const PORT = process.env.PORT || 5013;
+const PORT = process.env.PORT || 5012;
 const IP = ip.address();
 
 // ============================================================
@@ -112,6 +112,11 @@ app.use('/subcategory-data', express.static(path.join(__dirname, 'nft', 'data'),
         res.setHeader('Access-Control-Allow-Origin', '*');
     }
 }));
+
+// Serve the main homepage at root
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'nft', 'index_main.html'));
+});
 
 // ============================================================
 // UTILITY FUNCTIONS
@@ -2850,7 +2855,7 @@ app.get('/api/wallet-state/status', (req, res) => {
 // --- Development Mode: Disable Wallet Connection ---
 // The wallet server (192.168.1.26) is not accessible outside the office network.
 // For local development/testing, we skip connecting to it.
-const DEV_MODE = true; // Set to false when running inside the office network
+const DEV_MODE = false; // Set to false when running inside the office network
 
 // Initialize wallet state (reads from file, safe to run)
 initWalletState();
