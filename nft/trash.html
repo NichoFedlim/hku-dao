@@ -145,7 +145,7 @@
     </main>
 
     <script>
-        const API_BASE = (window.location.port === '5504' || window.location.port === '5500') ? 'http://127.0.0.1:5012' : '';
+        const API_BASE = (window.location.port === '5504' || window.location.port === '5500') ? 'http://127.0.0.1:5012' : window.location.origin;
 
         function showToast(message, type = 'info') {
             const existing = document.querySelector('.toast-global');

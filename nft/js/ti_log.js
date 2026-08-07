@@ -5,7 +5,7 @@
 // ===== USE MOCK DATA FOR DEVELOPMENT =====
 const USE_MOCK_DATA = false; // Set to false when backend is ready
 // ===== API BASE =====
-const API_BASE = (window.location.port === '5504' || window.location.port === '5500') ? 'http://127.0.0.1:5012' : '';
+const API_BASE = (window.location.port === '5504' || window.location.port === '5500') ? 'http://127.0.0.1:5012' : window.location.origin;
 
 // ===== I18N =====
 const LOCALES = {

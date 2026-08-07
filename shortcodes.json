@@ -1,0 +1,1172 @@
+{
+  "1": {
+    "id": 1,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=101&name=Main%20Building",
+    "created_at": "2026-08-07T03:04:38.953Z",
+    "migrated": true
+  },
+  "2": {
+    "id": 2,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=101&categoryName=Main%20Building&subcategoryId=10101&subcategoryName=Loke%20Yew%20Hall",
+    "created_at": "2026-08-07T03:04:38.962Z",
+    "migrated": true
+  },
+  "3": {
+    "id": 3,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=101&categoryName=Main%20Building&subcategoryId=10102&subcategoryName=MG14",
+    "created_at": "2026-08-07T03:04:38.963Z",
+    "migrated": true
+  },
+  "4": {
+    "id": 4,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=101&categoryName=Main%20Building&subcategoryId=10103&subcategoryName=MG20",
+    "created_at": "2026-08-07T03:04:38.964Z",
+    "migrated": true
+  },
+  "5": {
+    "id": 5,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=101&categoryName=Main%20Building&subcategoryId=10104&subcategoryName=MG21",
+    "created_at": "2026-08-07T03:04:38.965Z",
+    "migrated": true
+  },
+  "6": {
+    "id": 6,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=101&categoryName=Main%20Building&subcategoryId=10105&subcategoryName=MG22",
+    "created_at": "2026-08-07T03:04:38.966Z",
+    "migrated": true
+  },
+  "7": {
+    "id": 7,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=101&categoryName=Main%20Building&subcategoryId=10106&subcategoryName=MG23",
+    "created_at": "2026-08-07T03:04:38.967Z",
+    "migrated": true
+  },
+  "8": {
+    "id": 8,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=101&categoryName=Main%20Building&subcategoryId=10107&subcategoryName=MG24",
+    "created_at": "2026-08-07T03:04:38.967Z",
+    "migrated": true
+  },
+  "9": {
+    "id": 9,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=101&categoryName=Main%20Building&subcategoryId=10108&subcategoryName=MG25",
+    "created_at": "2026-08-07T03:04:38.968Z",
+    "migrated": true
+  },
+  "10": {
+    "id": 62,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10502&subcategoryName=MW102",
+    "created_at": "2026-08-07T03:04:39.005Z",
+    "migrated": true
+  },
+  "11": {
+    "id": 63,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10503&subcategoryName=MW103",
+    "created_at": "2026-08-07T03:04:39.006Z",
+    "migrated": true
+  },
+  "12": {
+    "id": 64,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10504&subcategoryName=MW104",
+    "created_at": "2026-08-07T03:04:39.006Z",
+    "migrated": true
+  },
+  "13": {
+    "id": 65,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10505&subcategoryName=MW105",
+    "created_at": "2026-08-07T03:04:39.007Z",
+    "migrated": true
+  },
+  "14": {
+    "id": 66,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10506&subcategoryName=MW106",
+    "created_at": "2026-08-07T03:04:39.008Z",
+    "migrated": true
+  },
+  "15": {
+    "id": 67,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10507&subcategoryName=MW201",
+    "created_at": "2026-08-07T03:04:39.009Z",
+    "migrated": true
+  },
+  "16": {
+    "id": 68,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10508&subcategoryName=MW202",
+    "created_at": "2026-08-07T03:04:39.010Z",
+    "migrated": true
+  },
+  "17": {
+    "id": 69,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10509&subcategoryName=MW203",
+    "created_at": "2026-08-07T03:04:39.010Z",
+    "migrated": true
+  },
+  "18": {
+    "id": 70,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10510&subcategoryName=MW204",
+    "created_at": "2026-08-07T03:04:39.011Z",
+    "migrated": true
+  },
+  "19": {
+    "id": 71,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10511&subcategoryName=MW205",
+    "created_at": "2026-08-07T03:04:39.011Z",
+    "migrated": true
+  },
+  "20": {
+    "id": 124,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=301&categoryName=Eliot%20Hall&subcategoryId=30103&subcategoryName=Eliot%20Hall%20-%20Floor%203",
+    "created_at": "2026-08-07T03:04:39.049Z",
+    "migrated": true
+  },
+  "21": {
+    "id": 125,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=301&categoryName=Eliot%20Hall&subcategoryId=30104&subcategoryName=Eliot%20Hall%20-%20Floor%204",
+    "created_at": "2026-08-07T03:04:39.049Z",
+    "migrated": true
+  },
+  "22": {
+    "id": 126,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=301&categoryName=Eliot%20Hall&subcategoryId=30105&subcategoryName=Eliot%20Hall%20-%20Floor%205",
+    "created_at": "2026-08-07T03:04:39.050Z",
+    "migrated": true
+  },
+  "23": {
+    "id": 127,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=302&name=May%20Hall",
+    "created_at": "2026-08-07T03:04:39.051Z",
+    "migrated": true
+  },
+  "24": {
+    "id": 128,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=303&name=Swire%20Hall",
+    "created_at": "2026-08-07T03:04:39.051Z",
+    "migrated": true
+  },
+  "25": {
+    "id": 129,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=304&name=Simon%20K.%20Y.%20Lee%20Hall",
+    "created_at": "2026-08-07T03:04:39.052Z",
+    "migrated": true
+  },
+  "26": {
+    "id": 130,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=305&name=Graduate%20House",
+    "created_at": "2026-08-07T03:04:39.052Z",
+    "migrated": true
+  },
+  "27": {
+    "id": 131,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=306&name=Robert%20Black%20College",
+    "created_at": "2026-08-07T03:04:39.053Z",
+    "migrated": true
+  },
+  "28": {
+    "id": 132,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=307&name=Jockey%20Club%20Student%20Village%20I",
+    "created_at": "2026-08-07T03:04:39.053Z",
+    "migrated": true
+  },
+  "29": {
+    "id": 133,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=308&name=Jockey%20Club%20Student%20Village%20II",
+    "created_at": "2026-08-07T03:04:39.054Z",
+    "migrated": true
+  },
+  "30": {
+    "id": 186,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=8&categoryName=Medicine&subcategoryId=806&subcategoryName=Pharmacology%20%26%20Pharmacy",
+    "created_at": "2026-08-07T03:04:39.146Z",
+    "migrated": true
+  },
+  "31": {
+    "id": 187,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=8&categoryName=Medicine&subcategoryId=807&subcategoryName=Surgery",
+    "created_at": "2026-08-07T03:04:39.147Z",
+    "migrated": true
+  },
+  "32": {
+    "id": 188,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=8&categoryName=Medicine&subcategoryId=808&subcategoryName=School%20of%20Public%20Health",
+    "created_at": "2026-08-07T03:04:39.148Z",
+    "migrated": true
+  },
+  "33": {
+    "id": 189,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=9&name=Science",
+    "created_at": "2026-08-07T03:04:39.149Z",
+    "migrated": true
+  },
+  "34": {
+    "id": 190,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=9&categoryName=Science&subcategoryId=901&subcategoryName=Chemistry",
+    "created_at": "2026-08-07T03:04:39.151Z",
+    "migrated": true
+  },
+  "35": {
+    "id": 191,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=9&categoryName=Science&subcategoryId=902&subcategoryName=Earth%20Sciences",
+    "created_at": "2026-08-07T03:04:39.152Z",
+    "migrated": true
+  },
+  "36": {
+    "id": 192,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=9&categoryName=Science&subcategoryId=903&subcategoryName=Mathematics",
+    "created_at": "2026-08-07T03:04:39.153Z",
+    "migrated": true
+  },
+  "37": {
+    "id": 193,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=9&categoryName=Science&subcategoryId=904&subcategoryName=Physics",
+    "created_at": "2026-08-07T03:04:39.154Z",
+    "migrated": true
+  },
+  "38": {
+    "id": 194,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=9&categoryName=Science&subcategoryId=905&subcategoryName=Biological%20Sciences",
+    "created_at": "2026-08-07T03:04:39.155Z",
+    "migrated": true
+  },
+  "39": {
+    "id": 195,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=9&categoryName=Science&subcategoryId=906&subcategoryName=Statistics%20%26%20Actuarial%20Science",
+    "created_at": "2026-08-07T03:04:39.156Z",
+    "migrated": true
+  },
+  "a": {
+    "id": 10,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=101&categoryName=Main%20Building&subcategoryId=10109&subcategoryName=MG26",
+    "created_at": "2026-08-07T03:04:38.969Z",
+    "migrated": true
+  },
+  "b": {
+    "id": 11,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=102&name=Haking%20Wong%20Building",
+    "created_at": "2026-08-07T03:04:38.971Z",
+    "migrated": true
+  },
+  "c": {
+    "id": 12,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=102&categoryName=Haking%20Wong%20Building&subcategoryId=10201&subcategoryName=HW311",
+    "created_at": "2026-08-07T03:04:38.971Z",
+    "migrated": true
+  },
+  "d": {
+    "id": 13,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=102&categoryName=Haking%20Wong%20Building&subcategoryId=10202&subcategoryName=HW312",
+    "created_at": "2026-08-07T03:04:38.972Z",
+    "migrated": true
+  },
+  "e": {
+    "id": 14,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=102&categoryName=Haking%20Wong%20Building&subcategoryId=10203&subcategoryName=HW313",
+    "created_at": "2026-08-07T03:04:38.972Z",
+    "migrated": true
+  },
+  "f": {
+    "id": 15,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=102&categoryName=Haking%20Wong%20Building&subcategoryId=10204&subcategoryName=HW314",
+    "created_at": "2026-08-07T03:04:38.973Z",
+    "migrated": true
+  },
+  "g": {
+    "id": 16,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=102&categoryName=Haking%20Wong%20Building&subcategoryId=10205&subcategoryName=HW315",
+    "created_at": "2026-08-07T03:04:38.973Z",
+    "migrated": true
+  },
+  "h": {
+    "id": 17,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=102&categoryName=Haking%20Wong%20Building&subcategoryId=10206&subcategoryName=HW316",
+    "created_at": "2026-08-07T03:04:38.974Z",
+    "migrated": true
+  },
+  "i": {
+    "id": 18,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=102&categoryName=Haking%20Wong%20Building&subcategoryId=10207&subcategoryName=HW317",
+    "created_at": "2026-08-07T03:04:38.974Z",
+    "migrated": true
+  },
+  "j": {
+    "id": 19,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=102&categoryName=Haking%20Wong%20Building&subcategoryId=10208&subcategoryName=HW318",
+    "created_at": "2026-08-07T03:04:38.975Z",
+    "migrated": true
+  },
+  "k": {
+    "id": 20,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=102&categoryName=Haking%20Wong%20Building&subcategoryId=10209&subcategoryName=HW319",
+    "created_at": "2026-08-07T03:04:38.976Z",
+    "migrated": true
+  },
+  "l": {
+    "id": 21,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=102&categoryName=Haking%20Wong%20Building&subcategoryId=10210&subcategoryName=HW320",
+    "created_at": "2026-08-07T03:04:38.976Z",
+    "migrated": true
+  },
+  "m": {
+    "id": 22,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=103&name=Chow%20Yei%20Ching%20Building",
+    "created_at": "2026-08-07T03:04:38.977Z",
+    "migrated": true
+  },
+  "n": {
+    "id": 23,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10301&subcategoryName=CYC101",
+    "created_at": "2026-08-07T03:04:38.978Z",
+    "migrated": true
+  },
+  "o": {
+    "id": 24,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10302&subcategoryName=CYC102",
+    "created_at": "2026-08-07T03:04:38.978Z",
+    "migrated": true
+  },
+  "p": {
+    "id": 25,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10303&subcategoryName=CYC103",
+    "created_at": "2026-08-07T03:04:38.979Z",
+    "migrated": true
+  },
+  "q": {
+    "id": 26,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10304&subcategoryName=CYC104",
+    "created_at": "2026-08-07T03:04:38.979Z",
+    "migrated": true
+  },
+  "r": {
+    "id": 27,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10305&subcategoryName=CYC105",
+    "created_at": "2026-08-07T03:04:38.980Z",
+    "migrated": true
+  },
+  "s": {
+    "id": 28,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10306&subcategoryName=CYC106",
+    "created_at": "2026-08-07T03:04:38.981Z",
+    "migrated": true
+  },
+  "t": {
+    "id": 29,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10307&subcategoryName=CYC201",
+    "created_at": "2026-08-07T03:04:38.981Z",
+    "migrated": true
+  },
+  "u": {
+    "id": 30,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10308&subcategoryName=CYC202",
+    "created_at": "2026-08-07T03:04:38.982Z",
+    "migrated": true
+  },
+  "v": {
+    "id": 31,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10309&subcategoryName=CYC203",
+    "created_at": "2026-08-07T03:04:38.983Z",
+    "migrated": true
+  },
+  "w": {
+    "id": 32,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10310&subcategoryName=CYC204",
+    "created_at": "2026-08-07T03:04:38.984Z",
+    "migrated": true
+  },
+  "x": {
+    "id": 33,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10311&subcategoryName=CYC205",
+    "created_at": "2026-08-07T03:04:38.985Z",
+    "migrated": true
+  },
+  "y": {
+    "id": 34,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10312&subcategoryName=CYC206",
+    "created_at": "2026-08-07T03:04:38.985Z",
+    "migrated": true
+  },
+  "z": {
+    "id": 35,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10313&subcategoryName=CYC301",
+    "created_at": "2026-08-07T03:04:38.986Z",
+    "migrated": true
+  },
+  "A": {
+    "id": 36,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10314&subcategoryName=CYC302",
+    "created_at": "2026-08-07T03:04:38.987Z",
+    "migrated": true
+  },
+  "B": {
+    "id": 37,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10315&subcategoryName=CYC303",
+    "created_at": "2026-08-07T03:04:38.988Z",
+    "migrated": true
+  },
+  "C": {
+    "id": 38,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10316&subcategoryName=CYC304",
+    "created_at": "2026-08-07T03:04:38.988Z",
+    "migrated": true
+  },
+  "D": {
+    "id": 39,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10317&subcategoryName=CYC305",
+    "created_at": "2026-08-07T03:04:38.989Z",
+    "migrated": true
+  },
+  "E": {
+    "id": 40,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=103&categoryName=Chow%20Yei%20Ching%20Building&subcategoryId=10318&subcategoryName=CYC306",
+    "created_at": "2026-08-07T03:04:38.990Z",
+    "migrated": true
+  },
+  "F": {
+    "id": 41,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=104&name=K.K.%20Leung%20Building",
+    "created_at": "2026-08-07T03:04:38.991Z",
+    "migrated": true
+  },
+  "G": {
+    "id": 42,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10401&subcategoryName=KKL101",
+    "created_at": "2026-08-07T03:04:38.992Z",
+    "migrated": true
+  },
+  "H": {
+    "id": 43,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10402&subcategoryName=KKL102",
+    "created_at": "2026-08-07T03:04:38.992Z",
+    "migrated": true
+  },
+  "I": {
+    "id": 44,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10403&subcategoryName=KKL103",
+    "created_at": "2026-08-07T03:04:38.993Z",
+    "migrated": true
+  },
+  "J": {
+    "id": 45,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10404&subcategoryName=KKL104",
+    "created_at": "2026-08-07T03:04:38.993Z",
+    "migrated": true
+  },
+  "K": {
+    "id": 46,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10405&subcategoryName=KKL105",
+    "created_at": "2026-08-07T03:04:38.994Z",
+    "migrated": true
+  },
+  "L": {
+    "id": 47,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10406&subcategoryName=KKL106",
+    "created_at": "2026-08-07T03:04:38.995Z",
+    "migrated": true
+  },
+  "M": {
+    "id": 48,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10407&subcategoryName=KKL201",
+    "created_at": "2026-08-07T03:04:38.996Z",
+    "migrated": true
+  },
+  "N": {
+    "id": 49,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10408&subcategoryName=KKL202",
+    "created_at": "2026-08-07T03:04:38.996Z",
+    "migrated": true
+  },
+  "O": {
+    "id": 50,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10409&subcategoryName=KKL203",
+    "created_at": "2026-08-07T03:04:38.997Z",
+    "migrated": true
+  },
+  "P": {
+    "id": 51,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10410&subcategoryName=KKL204",
+    "created_at": "2026-08-07T03:04:38.998Z",
+    "migrated": true
+  },
+  "Q": {
+    "id": 52,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10411&subcategoryName=KKL205",
+    "created_at": "2026-08-07T03:04:38.998Z",
+    "migrated": true
+  },
+  "R": {
+    "id": 53,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10412&subcategoryName=KKL206",
+    "created_at": "2026-08-07T03:04:38.999Z",
+    "migrated": true
+  },
+  "S": {
+    "id": 54,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10413&subcategoryName=KKL301",
+    "created_at": "2026-08-07T03:04:39.000Z",
+    "migrated": true
+  },
+  "T": {
+    "id": 55,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10414&subcategoryName=KKL302",
+    "created_at": "2026-08-07T03:04:39.001Z",
+    "migrated": true
+  },
+  "U": {
+    "id": 56,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10415&subcategoryName=KKL303",
+    "created_at": "2026-08-07T03:04:39.001Z",
+    "migrated": true
+  },
+  "V": {
+    "id": 57,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10416&subcategoryName=KKL304",
+    "created_at": "2026-08-07T03:04:39.002Z",
+    "migrated": true
+  },
+  "W": {
+    "id": 58,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10417&subcategoryName=KKL305",
+    "created_at": "2026-08-07T03:04:39.002Z",
+    "migrated": true
+  },
+  "X": {
+    "id": 59,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=104&categoryName=K.K.%20Leung%20Building&subcategoryId=10418&subcategoryName=KKL306",
+    "created_at": "2026-08-07T03:04:39.003Z",
+    "migrated": true
+  },
+  "Y": {
+    "id": 60,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=105&name=Meng%20Wah%20Complex",
+    "created_at": "2026-08-07T03:04:39.004Z",
+    "migrated": true
+  },
+  "Z": {
+    "id": 61,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10501&subcategoryName=MW101",
+    "created_at": "2026-08-07T03:04:39.004Z",
+    "migrated": true
+  },
+  "1a": {
+    "id": 72,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10512&subcategoryName=MW206",
+    "created_at": "2026-08-07T03:04:39.012Z",
+    "migrated": true
+  },
+  "1b": {
+    "id": 73,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10513&subcategoryName=MW301",
+    "created_at": "2026-08-07T03:04:39.012Z",
+    "migrated": true
+  },
+  "1c": {
+    "id": 74,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10514&subcategoryName=MW302",
+    "created_at": "2026-08-07T03:04:39.013Z",
+    "migrated": true
+  },
+  "1d": {
+    "id": 75,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10515&subcategoryName=MW303",
+    "created_at": "2026-08-07T03:04:39.014Z",
+    "migrated": true
+  },
+  "1e": {
+    "id": 76,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10516&subcategoryName=MW304",
+    "created_at": "2026-08-07T03:04:39.014Z",
+    "migrated": true
+  },
+  "1f": {
+    "id": 77,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10517&subcategoryName=MW305",
+    "created_at": "2026-08-07T03:04:39.015Z",
+    "migrated": true
+  },
+  "1g": {
+    "id": 78,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=105&categoryName=Meng%20Wah%20Complex&subcategoryId=10518&subcategoryName=MW306",
+    "created_at": "2026-08-07T03:04:39.016Z",
+    "migrated": true
+  },
+  "1h": {
+    "id": 79,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=106&name=Chong%20Yuet%20Ming%20Buildings",
+    "created_at": "2026-08-07T03:04:39.017Z",
+    "migrated": true
+  },
+  "1i": {
+    "id": 80,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=107&name=Hui%20Oi%20Chow%20Science%20Building",
+    "created_at": "2026-08-07T03:04:39.017Z",
+    "migrated": true
+  },
+  "1j": {
+    "id": 81,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=108&name=James%20Hsioung%20Lee%20Science%20Building",
+    "created_at": "2026-08-07T03:04:39.018Z",
+    "migrated": true
+  },
+  "1k": {
+    "id": 82,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=109&name=Kadoorie%20Biological%20Sciences%20Building",
+    "created_at": "2026-08-07T03:04:39.018Z",
+    "migrated": true
+  },
+  "1l": {
+    "id": 83,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=10&name=Social%20Sciences",
+    "created_at": "2026-08-07T03:04:39.019Z",
+    "migrated": true
+  },
+  "1m": {
+    "id": 84,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=10&categoryName=Social%20Sciences&subcategoryId=1001&subcategoryName=Geography",
+    "created_at": "2026-08-07T03:04:39.020Z",
+    "migrated": true
+  },
+  "1n": {
+    "id": 85,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=10&categoryName=Social%20Sciences&subcategoryId=1002&subcategoryName=Politics%20%26%20Public%20Administration",
+    "created_at": "2026-08-07T03:04:39.020Z",
+    "migrated": true
+  },
+  "1o": {
+    "id": 86,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=10&categoryName=Social%20Sciences&subcategoryId=1003&subcategoryName=Psychology",
+    "created_at": "2026-08-07T03:04:39.021Z",
+    "migrated": true
+  },
+  "1p": {
+    "id": 87,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=10&categoryName=Social%20Sciences&subcategoryId=1004&subcategoryName=Social%20Work%20%26%20Social%20Administration",
+    "created_at": "2026-08-07T03:04:39.022Z",
+    "migrated": true
+  },
+  "1q": {
+    "id": 88,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=10&categoryName=Social%20Sciences&subcategoryId=1005&subcategoryName=Sociology",
+    "created_at": "2026-08-07T03:04:39.022Z",
+    "migrated": true
+  },
+  "1r": {
+    "id": 89,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=110&name=Knowles%20Building",
+    "created_at": "2026-08-07T03:04:39.023Z",
+    "migrated": true
+  },
+  "1s": {
+    "id": 90,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=111&name=Pao%20Siu%20Loong%20Building",
+    "created_at": "2026-08-07T03:04:39.024Z",
+    "migrated": true
+  },
+  "1t": {
+    "id": 91,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=112&name=Hung%20Hing%20Ying%20Building",
+    "created_at": "2026-08-07T03:04:39.024Z",
+    "migrated": true
+  },
+  "1u": {
+    "id": 92,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=113&name=Tang%20Chi%20Ngong%20Building",
+    "created_at": "2026-08-07T03:04:39.025Z",
+    "migrated": true
+  },
+  "1v": {
+    "id": 93,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=114&name=Fung%20Ping%20Shan%20Building",
+    "created_at": "2026-08-07T03:04:39.026Z",
+    "migrated": true
+  },
+  "1w": {
+    "id": 94,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=115&name=T.T.%20Tsui%20Building",
+    "created_at": "2026-08-07T03:04:39.026Z",
+    "migrated": true
+  },
+  "1x": {
+    "id": 95,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=116&name=Rayson%20Huang%20Theatre",
+    "created_at": "2026-08-07T03:04:39.027Z",
+    "migrated": true
+  },
+  "1y": {
+    "id": 96,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=117&name=Tam%20Wing%20Fan%20Innovation%20Wing",
+    "created_at": "2026-08-07T03:04:39.027Z",
+    "migrated": true
+  },
+  "1z": {
+    "id": 97,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=1&name=Architecture",
+    "created_at": "2026-08-07T03:04:39.028Z",
+    "migrated": true
+  },
+  "1A": {
+    "id": 98,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=1&categoryName=Architecture&subcategoryId=101&subcategoryName=Architecture",
+    "created_at": "2026-08-07T03:04:39.029Z",
+    "migrated": true
+  },
+  "1B": {
+    "id": 99,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=1&categoryName=Architecture&subcategoryId=102&subcategoryName=Real%20Estate%20%26%20Construction",
+    "created_at": "2026-08-07T03:04:39.029Z",
+    "migrated": true
+  },
+  "1C": {
+    "id": 100,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=1&categoryName=Architecture&subcategoryId=103&subcategoryName=Urban%20Planning%20%26%20Design",
+    "created_at": "2026-08-07T03:04:39.030Z",
+    "migrated": true
+  },
+  "1D": {
+    "id": 101,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=1&categoryName=Architecture&subcategoryId=104&subcategoryName=Landscape%20Architecture",
+    "created_at": "2026-08-07T03:04:39.031Z",
+    "migrated": true
+  },
+  "1E": {
+    "id": 102,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=201&name=Cheng%20Yu%20Tung%20Tower",
+    "created_at": "2026-08-07T03:04:39.031Z",
+    "migrated": true
+  },
+  "1F": {
+    "id": 103,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=201&categoryName=Cheng%20Yu%20Tung%20Tower&subcategoryId=20101&subcategoryName=CYT101",
+    "created_at": "2026-08-07T03:04:39.032Z",
+    "migrated": true
+  },
+  "1G": {
+    "id": 104,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=201&categoryName=Cheng%20Yu%20Tung%20Tower&subcategoryId=20102&subcategoryName=CYT102",
+    "created_at": "2026-08-07T03:04:39.034Z",
+    "migrated": true
+  },
+  "1H": {
+    "id": 105,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=201&categoryName=Cheng%20Yu%20Tung%20Tower&subcategoryId=20103&subcategoryName=CYT201",
+    "created_at": "2026-08-07T03:04:39.035Z",
+    "migrated": true
+  },
+  "1I": {
+    "id": 106,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=201&categoryName=Cheng%20Yu%20Tung%20Tower&subcategoryId=20104&subcategoryName=CYT202",
+    "created_at": "2026-08-07T03:04:39.035Z",
+    "migrated": true
+  },
+  "1J": {
+    "id": 107,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=201&categoryName=Cheng%20Yu%20Tung%20Tower&subcategoryId=20105&subcategoryName=CYT301",
+    "created_at": "2026-08-07T03:04:39.036Z",
+    "migrated": true
+  },
+  "1K": {
+    "id": 108,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=201&categoryName=Cheng%20Yu%20Tung%20Tower&subcategoryId=20106&subcategoryName=CYT302",
+    "created_at": "2026-08-07T03:04:39.037Z",
+    "migrated": true
+  },
+  "1L": {
+    "id": 109,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=202&name=Chi%20Wah%20Learning%20Commons",
+    "created_at": "2026-08-07T03:04:39.037Z",
+    "migrated": true
+  },
+  "1M": {
+    "id": 110,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=203&name=Lee%20Shau%20Kee%20Lecture%20Centre",
+    "created_at": "2026-08-07T03:04:39.038Z",
+    "migrated": true
+  },
+  "1N": {
+    "id": 111,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=204&name=The%20Grand%20Hall",
+    "created_at": "2026-08-07T03:04:39.038Z",
+    "migrated": true
+  },
+  "1O": {
+    "id": 112,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=205&name=Run%20Run%20Shaw%20Tower",
+    "created_at": "2026-08-07T03:04:39.040Z",
+    "migrated": true
+  },
+  "1P": {
+    "id": 113,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=206&name=The%20Jockey%20Club%20Tower",
+    "created_at": "2026-08-07T03:04:39.041Z",
+    "migrated": true
+  },
+  "1Q": {
+    "id": 114,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=207&name=Lui%20Che%20Woo%20Law%20Library",
+    "created_at": "2026-08-07T03:04:39.042Z",
+    "migrated": true
+  },
+  "1R": {
+    "id": 115,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=208&name=Run%20Run%20Shaw%20Heritage%20House",
+    "created_at": "2026-08-07T03:04:39.043Z",
+    "migrated": true
+  },
+  "1S": {
+    "id": 116,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=2&name=Arts",
+    "created_at": "2026-08-07T03:04:39.043Z",
+    "migrated": true
+  },
+  "1T": {
+    "id": 117,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=2&categoryName=Arts&subcategoryId=201&subcategoryName=School%20of%20Chinese",
+    "created_at": "2026-08-07T03:04:39.044Z",
+    "migrated": true
+  },
+  "1U": {
+    "id": 118,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=2&categoryName=Arts&subcategoryId=202&subcategoryName=School%20of%20English",
+    "created_at": "2026-08-07T03:04:39.045Z",
+    "migrated": true
+  },
+  "1V": {
+    "id": 119,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=2&categoryName=Arts&subcategoryId=203&subcategoryName=School%20of%20Humanities",
+    "created_at": "2026-08-07T03:04:39.045Z",
+    "migrated": true
+  },
+  "1W": {
+    "id": 120,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=2&categoryName=Arts&subcategoryId=204&subcategoryName=School%20of%20Modern%20Languages%20%26%20Cultures",
+    "created_at": "2026-08-07T03:04:39.046Z",
+    "migrated": true
+  },
+  "1X": {
+    "id": 121,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=301&name=Eliot%20Hall",
+    "created_at": "2026-08-07T03:04:39.047Z",
+    "migrated": true
+  },
+  "1Y": {
+    "id": 122,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=301&categoryName=Eliot%20Hall&subcategoryId=30101&subcategoryName=Eliot%20Hall%20-%20Floor%201",
+    "created_at": "2026-08-07T03:04:39.047Z",
+    "migrated": true
+  },
+  "1Z": {
+    "id": 123,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=301&categoryName=Eliot%20Hall&subcategoryId=30102&subcategoryName=Eliot%20Hall%20-%20Floor%202",
+    "created_at": "2026-08-07T03:04:39.048Z",
+    "migrated": true
+  },
+  "2a": {
+    "id": 134,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=309&name=Jockey%20Club%20Student%20Village%20III",
+    "created_at": "2026-08-07T03:04:39.054Z",
+    "migrated": true
+  },
+  "2b": {
+    "id": 135,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=310&name=Jockey%20Club%20Student%20Village%20IV",
+    "created_at": "2026-08-07T03:04:39.055Z",
+    "migrated": true
+  },
+  "2c": {
+    "id": 136,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=311&name=St.%20John's%20College",
+    "created_at": "2026-08-07T03:04:39.057Z",
+    "migrated": true
+  },
+  "2d": {
+    "id": 137,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=312&name=Ricci%20Hall",
+    "created_at": "2026-08-07T03:04:39.057Z",
+    "migrated": true
+  },
+  "2e": {
+    "id": 138,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=313&name=University%20Hall",
+    "created_at": "2026-08-07T03:04:39.058Z",
+    "migrated": true
+  },
+  "2f": {
+    "id": 139,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=314&name=Mui%20Fong%20House",
+    "created_at": "2026-08-07T03:04:39.059Z",
+    "migrated": true
+  },
+  "2g": {
+    "id": 140,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=3&name=Business%20%26%20Economics",
+    "created_at": "2026-08-07T03:04:39.059Z",
+    "migrated": true
+  },
+  "2h": {
+    "id": 141,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=3&categoryName=Business%20%26%20Economics&subcategoryId=301&subcategoryName=Accounting%20%26%20Law",
+    "created_at": "2026-08-07T03:04:39.061Z",
+    "migrated": true
+  },
+  "2i": {
+    "id": 142,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=3&categoryName=Business%20%26%20Economics&subcategoryId=302&subcategoryName=Economics",
+    "created_at": "2026-08-07T03:04:39.063Z",
+    "migrated": true
+  },
+  "2j": {
+    "id": 143,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=3&categoryName=Business%20%26%20Economics&subcategoryId=303&subcategoryName=Finance",
+    "created_at": "2026-08-07T03:04:39.063Z",
+    "migrated": true
+  },
+  "2k": {
+    "id": 144,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=3&categoryName=Business%20%26%20Economics&subcategoryId=304&subcategoryName=Management",
+    "created_at": "2026-08-07T03:04:39.064Z",
+    "migrated": true
+  },
+  "2l": {
+    "id": 145,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=3&categoryName=Business%20%26%20Economics&subcategoryId=305&subcategoryName=Marketing",
+    "created_at": "2026-08-07T03:04:39.065Z",
+    "migrated": true
+  },
+  "2m": {
+    "id": 146,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=401&name=Faculty%20of%20Medicine%20Building",
+    "created_at": "2026-08-07T03:04:39.067Z",
+    "migrated": true
+  },
+  "2n": {
+    "id": 147,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=402&name=Pauline%20Chan%20Building",
+    "created_at": "2026-08-07T03:04:39.070Z",
+    "migrated": true
+  },
+  "2o": {
+    "id": 148,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=403&name=Patrick%20Manson%20Building",
+    "created_at": "2026-08-07T03:04:39.071Z",
+    "migrated": true
+  },
+  "2p": {
+    "id": 149,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=404&name=Jockey%20Club%20Building%20for%20Interdisciplinary%20Research",
+    "created_at": "2026-08-07T03:04:39.072Z",
+    "migrated": true
+  },
+  "2q": {
+    "id": 150,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=405&name=Dexter%20H.C.%20Man%20Building",
+    "created_at": "2026-08-07T03:04:39.073Z",
+    "migrated": true
+  },
+  "2r": {
+    "id": 151,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=4&name=Dentistry",
+    "created_at": "2026-08-07T03:04:39.075Z",
+    "migrated": true
+  },
+  "2s": {
+    "id": 152,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=4&categoryName=Dentistry&subcategoryId=401&subcategoryName=Clinical%20Disciplines",
+    "created_at": "2026-08-07T03:04:39.076Z",
+    "migrated": true
+  },
+  "2t": {
+    "id": 153,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=4&categoryName=Dentistry&subcategoryId=402&subcategoryName=Institute%20for%20Advanced%20Dentistry",
+    "created_at": "2026-08-07T03:04:39.077Z",
+    "migrated": true
+  },
+  "2u": {
+    "id": 154,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=501&name=Stanley%20Ho%20Sports%20Centre",
+    "created_at": "2026-08-07T03:04:39.079Z",
+    "migrated": true
+  },
+  "2v": {
+    "id": 155,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=502&name=Henry%20Fok%20Health%20and%20Fitness%20Complex",
+    "created_at": "2026-08-07T03:04:39.080Z",
+    "migrated": true
+  },
+  "2w": {
+    "id": 156,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=503&name=Henry%20Fok%20Swimming%20Pool",
+    "created_at": "2026-08-07T03:04:39.081Z",
+    "migrated": true
+  },
+  "2x": {
+    "id": 157,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=5&name=Education",
+    "created_at": "2026-08-07T03:04:39.084Z",
+    "migrated": true
+  },
+  "2y": {
+    "id": 158,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=5&categoryName=Education&subcategoryId=501&subcategoryName=Teacher%20Education",
+    "created_at": "2026-08-07T03:04:39.087Z",
+    "migrated": true
+  },
+  "2z": {
+    "id": 159,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=5&categoryName=Education&subcategoryId=502&subcategoryName=Social%20Contexts%20%26%20Policies",
+    "created_at": "2026-08-07T03:04:39.088Z",
+    "migrated": true
+  },
+  "2A": {
+    "id": 160,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=5&categoryName=Education&subcategoryId=503&subcategoryName=Human%20Communication",
+    "created_at": "2026-08-07T03:04:39.089Z",
+    "migrated": true
+  },
+  "2B": {
+    "id": 161,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=601&name=1910%20%E2%80%93%201929",
+    "created_at": "2026-08-07T03:04:39.090Z",
+    "migrated": true
+  },
+  "2C": {
+    "id": 162,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=602&name=1930%20%E2%80%93%201949",
+    "created_at": "2026-08-07T03:04:39.091Z",
+    "migrated": true
+  },
+  "2D": {
+    "id": 163,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=603&name=1950%20%E2%80%93%201969",
+    "created_at": "2026-08-07T03:04:39.092Z",
+    "migrated": true
+  },
+  "2E": {
+    "id": 164,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=604&name=1970%20%E2%80%93%201989",
+    "created_at": "2026-08-07T03:04:39.094Z",
+    "migrated": true
+  },
+  "2F": {
+    "id": 165,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=605&name=1990%20%E2%80%93%202009",
+    "created_at": "2026-08-07T03:04:39.095Z",
+    "migrated": true
+  },
+  "2G": {
+    "id": 166,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=606&name=2010%20%E2%80%93%202029",
+    "created_at": "2026-08-07T03:04:39.120Z",
+    "migrated": true
+  },
+  "2H": {
+    "id": 167,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=6&name=Engineering",
+    "created_at": "2026-08-07T03:04:39.121Z",
+    "migrated": true
+  },
+  "2I": {
+    "id": 168,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=6&categoryName=Engineering&subcategoryId=601&subcategoryName=Civil%20Engineering",
+    "created_at": "2026-08-07T03:04:39.122Z",
+    "migrated": true
+  },
+  "2J": {
+    "id": 169,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=6&categoryName=Engineering&subcategoryId=602&subcategoryName=Computer%20Science",
+    "created_at": "2026-08-07T03:04:39.124Z",
+    "migrated": true
+  },
+  "2K": {
+    "id": 170,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=6&categoryName=Engineering&subcategoryId=603&subcategoryName=Electrical%20%26%20Electronic%20Engineering",
+    "created_at": "2026-08-07T03:04:39.125Z",
+    "migrated": true
+  },
+  "2L": {
+    "id": 171,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=6&categoryName=Engineering&subcategoryId=604&subcategoryName=Industrial%20%26%20Manufacturing%20Systems%20Engineering",
+    "created_at": "2026-08-07T03:04:39.126Z",
+    "migrated": true
+  },
+  "2M": {
+    "id": 172,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=6&categoryName=Engineering&subcategoryId=605&subcategoryName=Mechanical%20Engineering",
+    "created_at": "2026-08-07T03:04:39.134Z",
+    "migrated": true
+  },
+  "2N": {
+    "id": 173,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=701&name=Dim%20Sum",
+    "created_at": "2026-08-07T03:04:39.135Z",
+    "migrated": true
+  },
+  "2O": {
+    "id": 174,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=702&name=Peak%20Hiking%20Trails",
+    "created_at": "2026-08-07T03:04:39.136Z",
+    "migrated": true
+  },
+  "2P": {
+    "id": 175,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=703&name=Two-Dish%20Rice",
+    "created_at": "2026-08-07T03:04:39.136Z",
+    "migrated": true
+  },
+  "2Q": {
+    "id": 176,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=704&name=Siu%20Mei%20(Roast%20Meats)",
+    "created_at": "2026-08-07T03:04:39.137Z",
+    "migrated": true
+  },
+  "2R": {
+    "id": 177,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=7&name=Law",
+    "created_at": "2026-08-07T03:04:39.138Z",
+    "migrated": true
+  },
+  "2S": {
+    "id": 178,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=7&categoryName=Law&subcategoryId=701&subcategoryName=Department%20of%20Law",
+    "created_at": "2026-08-07T03:04:39.139Z",
+    "migrated": true
+  },
+  "2T": {
+    "id": 179,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=7&categoryName=Law&subcategoryId=702&subcategoryName=Department%20of%20Professional%20Legal%20Education",
+    "created_at": "2026-08-07T03:04:39.140Z",
+    "migrated": true
+  },
+  "2U": {
+    "id": 180,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=8&name=Medicine",
+    "created_at": "2026-08-07T03:04:39.140Z",
+    "migrated": true
+  },
+  "2V": {
+    "id": 181,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=8&categoryName=Medicine&subcategoryId=801&subcategoryName=Anaesthesiology",
+    "created_at": "2026-08-07T03:04:39.141Z",
+    "migrated": true
+  },
+  "2W": {
+    "id": 182,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=8&categoryName=Medicine&subcategoryId=802&subcategoryName=Clinical%20Oncology",
+    "created_at": "2026-08-07T03:04:39.143Z",
+    "migrated": true
+  },
+  "2X": {
+    "id": 183,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=8&categoryName=Medicine&subcategoryId=803&subcategoryName=Medicine",
+    "created_at": "2026-08-07T03:04:39.143Z",
+    "migrated": true
+  },
+  "2Y": {
+    "id": 184,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=8&categoryName=Medicine&subcategoryId=804&subcategoryName=Microbiology",
+    "created_at": "2026-08-07T03:04:39.144Z",
+    "migrated": true
+  },
+  "2Z": {
+    "id": 185,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=8&categoryName=Medicine&subcategoryId=805&subcategoryName=Pathology",
+    "created_at": "2026-08-07T03:04:39.145Z",
+    "migrated": true
+  }
+}

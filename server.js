@@ -408,23 +408,289 @@ function batchSaveToQueue(items) {
 }
 
 // ============================================================
-// SHORTLINK GENERATION (no external API, uses baseUrl)
+// SELF-CONTAINED URL SHORTENER (No external API)
 // ============================================================
-async function generateCategoryShortlink(categoryId, categoryName, baseUrl) {
-    const detailUrl = `${baseUrl}/nft/detail.html?type=category&id=${categoryId}&name=${encodeURIComponent(categoryName)}`;
-    // No external shortening; return the full URL as shortlink
-    return { detailUrl, shortlink: detailUrl, short_code: '' };
+
+const SHORTCODE_FILE = path.join(__dirname, 'shortcodes.json');
+
+// Ensure shortcode file exists
+function ensureShortcodeFile() {
+    if (!fs.existsSync(SHORTCODE_FILE)) {
+        fs.writeFileSync(SHORTCODE_FILE, JSON.stringify({}, null, 2));
+        console.log(`📁 Created shortcode file: ${SHORTCODE_FILE}`);
+    }
 }
 
-async function generateSubcategoryShortlink(categoryId, categoryName, subcategoryId, subcategoryName, baseUrl) {
-    const detailUrl = `${baseUrl}/nft/detail.html?type=subcategory&categoryId=${categoryId}&categoryName=${encodeURIComponent(categoryName)}&subcategoryId=${subcategoryId}&subcategoryName=${encodeURIComponent(subcategoryName)}`;
-    return { detailUrl, shortlink: detailUrl, short_code: '' };
+/**
+ * Generate a short code using base62 encoding (0-9, a-z, A-Z)
+ * @param {number} id - Numeric ID to encode
+ * @returns {string} - Base62 encoded string
+ */
+function encodeBase62(id) {
+    const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = '';
+    let num = id;
+    while (num > 0) {
+        result = chars[num % 62] + result;
+        num = Math.floor(num / 62);
+    }
+    return result || '0';
 }
 
-async function generateItemShortlink(categoryId, categoryName, subcategoryId, subcategoryName, itemNumber, itemName, baseUrl) {
-    const detailUrl = `${baseUrl}/nft/detail.html?type=item&categoryId=${categoryId}&categoryName=${encodeURIComponent(categoryName)}&subcategoryId=${subcategoryId}&subcategoryName=${encodeURIComponent(subcategoryName)}&itemNumber=${itemNumber}&itemName=${encodeURIComponent(itemName)}`;
-    return { detailUrl, shortlink: detailUrl, short_code: '' };
+/**
+ * Decode a base62 string back to number
+ * @param {string} str - Base62 encoded string
+ * @returns {number} - Decoded number
+ */
+function decodeBase62(str) {
+    const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = 0;
+    for (let i = 0; i < str.length; i++) {
+        result = result * 62 + chars.indexOf(str[i]);
+    }
+    return result;
 }
+
+/**
+ * Get the next available ID from the shortcode mappings
+ * @returns {number} - Next available ID
+ */
+function getNextShortcodeId() {
+    ensureShortcodeFile();
+    const mappings = JSON.parse(fs.readFileSync(SHORTCODE_FILE, 'utf-8'));
+    
+    // Find the highest ID currently in use
+    let maxId = 0;
+    for (const key in mappings) {
+        const id = mappings[key].id || 0;
+        if (id > maxId) maxId = id;
+    }
+    return maxId + 1;
+}
+
+/**
+ * Shorten a URL using our own service
+ * @param {string} originalUrl - The URL to shorten
+ * @param {string} domain - The domain to use (default: https://d3.p2.rbas.top)
+ * @returns {Promise<{short_code: string, short_url: string}>}
+ */
+async function generateShortLinkForNFT(originalUrl, domain = 'https://d3.p2.rbas.top') {
+    ensureShortcodeFile();
+    
+    // Read existing mappings
+    const mappings = JSON.parse(fs.readFileSync(SHORTCODE_FILE, 'utf-8'));
+    
+    // Check if this URL already has a shortcode
+    for (const [shortCode, data] of Object.entries(mappings)) {
+        if (data.url === originalUrl) {
+            return {
+                short_code: shortCode,
+                short_url: `${domain}/s/${shortCode}`
+            };
+        }
+    }
+    
+    // Generate new shortcode
+    const nextId = getNextShortcodeId();
+    const shortCode = encodeBase62(nextId);
+    
+    // Store the mapping
+    mappings[shortCode] = {
+        id: nextId,
+        url: originalUrl,
+        created_at: getFormattedDateTime(),
+        created_at_iso: new Date().toISOString()
+    };
+    
+    // Write to file
+    fs.writeFileSync(SHORTCODE_FILE, JSON.stringify(mappings, null, 2));
+    
+    console.log(`🔗 Generated shortcode: ${shortCode} -> ${originalUrl.substring(0, 60)}...`);
+    
+    return {
+        short_code: shortCode,
+        short_url: `${domain}/s/${shortCode}`
+    };
+}
+
+/**
+ * Get the original URL from a short code
+ * @param {string} shortCode - The short code
+ * @returns {string|null} - The original URL or null if not found
+ */
+function getOriginalUrl(shortCode) {
+    ensureShortcodeFile();
+    const mappings = JSON.parse(fs.readFileSync(SHORTCODE_FILE, 'utf-8'));
+    return mappings[shortCode]?.url || null;
+}
+
+/**
+ * Get all shortcode statistics
+ * @returns {object} - Statistics about shortcodes
+ */
+function getShortcodeStats() {
+    ensureShortcodeFile();
+    const mappings = JSON.parse(fs.readFileSync(SHORTCODE_FILE, 'utf-8'));
+    return {
+        total: Object.keys(mappings).length,
+        mappings: mappings
+    };
+}
+
+// ============================================================
+// SHORTLINK GENERATION FUNCTIONS (Using our own shortener)
+// ============================================================
+
+// Generate category shortlink
+async function generateCategoryShortlink(categoryId, categoryName, baseUrl, domain = 'https://d3.p2.rbas.top') {
+    const detailUrl = `${domain}/nft/detail.html?type=category&id=${categoryId}&name=${encodeURIComponent(categoryName)}`;
+    
+    try {
+        const result = await generateShortLinkForNFT(detailUrl, domain);
+        return {
+            detailUrl,
+            shortlink: result.short_url,
+            short_code: result.short_code
+        };
+    } catch (error) {
+        console.error(`Failed to generate shortlink for category: ${error.message}`);
+        return {
+            detailUrl,
+            shortlink: detailUrl,
+            short_code: ''
+        };
+    }
+}
+
+// Generate subcategory shortlink
+async function generateSubcategoryShortlink(categoryId, categoryName, subcategoryId, subcategoryName, baseUrl, domain = 'https://d3.p2.rbas.top') {
+    const detailUrl = `${domain}/nft/detail.html?type=subcategory&categoryId=${categoryId}&categoryName=${encodeURIComponent(categoryName)}&subcategoryId=${subcategoryId}&subcategoryName=${encodeURIComponent(subcategoryName)}`;
+    
+    try {
+        const result = await generateShortLinkForNFT(detailUrl, domain);
+        return {
+            detailUrl,
+            shortlink: result.short_url,
+            short_code: result.short_code
+        };
+    } catch (error) {
+        console.error(`Failed to generate shortlink for subcategory: ${error.message}`);
+        return {
+            detailUrl,
+            shortlink: detailUrl,
+            short_code: ''
+        };
+    }
+}
+
+
+// Generate item shortlink
+async function generateItemShortlink(categoryId, categoryName, subcategoryId, subcategoryName, itemNumber, itemName, baseUrl, domain = 'https://d3.p2.rbas.top') {
+    const detailUrl = `${domain}/nft/detail.html?type=item&categoryId=${categoryId}&categoryName=${encodeURIComponent(categoryName)}&subcategoryId=${subcategoryId}&subcategoryName=${encodeURIComponent(subcategoryName)}&itemNumber=${itemNumber}&itemName=${encodeURIComponent(itemName)}`;
+    
+    try {
+        const result = await generateShortLinkForNFT(detailUrl, domain);
+        return {
+            detailUrl,
+            shortlink: result.short_url,
+            short_code: result.short_code
+        };
+    } catch (error) {
+        console.error(`Failed to generate shortlink for item: ${error.message}`);
+        return {
+            detailUrl,
+            shortlink: detailUrl,
+            short_code: ''
+        };
+    }
+}
+
+// ============================================================
+// API: REDIRECT SHORTCODE TO ORIGINAL URL
+// ============================================================
+app.get('/s/:shortCode', (req, res) => {
+    const { shortCode } = req.params;
+    
+    if (!shortCode) {
+        return res.status(400).send('Missing short code');
+    }
+    
+    const originalUrl = getOriginalUrl(shortCode);
+    
+    if (!originalUrl) {
+        return res.status(404).send('Short URL not found');
+    }
+    
+    // Redirect to the original URL
+    res.redirect(302, originalUrl);
+});
+
+// ============================================================
+// API: SHORTCODE STATISTICS
+// ============================================================
+app.get('/api/shortcode/stats', (req, res) => {
+    try {
+        const stats = getShortcodeStats();
+        res.json({ success: true, ...stats });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============================================================
+// API: TEST SHORTLINK GENERATION
+// ============================================================
+app.get('/api/test-shortlink', async (req, res) => {
+    const { type, categoryId, categoryName, subcategoryId, subcategoryName, itemNumber, itemName } = req.query;
+    
+    try {
+        let result;
+        const domain = 'https://d3.p2.rbas.top';
+        
+        if (type === 'category') {
+            result = await generateCategoryShortlink(categoryId, categoryName, null, domain);
+        } else if (type === 'subcategory') {
+            result = await generateSubcategoryShortlink(categoryId, categoryName, subcategoryId, subcategoryName, null, domain);
+        } else if (type === 'item') {
+            result = await generateItemShortlink(categoryId, categoryName, subcategoryId, subcategoryName, itemNumber, itemName, null, domain);
+        } else {
+            return res.status(400).json({ success: false, error: 'Invalid type. Use: category, subcategory, or item' });
+        }
+        
+        res.json({ 
+            success: true, 
+            originalUrl: result.detailUrl,
+            shortlink: result.shortlink,
+            short_code: result.short_code,
+            note: 'Visit the shortlink to be redirected to the original URL'
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============================================================
+// API: GET ORIGINAL URL FROM SHORTCODE
+// ============================================================
+app.get('/api/shortcode/:shortCode', (req, res) => {
+    const { shortCode } = req.params;
+    
+    if (!shortCode) {
+        return res.status(400).json({ success: false, error: 'Missing short code' });
+    }
+    
+    const originalUrl = getOriginalUrl(shortCode);
+    
+    if (!originalUrl) {
+        return res.status(404).json({ success: false, error: 'Short URL not found' });
+    }
+    
+    res.json({ 
+        success: true, 
+        short_code: shortCode,
+        original_url: originalUrl
+    });
+});
 
 // ============================================================
 // TRANSACTION LOG UPDATE (unified)
