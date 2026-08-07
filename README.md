@@ -41,7 +41,7 @@ Frontend (HTML/JS) → Backend APIs (Node.js) → JSON Files → RBAS Wallet (We
                    ←                    ←            ←
 ```
 
-### Core Pages (4 Files)
+### Frontend Core Pages (4 Files)
 
 | File | Purpose |
 |------|---------|
@@ -54,41 +54,54 @@ Frontend (HTML/JS) → Backend APIs (Node.js) → JSON Files → RBAS Wallet (We
 
 ## 📁 Project Structure
 
+The active application is served by the Express backend in [server.js](server.js), while the main frontend pages live under [nft/](nft/). The repository also contains several support files, legacy folders, and data assets that are still part of the current development workflow.
+
 ```
 project-root/
-├── server.js                  # Backend Express server (all APIs)
-├── hku_init.js                # One‑time data generator
-├── hku_dao.json               # DAO config (hash, shortlink)
-├── hku_dao_queue.json         # Queue for blockchain sync
-├── package.json               # Node.js dependencies
-├── persistence/               # Wallet state persistence
+├── server.js                      # Main Express server: APIs, static hosting, wallet hooks, shortlink routing
+├── wallet-auth.js                 # Wallet auth helpers / RBAS login flow
+├── wallet-worker.js               # Wallet-related background worker logic
+├── hku_init.js                    # One-time / bootstrap data generator
+├── migrate_to_shortlinks.js       # Migrates NFT data to shortlink-based QR targets
+├── hku_dao.json                   # DAO metadata / config
+├── hku_dao_queue.json             # Queue for blockchain sync / background updates
+├── shortcodes.json                # Shortcode → destination URL mappings for QR/shortlinks
+├── package.json                   # Node.js dependencies
+├── package-lock.json              # Lockfile for reproducible installs
+├── persistence/                   # Wallet state persistence
 │   └── wallet_state.json
-├── uploads/                   # Temporary uploads (multer)
-├── nft/
-│   ├── index_main.html        # Homepage
-│   ├── categories.html        # Level 1 list
-│   ├── items.html             # Level 2 unified grid
-│   ├── detail.html            # Unified detail + edit
-│   ├── NFT_market.html        # Marketplace (buy/sell/list)
-│   ├── portfolio.html         # User's owned NFTs
-│   ├── ti_log.html            # Transaction log
-│   ├── data/                  # Generated NFT data
-│   │   ├── {id}_{name}/       # Category folders
-│   │   │   ├── content.json
-│   │   │   ├── content_log.json
-│   │   │   ├── {sub_id}_{name}/  # Subcategory folders
-│   │   │   │   ├── subcategory.json
-│   │   │   │   ├── subcategory_log.json
-│   │   │   │   ├── {item_id}_{name}/  # Item folders
-│   │   │   │   │   ├── {item_id}_{name}.json
-│   │   │   │   │   ├── {item_id}_{name}_log.json
-│   ├── css/style.css          # Global styles
-│   ├── js/                    # Frontend modules
-│   ├── locales/               # i18n (en.json, zh.json)
-│   └── image/                 # Logos and icons
-├── wallet-auth.js             # RBAS wallet authentication
-└── README.md                  # This file
+├── uploads/                       # Temporary uploads (multer)
+├── cert/                          # Certificate / TLS assets (if used by deployment)
+├── data_ps/                       # Additional PS / processing data assets
+├── modules/                       # Shared HTML/CSS modules used by the frontend
+├── nft/                           # Main frontend application
+│   ├── index_main.html            # Homepage
+│   ├── categories.html            # Level 1 category browser
+│   ├── items.html                 # Unified grid for subcategories / items
+│   ├── detail.html                # Unified NFT detail + edit page
+│   ├── NFT_market.html            # Marketplace UI
+│   ├── portfolio.html             # User portfolio view
+│   ├── ti_log.html                # Transaction log UI
+│   ├── data/                      # Generated NFT metadata and content data
+│   │   └── {id}_{name}/           # Category folders
+│   │       ├── content.json
+│   │       ├── content_log.json
+│   │       └── {sub_id}_{name}/   # Subcategory folders
+│   │           ├── subcategory.json
+│   │           ├── subcategory_log.json
+│   │           └── {item_id}_{name}/  # Item folders
+│   │               ├── {item_id}_{name}.json
+│   │               └── {item_id}_{name}_log.json
+│   ├── css/style.css              # Frontend stylesheets
+│   ├── js/                        # Frontend scripts / logic
+│   ├── locales/                   # Localization files
+│   └── image/                     # Logos / icons / static assets
+├── nft_old/                       # Legacy frontend versions and historical files
+├── old_file港大/                   # Historical backup files and older experiments
+└── README.md                      # Project documentation
 ```
+
+> The current app is centered around the Express backend plus the [nft/](nft/) frontend. The legacy folders remain useful for reference and rollback, but the active work should be tracked in the main app files.
 
 ---
 
@@ -145,15 +158,17 @@ node server.js
 
 ### Frontend (Served by Backend)
 
-The backend serves all frontend files automatically. Access:
+The backend serves the frontend files directly. The default local entry point is:
 ```
-http://localhost:5013/nft/index_main.html
+http://localhost:5012/nft/index_main.html
 ```
+
+If you change the port, use the same port for the local URL.
 
 ### Environment Variables (`.env`)
 
 ```bash
-PORT=5013
+PORT=5012
 DEV_MODE=true          # true = wallet disabled, false = wallet enabled
 WALLET_URL=ws://192.168.1.26:5000
 ```
@@ -166,37 +181,54 @@ With `DEV_MODE=true`, the wallet connection is disabled – perfect for testing 
 
 ## 🔌 API Endpoints
 
+The server in [server.js](server.js) exposes the following routes. Some of these are used by the frontend directly, while others support wallet, content, and shortlink workflows.
+
 | Method | Endpoint | Purpose |
 |--------|----------|---------|
 | **Categories** |||
 | GET | `/api/categories/list` | List all categories |
-| GET | `/api/category/detail?id={id}` | Category detail |
-| POST | `/api/category/add` | Create new category |
+| GET | `/api/category/detail?id={id}` | Get one category by ID |
+| POST | `/api/category/add` | Create a new category |
+| DELETE | `/api/category/delete` | Soft-delete a category |
 | **Subcategories** |||
-| GET | `/api/subcategories/list/{categoryId}` | List subcategories |
-| GET | `/api/subcategory/detail?id={id}` | Subcategory detail |
-| POST | `/subcategory/{categoryId}/{categoryName}/subcategory` | Create subcategory |
+| GET | `/api/subcategories/list/{categoryId}` | List subcategories for a category |
+| GET | `/api/subcategory/detail?id={id}` | Get one subcategory by ID |
+| POST | `/subcategory/{categoryId}/{categoryName}/subcategory` | Create a new subcategory |
+| DELETE | `/api/subcategory/delete` | Soft-delete a subcategory |
 | **Items** |||
-| GET | `/api/items/list?subcategory_id={id}` | List items |
-| GET | `/api/item/detail?id={id}` | Item detail |
-| POST | `/subcategory/{categoryId}/{categoryName}/{subcategoryNumber}/{subcategoryName}/item` | Create item |
-| **Market** |||
-| GET | `/api/nfts/onsale` | List on‑sale NFTs |
-| POST | `/api/nft/list` | List NFT for sale |
-| POST | `/api/nft/buy` | Buy NFT |
-| POST | `/api/nft/cancel-sale` | Cancel listing |
-| **Portfolio** |||
-| GET | `/api/user/nfts?wallet={address}` | Get user NFTs |
-| POST | `/api/nft/transfer` | Transfer NFT |
+| GET | `/api/items/list?category_id={id}&category_name={name}&subcategory_id={id}&subcategory_name={name}` | List items for a subcategory |
+| GET | `/api/item/detail?id={id}` | Get one item or subcategory detail by ID |
+| POST | `/subcategory/{categoryId}/{categoryName}/{subcategoryNumber}/{subcategoryName}/item` | Create a new item |
+| DELETE | `/api/item/delete` | Soft-delete an item |
+| **Shortlinks** |||
+| GET | `/s/{shortCode}` | Redirect a shortlink to its original destination |
+| GET | `/api/shortcode/stats` | Show shortcode mapping statistics |
+| GET | `/api/test-shortlink?type={category|subcategory|item}&...` | Generate a test shortlink |
+| GET | `/api/shortcode/{shortCode}` | Resolve a shortcode back to its original URL |
+| **Trash** |||
+| GET | `/api/trash/list` | List soft-deleted items |
+| POST | `/api/trash/restore` | Restore an item from trash |
+| DELETE | `/api/trash/permanent-delete` | Permanently delete from trash |
+| DELETE | `/api/trash/empty` | Empty all trash |
 | **Content** |||
-| GET | `/api/content/list` | List attachments |
-| POST | `/api/content/upload` | Upload file/text |
-| DELETE | `/api/content/delete` | Delete attachment |
+| GET | `/api/content/list` | List content attachments |
+| POST | `/api/content/update` | Update description/details |
+| POST | `/api/content/upload` | Upload a single file |
+| POST | `/api/content/batch-upload` | Upload multiple files |
+| DELETE | `/api/content/delete` | Delete content |
+| PUT | `/api/content/rename` | Rename content |
+| **Market / Portfolio** |||
+| GET | `/api/user/nfts?wallet={address}` | Get NFTs owned by a user wallet |
+| POST | `/api/nft/list` | List an NFT for sale |
+| GET | `/api/nfts/onsale` | List on-sale NFTs |
+| POST | `/api/nft/cancel-sale` | Cancel an active sale |
+| POST | `/api/nft/buy` | Buy an NFT |
+| POST | `/api/nft/transfer` | Transfer an owned NFT |
 | **Other** |||
 | GET | `/api/log/transaction` | Transaction log |
-| POST | `/api/send-code` | Send verification code |
+| POST | `/api/send-code` | Request a wallet verification code |
 | POST | `/api/login` | Wallet login |
-| GET | `/api/search?q={query}` | Search all levels |
+| GET | `/api/search?q={query}` | Search across categories, subcategories, and items |
 | GET | `/api/wallet-state/status` | Wallet connection status |
 
 ---
@@ -225,22 +257,25 @@ OR
 
 ```bash
 # List categories
-curl http://localhost:5013/api/categories/list
+curl http://localhost:5012/api/categories/list
 
 # Get category detail
-curl "http://localhost:5013/api/category/detail?id=1"
+curl "http://localhost:5012/api/category/detail?id=1"
 
 # Get subcategories
-curl http://localhost:5013/api/subcategories/list/1
+curl http://localhost:5012/api/subcategories/list/1
 
 # Get item detail
-curl "http://localhost:5013/api/item/detail?id=10101"
+curl "http://localhost:5012/api/item/detail?id=10101"
 
 # Search
-curl "http://localhost:5013/api/search?q=architecture"
+curl "http://localhost:5012/api/search?q=architecture"
 
 # Wallet status
-curl http://localhost:5013/api/wallet-state/status
+curl http://localhost:5012/api/wallet-state/status
+
+# Check a shortlink
+curl -I http://localhost:5012/s/1z
 ```
 
 ---
