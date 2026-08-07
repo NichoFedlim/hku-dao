@@ -1,7 +1,7 @@
 # 港大道 (HKU DAO) – NFT Trading Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![RBAS](https://img.shields.io/badge/Blockchain-RBAS-blue.svg)](https://github.com/NichoFedlim/hku-dao)
+[![RBAS](https://img.shields.io/badge/Blockchain-RBAS-blue.svg)](https://github.com/NichoFedlim/rbas_db_dbio)
 
 ---
 
