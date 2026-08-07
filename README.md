@@ -154,6 +154,11 @@ node hku_init.js
 
 # 4. Start the server
 node server.js
+
+# 5. For production, use PM2
+pm2 start server.js --name hku-dao-server
+(to stop: `pm2 stop hku-dao-server`)
+(to check status: `pm2 status`)
 ```
 
 ### Frontend (Served by Backend)
@@ -310,7 +315,7 @@ This project is licensed under the MIT License – see the [LICENSE](LICENSE) fi
 
 - **RBAS Blockchain** – For providing the underlying blockchain infrastructure
 - **University of Hong Kong** – For inspiration and cultural heritage data
-- **Pei Zheng Dao & Bai Xing Dao** – For the original concept and codebase
+- **Pei Zheng Dao (培正道) & Bai Xing Dao (百姓道)** – For the original concept and codebase
 
 ---
 
