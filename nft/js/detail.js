@@ -574,10 +574,32 @@ function renderDetail() {
     const displayName = currentLang === 'zh' ? (detailData.name_zh || detailData.name) : detailData.name;
     const displayDesc = currentLang === 'zh' ? (detailData.description_zh || detailData.description) : detailData.description;
     const displayDetails = currentLang === 'zh' ? (detailData.details_zh || detailData.details) : detailData.details;
+    const elementId = `logo-${item.id}-${index}`;
+    
+    const logoHtml = renderLogo(
+        itemType,
+        item.name,
+        item.id,
+        'nft-logo',
+        displayName(item),
+        elementId
+    );
 
     document.getElementById('detail-title').textContent = displayName;
     document.getElementById('detail-id').textContent = `#${detailData.id}`;
     document.getElementById('detail-type-badge').textContent = t(detailData.type || 'item') || detailData.type || 'Item';
+    // Update title section with logo
+    const titleSection = document.querySelector('.title-section');
+    titleSection.innerHTML = `
+        ${logoHtml}
+        <div style="display:inline-block;vertical-align:middle;">
+            <h1 id="detail-title" style="margin:0;">${displayName}</h1>
+            <div class="subtitle">
+                <span id="detail-id">#${detailData.id}</span>
+                <span class="type-badge" id="detail-type-badge">${t(detailData.type || 'item')}</span>
+            </div>
+        </div>
+    `;
 
     // Breadcrumb
     let parentName = '';

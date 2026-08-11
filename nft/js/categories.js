@@ -608,11 +608,24 @@ function renderCategories(items) {
         const qrContent = item.shortlink?.trim() || detailUrl || item.nft?.trim() || 'https://hku.hk';
         const hashDisplay = item.nft ? item.nft.match(/.{1,16}/g)?.join('<br>') || item.nft : 'No hash';
         const priceDisplay = item.price ? `${item.price} rc` : '';
+        const itemType = item.filterKey || item.type || 'other';
+        const elementId = `logo-${item.id}-${index}`;
+        
+        // Render logo with unique ID for async updates
+        const logoHtml = renderLogo(
+            itemType,           // type
+            item.name,          // name
+            item.id,            // id
+            'nft-logo',         // className
+            displayName(item),  // altText
+            elementId           // elementId for async updates
+        );
 
         return `
             <div class="nft-card" data-id="${item.id}" data-filter="${item.filterKey}">
                 <div class="card-inner">
                     <div class="card-left">
+                        ${logoHtml}
                         <div class="item-name">${displayName(item)}</div>
                         <div class="item-parent">${filterLabels[item.filterKey] || item.filterKey}</div>
                         ${priceDisplay ? `<div class="price-tag">💰 ${priceDisplay}</div>` : ''}

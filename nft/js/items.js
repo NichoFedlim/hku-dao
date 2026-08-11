@@ -536,6 +536,53 @@ const SUBCATEGORY_DATA = {
     }
 };
 
+function getTypeForParentId(parentId) {
+    const typeMap = {
+        // Faculties (1-10)
+        1: 'faculties',   // Architecture
+        2: 'faculties',   // Arts
+        3: 'faculties',   // Business & Economics
+        4: 'faculties',   // Dentistry
+        5: 'faculties',   // Education
+        6: 'faculties',   // Engineering
+        7: 'faculties',   // Law
+        8: 'faculties',   // Medicine
+        9: 'faculties',   // Science
+        10: 'faculties',  // Social Sciences
+        
+        // Main Campus Buildings (101-117)
+        101: 'main-campus', 102: 'main-campus', 103: 'main-campus', 104: 'main-campus', 105: 'main-campus',
+        106: 'main-campus', 107: 'main-campus', 108: 'main-campus', 109: 'main-campus', 110: 'main-campus',
+        111: 'main-campus', 112: 'main-campus', 113: 'main-campus', 114: 'main-campus', 115: 'main-campus',
+        116: 'main-campus', 117: 'main-campus',
+        
+        // Centennial Campus (201-208)
+        201: 'centennial-campus', 202: 'centennial-campus', 203: 'centennial-campus', 204: 'centennial-campus', 205: 'centennial-campus',
+        206: 'centennial-campus', 207: 'centennial-campus', 208: 'centennial-campus',
+        
+        // Halls (301-314)
+        301: 'halls', 302: 'halls', 303: 'halls', 304: 'halls', 305: 'halls',
+        306: 'halls', 307: 'halls', 308: 'halls', 309: 'halls', 310: 'halls',
+        311: 'halls', 312: 'halls', 313: 'halls', 314: 'halls',
+        
+        // Medical (401-405)
+        401: 'medical', 402: 'medical', 403: 'medical', 404: 'medical', 405: 'medical',
+        
+        // Sports (501-503)
+        501: 'sports', 502: 'sports', 503: 'sports',
+        
+        // History (601-606)
+        601: 'history', 602: 'history', 603: 'history', 604: 'history', 605: 'history', 606: 'history',
+        
+        // Culture (701-704)
+        701: 'culture', 702: 'culture', 703: 'culture', 704: 'culture',
+        
+        // Other
+        999: 'other'
+    };
+    return typeMap[parentId] || 'other';
+}
+
 // ============================================================
 // ITEMS DATA LOADING
 // ============================================================
@@ -592,7 +639,9 @@ async function loadItems() {
             shortlink: sub.shortlink || `https://hku.hk/subcategory/${sub.id}`,
             price: sub.price || 0,
             parentName: sub.categoryName || 'Category',
-            parentName_zh: sub.categoryName || 'Category'
+            parentName_zh: sub.categoryName || 'Category',
+            parentType: sub.type || 'other',  
+            filterKey: sub.type || 'other' 
         }));
         
         parentName = currentLang === 'zh' ? (items[0]?.parentName_zh || items[0]?.parentName) : items[0]?.parentName;
@@ -618,6 +667,7 @@ function loadItemsFallback(id) {
     const params = new URLSearchParams(window.location.search);
     const level = params.get('level') || 'category';
     id = params.get('id') || params.get('parent');
+    const parentType = getTypeForParentId(parentIdNum);  
 
     currentLevel = level;
     parentId = id;
@@ -664,7 +714,9 @@ function loadItemsFallback(id) {
         shortlink: `https://hku.hk/item/${sub.id}`,
         price: Math.floor(Math.random() * 100) + 10,
         parentName: data.name,
-        parentName_zh: data.name_zh
+        parentName_zh: data.name_zh,
+        parentType: parentType,
+        filterKey: parentType
     }));
 
     countBadge.textContent = items.length;
@@ -703,11 +755,24 @@ function renderItems(itemsList) {
         const qrContent = item.shortlink?.trim() || detailUrl || item.nft?.trim() || 'https://hku.hk';
         const hashDisplay = item.nft ? item.nft.match(/.{1,16}/g)?.join('<br>') || item.nft : 'No hash';
         const priceDisplay = item.price ? `${item.price} rc` : '';
+        // Determine type for logo (inherit from parent or use 'other')
+        const itemType = item.filterKey || item.parentType || 'other';
+        const elementId = `logo-${item.id}-${index}`;
+        
+        const logoHtml = renderLogo(
+            itemType,
+            item.name,
+            item.id,
+            'nft-logo',
+            displayName(item),
+            elementId
+        );
 
         return `
             <div class="nft-card" data-id="${item.id}" data-level="${currentLevel}">
                 <div class="card-inner">
                     <div class="card-left">
+                        ${logoHtml}
                         <div class="item-name">${displayName(item)}</div>
                         <div class="item-parent">${parentDisplay(item)}</div>
                         ${priceDisplay ? `<div class="price-tag">💰 ${priceDisplay}</div>` : ''}
