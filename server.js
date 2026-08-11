@@ -1342,7 +1342,7 @@ app.post('/api/category/add', async (req, res) => {
         }
     }
     const category_number = maxNumber + 1;
-    const systemWallet = "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E";
+    const systemWallet = "A5518B32F97FCF6BA2FFC9063325B05AA60D5FE121EBE7D760CD34874E9F7D63";
 
     // Transfer RC
     const transferResult = await transferRC(buyer_wallet, systemWallet, price);
@@ -1637,7 +1637,7 @@ app.post('/subcategory/:categoryId/:categoryName/subcategory', async (req, res) 
     const subcategoryHash = crypto.createHash('sha256').update(combinedInput).digest('hex').toUpperCase();
 
     const price = 1000;
-    const systemWallet = "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E";
+    const systemWallet = "A5518B32F97FCF6BA2FFC9063325B05AA60D5FE121EBE7D760CD34874E9F7D63";
 
     // Transfer RC
     const transferResult = await transferRC(buyerWallet, systemWallet, price);
@@ -1979,7 +1979,7 @@ app.post('/subcategory/:categoryId/:categoryName/:subcategoryNumber/:subcategory
     const itemHash = crypto.createHash('sha256').update(combinedInput).digest('hex').toUpperCase();
 
     const price = 100;
-    const systemWallet = "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E";
+    const systemWallet = "A5518B32F97FCF6BA2FFC9063325B05AA60D5FE121EBE7D760CD34874E9F7D63";
 
     // Transfer RC
     const transferResult = await transferRC(buyerWallet, systemWallet, price);
@@ -2874,7 +2874,7 @@ app.post('/api/nft/buy', async (req, res) => {
         // We'll just do a simple transfer and remove/add NFT.
 
         // We'll implement a simplified purchase: transfer, remove from seller, add to buyer, update log.
-        const systemWallet = "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E";
+        const systemWallet = "A5518B32F97FCF6BA2FFC9063325B05AA60D5FE121EBE7D760CD34874E9F7D63";
         const sellerAmount = Math.floor(price * 0.9);
 
         // Step 1: buyer -> system
@@ -3029,6 +3029,115 @@ app.post('/api/nft/transfer', async (req, res) => {
         res.json({ success: true, message: 'NFT transferred successfully' });
     } catch (error) {
         console.error('Transfer failed:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============================================================
+// API: GET NFT OWNER
+// ============================================================
+app.get('/api/nft/owner', (req, res) => {
+    const { type, id } = req.query;
+    if (!type || !id) {
+        return res.status(400).json({ success: false, error: 'Missing type or id' });
+    }
+
+    try {
+        const dataRoot = NFT_DATA_DIR;
+        let found = null;
+
+        // Search for the NFT based on type and id
+        if (type === 'category') {
+            // Find the category directory
+            const dirs = fs.readdirSync(dataRoot, { withFileTypes: true });
+            for (const dir of dirs) {
+                if (dir.isDirectory()) {
+                    const match = dir.name.match(/^(\d+)_(.+)$/);
+                    if (match && match[1] === String(id)) {
+                        const logPath = path.join(dataRoot, dir.name, 'content_log.json');
+                        if (fs.existsSync(logPath)) {
+                            const data = JSON.parse(fs.readFileSync(logPath, 'utf-8'));
+                            found = data.nft_holder || {};
+                            break;
+                        }
+                    }
+                }
+            }
+        } else if (type === 'subcategory') {
+            // Search through all categories for the subcategory
+            const dirs = fs.readdirSync(dataRoot, { withFileTypes: true });
+            for (const dir of dirs) {
+                if (dir.isDirectory()) {
+                    const catMatch = dir.name.match(/^(\d+)_(.+)$/);
+                    if (catMatch) {
+                        const subPath = path.join(dataRoot, dir.name);
+                        const subDirs = fs.readdirSync(subPath, { withFileTypes: true });
+                        for (const subDir of subDirs) {
+                            if (subDir.isDirectory()) {
+                                const subMatch = subDir.name.match(/^(\d+)_(.+)$/);
+                                if (subMatch && subMatch[1] === String(id)) {
+                                    const logPath = path.join(subPath, subDir.name, 'subcategory_log.json');
+                                    if (fs.existsSync(logPath)) {
+                                        const data = JSON.parse(fs.readFileSync(logPath, 'utf-8'));
+                                        found = data.nft_holder || {};
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (found) break;
+                    }
+                }
+                if (found) break;
+            }
+        } else if (type === 'item') {
+            // Search through all categories -> subcategories -> items
+            const dirs = fs.readdirSync(dataRoot, { withFileTypes: true });
+            for (const dir of dirs) {
+                if (dir.isDirectory()) {
+                    const catMatch = dir.name.match(/^(\d+)_(.+)$/);
+                    if (catMatch) {
+                        const subPath = path.join(dataRoot, dir.name);
+                        const subDirs = fs.readdirSync(subPath, { withFileTypes: true });
+                        for (const subDir of subDirs) {
+                            if (subDir.isDirectory()) {
+                                const subMatch = subDir.name.match(/^(\d+)_(.+)$/);
+                                if (subMatch) {
+                                    const itemPath = path.join(subPath, subDir.name);
+                                    const itemDirs = fs.readdirSync(itemPath, { withFileTypes: true });
+                                    for (const itemDir of itemDirs) {
+                                        if (itemDir.isDirectory()) {
+                                            const itemMatch = itemDir.name.match(/^(\d+)_(.+)$/);
+                                            if (itemMatch && itemMatch[1] === String(id)) {
+                                                const logPath = path.join(itemPath, itemDir.name, `${itemMatch[1]}_${itemMatch[2]}_log.json`);
+                                                if (fs.existsSync(logPath)) {
+                                                    const data = JSON.parse(fs.readFileSync(logPath, 'utf-8'));
+                                                    found = data.nft_holder || {};
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if (found) break;
+                                    }
+                                }
+                                if (found) break;
+                            }
+                            if (found) break;
+                        }
+                        if (found) break;
+                    }
+                }
+                if (found) break;
+            }
+        }
+
+        if (found) {
+            res.json({ success: true, owner: found.wallet || null, data: found });
+        } else {
+            res.json({ success: true, owner: null, data: {} });
+        }
+    } catch (error) {
+        console.error('Failed to fetch NFT owner:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });

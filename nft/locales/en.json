@@ -313,5 +313,10 @@
     "rename": "Rename",
     "rename_prompt": "Enter new name for the file:",
     "rename_success": "File renamed successfully",
-    "rename_failed": "Rename failed"
+    "rename_failed": "Rename failed",
+
+    "owner_title": "Owner",
+    "loading_owner": "Loading owner...",
+    "no_owner": "No owner found (NFT may not be minted yet).",
+    "owner_error": "Could not load owner information."
 }

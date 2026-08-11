@@ -1,0 +1,20 @@
+{
+  "log": [
+    {
+      "thread": 1,
+      "time": "2026/08/06 15:04:10",
+      "price": 100,
+      "seller": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+      "buyer": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+      "chain": "F0DEC3617524E00C",
+      "next_chain": "1D50194C580488E5",
+      "verification_code": "1D50194C580488E56725FB0FB491E504F5D27C2FBBDCCBC9968A747813F72692"
+    }
+  ],
+  "nft_holder": {
+    "wallet": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+    "phone_number": "",
+    "email": "",
+    "other": "......"
+  }
+}

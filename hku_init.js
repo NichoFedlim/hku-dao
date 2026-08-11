@@ -18,7 +18,8 @@ const BASE_URL = 'https://d3.p2.rbas.top';
 // 1. DAO CONFIG
 // ============================================================
 const DAO_HASH = crypto.createHash('sha256').update('HKU DAO 港大道').digest('hex').toUpperCase();
-const SYSTEM_WALLET = '18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E';
+// const SYSTEM_WALLET = '18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E';
+const SYSTEM_WALLET = 'A5518B32F97FCF6BA2FFC9063325B05AA60D5FE121EBE7D760CD34874E9F7D63'; // Nicholas F's wallet
 const DATA_ROOT = path.join(__dirname, 'nft', 'data');
 
 // ============================================================

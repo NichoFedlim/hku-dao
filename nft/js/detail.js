@@ -44,10 +44,10 @@ function applyTranslations() {
     document.title = t('detail_title') || 'Detail';
 }
 
-window.toggleLanguage = function() {
+function toggleLanguage() {
     const next = currentLang === 'zh' ? 'en' : 'zh';
     loadLanguage(next);
-};
+}
 
 // ============================================================
 // WALLET AUTH
@@ -66,7 +66,7 @@ function openWalletLoginModal() {
     return Promise.reject(new Error('wallet-auth not loaded'));
 }
 
-window.handleLogin = async function() {
+async function handleLogin() {
     const info = checkLoginStatus();
     if (info) {
         window.location.href = '/nft/portfolio.html';
@@ -87,7 +87,7 @@ window.handleLogin = async function() {
             showToast(t('login_error') + ': ' + e.message, 'error');
         }
     }
-};
+}
 
 // ============================================================
 // TOAST
@@ -571,21 +571,21 @@ function viewTransactionHistory() {
 // RENDER DETAIL
 // ============================================================
 function renderDetail() {
-    const displayName = currentLang === 'zh' ? (detailData.name_zh || detailData.name) : detailData.name;
+    const displayNameText = currentLang === 'zh' ? (detailData.name_zh || detailData.name) : detailData.name;
     const displayDesc = currentLang === 'zh' ? (detailData.description_zh || detailData.description) : detailData.description;
     const displayDetails = currentLang === 'zh' ? (detailData.details_zh || detailData.details) : detailData.details;
-    const elementId = `logo-${item.id}-${index}`;
-    
+    const elementId = `logo-${detailData.id}`;
+
     const logoHtml = renderLogo(
         itemType,
-        item.name,
-        item.id,
+        detailData.name,
+        detailData.id,
         'nft-logo',
-        displayName(item),
+        displayNameText,
         elementId
     );
 
-    document.getElementById('detail-title').textContent = displayName;
+    document.getElementById('detail-title').textContent = displayNameText;
     document.getElementById('detail-id').textContent = `#${detailData.id}`;
     document.getElementById('detail-type-badge').textContent = t(detailData.type || 'item') || detailData.type || 'Item';
     // Update title section with logo
@@ -593,7 +593,7 @@ function renderDetail() {
     titleSection.innerHTML = `
         ${logoHtml}
         <div style="display:inline-block;vertical-align:middle;">
-            <h1 id="detail-title" style="margin:0;">${displayName}</h1>
+            <h1 id="detail-title" style="margin:0;">${displayNameText}</h1>
             <div class="subtitle">
                 <span id="detail-id">#${detailData.id}</span>
                 <span class="type-badge" id="detail-type-badge">${t(detailData.type || 'item')}</span>
@@ -619,7 +619,7 @@ function renderDetail() {
     }
     document.getElementById('breadcrumb-parent').textContent = parentName;
     document.getElementById('breadcrumb-parent').href = parentLink;
-    document.getElementById('breadcrumb-current').textContent = displayName;
+    document.getElementById('breadcrumb-current').textContent = displayNameText;
 
     // Transaction button
     const txBtn = document.getElementById('transaction-btn');
@@ -657,17 +657,20 @@ function renderDetail() {
     const detailUrl = `${baseUrl}/nft/detail.html?type=${detailData.type || 'item'}&id=${detailData.id}`;
     const qrContent = detailData.shortlink?.trim() || detailUrl || 'https://hku.hk';
     const qrContainer = document.getElementById('detail-qrcode');
-    if (qrContainer) {
+    if (qrContainer && window.QRCode) {
         qrContainer.innerHTML = '';
         const size = window.innerWidth <= 480 ? 120 : 140;
-        new QRCode(qrContainer, {
+        const qrOptions = {
             text: qrContent,
             width: size,
             height: size,
             colorDark: '#003153',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.L
-        });
+            colorLight: '#ffffff'
+        };
+        if (window.QRCode.CorrectLevel) {
+            qrOptions.correctLevel = window.QRCode.CorrectLevel.L;
+        }
+        new window.QRCode(qrContainer, qrOptions);
         const canvas = qrContainer.querySelector('canvas');
         if (canvas) {
             canvas.style.width = '100%';
@@ -692,6 +695,8 @@ function renderDetail() {
 
     // Show mock indicator if needed
     showMockIndicator();
+    // After rendering attachments and QR, fetch owner
+    fetchOwner();
 }
 
 // ============================================================
@@ -790,6 +795,85 @@ async function refreshAttachments() {
     } catch (error) {
         console.warn('Could not refresh attachments:', error);
         // Keep the existing attachments if fetch fails
+    }
+}
+
+// ============================================================
+// FETCH OWNER FROM TRANSACTION LOG
+// ============================================================
+async function fetchOwner() {
+    const container = document.getElementById('owner-display');
+    if (!container) return;
+
+    try {
+        // Build the transaction log URL using the same logic as viewTransactionHistory
+        const type = detailData.type || 'item';
+        const id = detailData.id;
+        let url = '';
+
+        if (type === 'category') {
+            const cardNumber = detailData.card_number || id;
+            const name = encodeURIComponent(detailData.name || '');
+            url = `/api/log/transaction?level=category&card_number=${cardNumber}&name=${name}`;
+        } else if (type === 'subcategory') {
+            const categoryId = detailData.category_id || id;
+            const categoryName = encodeURIComponent(detailData.category_name || '');
+            const subcategoryId = detailData.id;
+            const subcategoryName = encodeURIComponent(detailData.name || '');
+            url = `/api/log/transaction?level=subcategory&category_id=${categoryId}&category_name=${categoryName}&subcategory_id=${subcategoryId}&subcategory_name=${subcategoryName}`;
+        } else if (type === 'item' || type === 'subitem') {
+            const categoryId = detailData.category_id || id;
+            const categoryName = encodeURIComponent(detailData.category_name || '');
+            const subcategoryId = detailData.subcategory_id || id;
+            const subcategoryName = encodeURIComponent(detailData.subcategory_name || '');
+            const itemNumber = detailData.id;
+            const itemName = encodeURIComponent(detailData.name || '');
+            url = `/api/log/transaction?level=item&category_id=${categoryId}&category_name=${categoryName}&subcategory_id=${subcategoryId}&subcategory_name=${subcategoryName}&item_number=${itemNumber}&item_name=${itemName}`;
+        } else {
+            // fallback
+            const cardNumber = detailData.card_number || id;
+            const name = encodeURIComponent(detailData.name || '');
+            url = `/api/log/transaction?level=category&card_number=${cardNumber}&name=${name}`;
+        }
+
+        const response = await fetch(`${API_BASE}${url}`);
+        if (!response.ok) throw new Error('Failed to fetch transaction log');
+
+        const data = await response.json();
+        const logs = data.log || [];
+        const nftHolder = data.nft_holder || {};
+
+        // Get the latest buyer (owner)
+        let owner = null;
+        if (logs.length > 0) {
+            // Sort by thread descending
+            const sorted = logs.sort((a, b) => (b.thread || 0) - (a.thread || 0));
+            const latest = sorted[0];
+            if (latest && latest.buyer) {
+                owner = latest.buyer;
+            }
+        }
+
+        // Also check nft_holder if available
+        if (nftHolder && nftHolder.wallet) {
+            owner = nftHolder.wallet;
+        }
+
+        // Render owner
+        if (owner) {
+            // Format wallet address (show full or shortened)
+            const displayOwner = owner.length > 20 ? `${owner.slice(0, 10)}...${owner.slice(-10)}` : owner;
+            container.innerHTML = `
+                <span class="owner-address" title="${owner}">${displayOwner}</span>
+                <span style="margin-left: 12px; font-size: 0.85rem; color: #888;">(Wallet)</span>
+            `;
+        } else {
+            container.innerHTML = `<span class="empty-text">${t('no_owner') || 'No owner found (NFT may not be minted yet).'}</span>`;
+        }
+
+    } catch (error) {
+        console.warn('Failed to fetch owner:', error);
+        container.innerHTML = `<span class="empty-text">${t('owner_error') || 'Could not load owner information.'}</span>`;
     }
 }
 
@@ -1380,18 +1464,21 @@ window.addEventListener('resize', () => {
     resizeTimer = setTimeout(() => {
         if (detailData && detailData.hash) {
             const qrContainer = document.getElementById('detail-qrcode');
-            if (qrContainer) {
+            if (qrContainer && window.QRCode) {
                 const size = window.innerWidth <= 480 ? 120 : 140;
                 const qrContent = detailData.shortlink?.trim() || detailData.hash?.trim() || 'https://hku.hk';
                 qrContainer.innerHTML = '';
-                new QRCode(qrContainer, {
+                const qrOptions = {
                     text: qrContent,
                     width: size,
                     height: size,
                     colorDark: '#003153',
-                    colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.L
-                });
+                    colorLight: '#ffffff'
+                };
+                if (window.QRCode.CorrectLevel) {
+                    qrOptions.correctLevel = window.QRCode.CorrectLevel.L;
+                }
+                new window.QRCode(qrContainer, qrOptions);
                 const canvas = qrContainer.querySelector('canvas');
                 if (canvas) {
                     canvas.style.width = '100%';

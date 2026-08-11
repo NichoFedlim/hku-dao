@@ -1,0 +1,21 @@
+{
+  "name": "Main Building",
+  "name_zh": "主楼",
+  "type": "main-campus",
+  "hash": "A01661DFFCDCAC390BB0C643B82116155407C80A512E37B4A77DD9FB624A6344",
+  "card_number": 101,
+  "population": 0,
+  "percent": 0,
+  "source": [],
+  "distribution": [],
+  "history": [],
+  "modern": [],
+  "nft_holder": {
+    "wallet": "18FB5707601BD6A8D79F2F6C18427E85F6EA7EAB3D9AB43948C436D8A1DD1D0E",
+    "phone_number": "",
+    "email": "",
+    "other": "......"
+  },
+  "shortlink": "https://d3.p2.rbas.top/s/1",
+  "short_code": "1"
+}

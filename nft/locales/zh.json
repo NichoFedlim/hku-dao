@@ -312,5 +312,10 @@
     "rename": "重命名",
     "rename_prompt": "输入文件的新名称:",
     "rename_success": "文件重命名成功",
-    "rename_failed": "重命名失败"
+    "rename_failed": "重命名失败",
+
+    "owner_title": "拥有者",
+    "loading_owner": "加载拥有者信息...",
+    "no_owner": "未找到拥有者（NFT可能尚未铸造）。",
+    "owner_error": "无法加载拥有者信息。"
 }

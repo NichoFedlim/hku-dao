@@ -60,7 +60,7 @@ function getImageUrls(type, name, id) {
         faculty: 'faculties',
         'main-campus': 'buildings',
         'centennial-campus': 'buildings',
-        halls: 'buildings',
+        halls: 'halls',
         medical: 'medical',
         sports: 'sports',
         history: 'history',

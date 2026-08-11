@@ -233,6 +233,31 @@ function getMockNFTs() {
 }
 
 // ============================================================
+// NAVIGATE TO DETAIL PAGE
+// ============================================================
+function goToDetail(level, card_number, citang_number, member_number) {
+    let type, id;
+    
+    if (level === 'surname' || level === 'category') {
+        type = 'category';
+        id = card_number;
+    } else if (level === 'citang' || level === 'subcategory') {
+        type = 'subcategory';
+        id = citang_number;
+    } else if (level === 'member' || level === 'item') {
+        type = 'item';
+        id = member_number;
+    } else {
+        console.warn('Unknown level:', level);
+        showToast('Cannot open detail for this NFT type', 'error');
+        return;
+    }
+    
+    const url = `/nft/detail.html?type=${type}&id=${id}`;
+    window.location.href = url;
+}
+
+// ============================================================
 // LOAD USER NFTs
 // ============================================================
 async function loadUserNFTs() {
@@ -456,6 +481,9 @@ function renderSurnameCard(nft) {
                 <span class="price-display">💰 <span class="rc">${purchasePrice} RC</span></span>
                 <div class="btn-group">
                     <div class="btn-row">
+                        <button class="btn-sm btn-sm-detail" onclick="goToDetail('${nft.level}', ${nft.card_number}, null, null)">
+                            ${t('view_detail') || 'View Detail'}
+                        </button>
                         <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory('${nft.level}', ${nft.card_number}, '${esc(nft.surname)}', null, '', null, '')">
                             ${t('view_transactions')}
                         </button>
@@ -521,6 +549,9 @@ function renderCitangCard(nft) {
                 <span class="price-display">💰 <span class="rc">${purchasePrice} RC</span></span>
                 <div class="btn-group">
                     <div class="btn-row">
+                        <button class="btn-sm btn-sm-detail" onclick="goToDetail('${nft.level}', ${nft.card_number}, ${nft.citang_number}, null)">
+                            ${t('view_detail') || 'View Detail'}
+                        </button>
                         <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory('${nft.level}', ${nft.card_number}, '${esc(nft.surname)}', ${nft.citang_number}, '${esc(nft.citang_name)}', null, '')">
                             ${t('view_transactions')}
                         </button>
@@ -588,6 +619,9 @@ function renderMemberCard(nft) {
                 <span class="price-display">💰 <span class="rc">${purchasePrice} RC</span></span>
                 <div class="btn-group">
                     <div class="btn-row">
+                        <button class="btn-sm btn-sm-detail" onclick="goToDetail('${nft.level}', ${nft.card_number}, ${nft.citang_number}, ${nft.member_number})">
+                            ${t('view_detail') || 'View Detail'}
+                        </button>
                         <button class="btn-sm btn-sm-transaction" onclick="viewTransactionHistory('${nft.level}', ${nft.card_number}, '${esc(nft.surname)}', ${nft.citang_number}, '${esc(nft.citang_name)}', ${nft.member_number}, '${esc(nft.member_name)}')">
                             ${t('view_transactions')}
                         </button>
