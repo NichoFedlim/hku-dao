@@ -22,5 +22,53 @@
     "verification_code": "3720D9B12103D35268964F5190E8CE240D4027CBD6B44718476610B3C15ECA0E",
     "type": "purchase",
     "created_at": "2026/08/03 12:34:37"
+  },
+  {
+    "seq": 5,
+    "hash": "CF31AF8178E1BA56357F9A5D3CE98DA667DDEB4A2BD0E18A0A946041FBAC5E98",
+    "type": "category",
+    "created_at": "2026/08/10 18:19:20"
+  },
+  {
+    "seq": 6,
+    "verification_code": "040C5CD94D06182411DF70D1CFD42217473191FBB62F476A96FEA9B91B4E9D76",
+    "type": "purchase",
+    "created_at": "2026/08/10 18:19:20"
+  },
+  {
+    "seq": 7,
+    "hash": "D6F681211C9CE58C42E37FF539A5606AF59506CD92900D102ADAF0F24A1BD20D",
+    "type": "category",
+    "created_at": "2026/08/10 18:19:42"
+  },
+  {
+    "seq": 8,
+    "verification_code": "DF3D0F31D3CE6A375199BDC53C01FB7737081C1486FBC03AE250F15AFC0535F0",
+    "type": "purchase",
+    "created_at": "2026/08/10 18:19:42"
+  },
+  {
+    "seq": 9,
+    "hash": "77C697C02F7E0D076EB997B2420DC20002302F64B2CF9D7252DCE7F5507BA12F",
+    "type": "category",
+    "created_at": "2026/08/10 18:19:58"
+  },
+  {
+    "seq": 10,
+    "verification_code": "4DA5120FDD155D3012B8FCB0CAC531EF18BD56B0B67B2C76B2B682BAC2AE6589",
+    "type": "purchase",
+    "created_at": "2026/08/10 18:19:58"
+  },
+  {
+    "seq": 11,
+    "hash": "736A5DC015C9064BAF75F278EDD17FAA03EA6D3646A65C01532E7AB32A0256BB",
+    "type": "category",
+    "created_at": "2026/08/10 18:25:33"
+  },
+  {
+    "seq": 12,
+    "verification_code": "181AF09E77BFA310B551F394BBF96EE04A12FD24ED4EB799A1C26F44CFF776CB",
+    "type": "purchase",
+    "created_at": "2026/08/10 18:25:33"
   }
 ]

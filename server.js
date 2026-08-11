@@ -407,6 +407,16 @@ function batchSaveToQueue(items) {
     }
 }
 
+// Manual cleanup endpoint (for testing, or on demand)
+app.post('/api/queue/cleanup', (req, res) => {
+    try {
+        cleanupQueue();
+        res.json({ success: true, message: 'Queue cleanup completed' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // ============================================================
 // SELF-CONTAINED URL SHORTENER (No external API)
 // ============================================================
@@ -1285,7 +1295,7 @@ app.get('/api/category/detail', (req, res) => {
 
 // Add category
 app.post('/api/category/add', async (req, res) => {
-    const { category_name, price, buyer_wallet } = req.body;
+    const { category_name, category_name_zh, category_type, price, buyer_wallet } = req.body;
     if (!category_name || !price || !buyer_wallet) {
         return res.status(400).json({ success: false, error: 'Missing necessary parameters' });
     }
@@ -1352,6 +1362,8 @@ app.post('/api/category/add', async (req, res) => {
         hash: category_hash,
         card_number: category_number,
         type: category_type || 'other',  // Defaults to 'other' if not specified
+        price: price,
+        created: getFormattedDateTime(),
         population: 0,
         percent: 0,
         source: [],

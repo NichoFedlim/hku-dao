@@ -1168,5 +1168,35 @@
     "url": "https://d3.p2.rbas.top/nft/detail.html?type=subcategory&categoryId=8&categoryName=Medicine&subcategoryId=805&subcategoryName=Pathology",
     "created_at": "2026-08-07T03:04:39.145Z",
     "migrated": true
+  },
+  "3a": {
+    "id": 196,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=705&name=Testing%201",
+    "created_at": "2026/08/10 18:04:26",
+    "created_at_iso": "2026-08-10T10:04:26.145Z"
+  },
+  "3b": {
+    "id": 197,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=705&name=Testing%203",
+    "created_at": "2026/08/10 18:06:50",
+    "created_at_iso": "2026-08-10T10:06:50.930Z"
+  },
+  "3c": {
+    "id": 198,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=706&name=Testing%202",
+    "created_at": "2026/08/10 18:19:42",
+    "created_at_iso": "2026-08-10T10:19:42.808Z"
+  },
+  "3d": {
+    "id": 199,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=707&name=Testing%203",
+    "created_at": "2026/08/10 18:19:58",
+    "created_at_iso": "2026-08-10T10:19:58.185Z"
+  },
+  "3e": {
+    "id": 200,
+    "url": "https://d3.p2.rbas.top/nft/detail.html?type=category&id=708&name=Testing%204",
+    "created_at": "2026/08/10 18:25:33",
+    "created_at_iso": "2026-08-10T10:25:33.052Z"
   }
 }
