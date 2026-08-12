@@ -518,6 +518,55 @@
             outline: none;
         }
 
+        /* ===== PORTFOLIO CONTROLS ===== */
+        .portfolio-controls {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 16px 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        /* Search */
+        .search-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        #portfolio-search {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 18px;
+            border: 2px solid #ddd;
+            border-radius: 30px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        #portfolio-search:focus {
+            border-color: var(--hku-gold);
+            outline: none;
+        }
+        .scan-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .scan-btn:hover {
+            background: #002244;
+        }
+        .search-status {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #666;
+            min-height: 1.5em;
+        }
+
         /* ===== MOCK INDICATOR ===== */
         #mock-indicator {
             background: #ff9800;
@@ -669,12 +718,73 @@
         </div>
     </div>
 
+    <!-- ===== FILTER, SEARCH, AND PAGINATION CONTROLS ===== -->
+    <div class="portfolio-controls">
+        <!-- Search -->
+        <div class="search-container">
+            <input type="text" id="portfolio-search" placeholder="Search NFTs by name..." />
+            <button type="button" id="portfolio-scan-btn" class="scan-btn">Scan</button>
+        </div>
+        <div id="portfolio-search-status" class="search-status"></div>
+        
+        <!-- Filter Bar -->
+        <div class="filter-bar" id="portfolio-filter-bar">
+            <span class="filter-label">🎯 Filter:</span>
+            <button class="filter-btn active" data-filter="all" onclick="applyPortfolioFilter('all')">
+                All
+                <span class="count-badge" id="pcount-all">0</span>
+            </button>
+            <button class="filter-btn" data-filter="category" onclick="applyPortfolioFilter('category')">
+                Categories
+                <span class="count-badge" id="pcount-category">0</span>
+            </button>
+            <button class="filter-btn" data-filter="subcategory" onclick="applyPortfolioFilter('subcategory')">
+                Subcategories
+                <span class="count-badge" id="pcount-subcategory">0</span>
+            </button>
+            <button class="filter-btn" data-filter="item" onclick="applyPortfolioFilter('item')">
+                Items
+                <span class="count-badge" id="pcount-item">0</span>
+            </button>
+            <button class="filter-clear hidden" id="portfolio-filter-clear" onclick="clearPortfolioFilter()">✕ Clear Filter</button>
+        </div>
+    </div>
+
+    <!-- ===== PAGINATION (top) ===== -->
+    <div class="pagination-bar" id="portfolio-pagination-top">
+        <!-- Results info -->
+        <div class="pagination-info">
+            <span>Showing</span> <strong id="showing-start-portfolio">0</strong>–<strong id="showing-end-portfolio">0</strong>
+            <span>of</span> <strong id="total-count-portfolio">0</strong> <span>NFTs</span>
+        </div>
+        <div class="pagination-controls">
+            <button class="page-btn" id="prev-page-portfolio" onclick="goToPage(currentPage - 1)">‹ Prev</button>
+            <span id="page-numbers-portfolio"></span>
+            <button class="page-btn" id="next-page-portfolio" onclick="goToPage(currentPage + 1)">Next ›</button>
+            <button class="page-btn show-all" id="show-all-portfolio" onclick="toggleShowAll()">Show All</button>
+        </div>
+    </div>
+
     <!-- ===== NFT CONTENT ===== -->
     <div id="nft-content">
         <div class="loading" data-i18n="loading_portfolio">Loading your NFTs...</div>
     </div>
 
-    <!-- ===== LOADING INDICATOR ===== -->
+    <!-- ===== PAGINATION (bottom) ===== -->
+    <div class="pagination-bar" id="portfolio-pagination-bottom">
+        <div class="pagination-info">
+            <span>Showing</span> <strong id="showing-start-portfolio-bottom">0</strong>–<strong id="showing-end-portfolio-bottom">0</strong>
+            <span>of</span> <strong id="total-count-portfolio-bottom">0</strong> <span>NFTs</span>
+        </div>
+        <div class="pagination-controls">
+            <button class="page-btn" onclick="goToPage(currentPage - 1)">‹ Prev</button>
+            <span id="page-numbers-portfolio-bottom"></span>
+            <button class="page-btn" onclick="goToPage(currentPage + 1)">Next ›</button>
+            <button class="page-btn show-all" onclick="toggleShowAll()">Show All</button>
+        </div>
+    </div>
+
+    <!-- ===== LOADING INDICATOR (for batch loading – kept for compatibility) ===== -->
     <div id="loading-indicator" class="loading-indicator" style="display: none;">
         <div class="spinner"></div>
         <span data-i18n="loading_more">Loading more NFTs...</span>

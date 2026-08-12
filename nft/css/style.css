@@ -317,34 +317,58 @@ body {
     color: #555;
 }
 
+/* ===== CARD FOOTER WITH TWO ROWS ===== */
 .nft-card .card-footer {
     padding: 10px 16px;
     border-top: 1px solid #f0f0f0;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 8px;
     background: #fafafa;
-}
-
-.nft-card .card-footer .action-btn {
-    background: linear-gradient(135deg, var(--hku-gold), #b8922a);
-    color: var(--primary);
-    border: none;
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.nft-card .card-footer .action-btn:hover {
-    transform: scale(1.02);
+    align-items: center;
 }
 
 .nft-card .card-footer .card-number {
     font-size: 0.75rem;
     color: #999;
+    text-align: center;
+}
+
+.nft-card .card-footer .btn-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    align-items: center;
+}
+
+.nft-card .card-footer .btn-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.nft-card .card-footer .btn-row .action-btn {
+    flex: 1 1 0;          /* Equal width distribution */
+    min-width: 90px;       /* Minimum size for readability */
+    max-width: 160px;      /* Prevent buttons from becoming too wide */
+    padding: 6px 12px;
+    border: none;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+    white-space: nowrap;
+    background: linear-gradient(135deg, var(--hku-gold), #b8922a);
+    color: var(--primary);
+}
+
+.nft-card .card-footer .btn-row .action-btn:hover {
+    transform: scale(1.02);
 }
 
 /* ===== NFT LOGO STYLES ===== */

@@ -213,6 +213,112 @@ function closeModal(modalId) {
     }
 }
 
+// ============================================================
+// EDIT TYPE MODAL FUNCTIONS
+// ============================================================
+function openEditTypeModal(itemId, itemName, level) {
+    const info = checkLoginStatus();
+    if (!info) {
+        showToast(t('login_to_edit'), 'warning');
+        handleLogin();
+        return;
+    }
+    if (!hasOwnership) {
+        showToast(t('add_item_owner_required'), 'warning');
+        return;
+    }
+
+    editTypeItemId = itemId;
+    editTypeItemName = itemName;
+    editTypeItemLevel = level;
+
+    // Set the name in the modal
+    document.getElementById('editTypeItemName').textContent = itemName;
+
+    // Find the current type from the item data (if available)
+    const item = items.find(i => i.id === itemId);
+    const currentType = item ? (item.filterKey || item.parentType || 'other') : 'other';
+    const select = document.getElementById('editItemType');
+    for (let option of select.options) {
+        if (option.value === currentType) {
+            option.selected = true;
+            break;
+        }
+    }
+
+    // Show modal
+    const modal = document.getElementById('editTypeModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+    }
+}
+
+async function updateItemType(itemId, newType, level, wallet) {
+    try {
+        // We need to update the type in the item's JSON file.
+        // Use /api/content/update with the appropriate level and identifiers.
+        const payload = {
+            level: level, // 'subcategory' or 'item'
+            category_id: parentId,
+            category_name: parentName,
+            wallet: wallet,
+            type: newType
+        };
+
+        if (level === 'subcategory') {
+            payload.subcategory_id = itemId;
+            payload.subcategory_name = editTypeItemName;
+        } else if (level === 'item') {
+            // For items, we need the subcategory info as well.
+            // We'll assume the current item is in the current subcategory context.
+            // Use the parentId as the subcategory ID (since we're on the items page, parentId is the subcategory ID).
+            // But careful: on the items page, parentId is the subcategory ID (if we are viewing subcategories), 
+            // or it could be the category ID if viewing categories? Actually the items page is used for both subcategories and items.
+            // The URL parameter 'level' indicates if we are viewing subcategories of a category or items of a subcategory.
+            // We need to determine the correct parent IDs.
+            // For simplicity, we'll use the current parentId as the subcategory ID when level is 'item'.
+            // But we also need the subcategory name. We can get it from the items data.
+            const subItem = items.find(i => i.id === itemId);
+            if (subItem) {
+                payload.subcategory_id = subItem.parentId || parentId; // fallback
+                payload.subcategory_name = subItem.parentName || parentName;
+            } else {
+                // fallback
+                payload.subcategory_id = parentId;
+                payload.subcategory_name = parentName;
+            }
+            payload.item_number = itemId;
+            payload.item_name = editTypeItemName;
+        } else {
+            showToast('Unknown level', 'error');
+            return false;
+        }
+
+        const response = await fetch(`${API_BASE}/api/content/update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showToast('Type updated successfully!', 'success');
+            // Reload items
+            await loadItems();
+            return true;
+        } else {
+            showToast(result.error || 'Failed to update type.', 'error');
+            return false;
+        }
+    } catch (error) {
+        console.error('Error updating type:', error);
+        showToast('Network error. Please try again.', 'error');
+        return false;
+    }
+}
+
 // ===== FORM SUBMIT HANDLER =====
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('addSubcategoryForm');
@@ -286,6 +392,51 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.textContent = t('create_subcategory') || 'Create Subcategory';
         }
     });
+
+    // Edit Type Form Handler
+    const editTypeForm = document.getElementById('editTypeForm');
+    if (editTypeForm) {
+        editTypeForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const info = checkLoginStatus();
+            if (!info) {
+                showToast(t('please_login'), 'warning');
+                return;
+            }
+
+            const newType = document.getElementById('editItemType').value;
+            const wallet = info.walletid;
+
+            if (!newType) {
+                showToast('Please select a type.', 'error');
+                return;
+            }
+
+            // Determine level
+            // We need to know if the item being edited is a subcategory or an item.
+            // The level is stored in editTypeItemLevel.
+            const level = editTypeItemLevel; // 'subcategory' or 'item'
+            if (!level) {
+                showToast('Error: item level not set.', 'error');
+                return;
+            }
+
+            // Disable submit button
+            const submitBtn = editTypeForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+
+            const success = await updateItemType(editTypeItemId, newType, level, wallet);
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = t('save_type') || 'Save Type';
+
+            if (success) {
+                closeModal('editTypeModal');
+            }
+        });
+    }
 });
 
 // ============================================================
@@ -595,6 +746,9 @@ let currentPage = 1;
 const ITEMS_PER_PAGE = 50;
 let showAllMode = false;
 let usingMockData = false; // flag to show mock indicator
+let editTypeItemId = null;
+let editTypeItemName = '';
+let editTypeItemLevel = ''; // 'subcategory' or 'item'
 
 // ===== DOM REFS =====
 const grid = document.getElementById('item-grid');
@@ -667,7 +821,6 @@ function loadItemsFallback(id) {
     const params = new URLSearchParams(window.location.search);
     const level = params.get('level') || 'category';
     id = params.get('id') || params.get('parent');
-    const parentType = getTypeForParentId(parentIdNum);  
 
     currentLevel = level;
     parentId = id;
@@ -686,6 +839,7 @@ function loadItemsFallback(id) {
 
     const parentIdNum = parseInt(id);
     const data = SUBCATEGORY_DATA[parentIdNum];
+    const parentType = getTypeForParentId(parentIdNum);  
 
     if (!data || !data.subcategories || data.subcategories.length === 0) {
         grid.innerHTML = `
@@ -786,8 +940,17 @@ function renderItems(itemsList) {
                 </div>
                 <div class="card-footer">
                     <span class="card-number">#${item.id || index + 1}</span>
-                    <button class="action-btn" onclick="event.stopPropagation(); viewDetail(${item.id})" data-i18n="view_detail">View Detail</button>
-                    ${info ? `<button class="action-btn" style="background:#dc3545; color:white;" onclick="event.stopPropagation(); deleteSubcategory(${item.id}, '${item.name}')" data-i18n="delete">Delete</button>` : ''}
+                    <div class="btn-group-vertical">
+                        <div class="btn-row">
+                            <button class="action-btn" onclick="event.stopPropagation(); viewDetail(${item.id})" data-i18n="view_detail">View Detail</button>
+                            <button class="action-btn" style="background:#4cb7db; color:white;" onclick="event.stopPropagation(); viewTransactionHistory(${item.id})" data-i18n="view_transactions">Transactions</button>
+                        </div>
+                        <div class="btn-row">
+                            ${info ? `<button class="action-btn" style="background:#dc3545; color:white;" onclick="event.stopPropagation(); deleteSubcategory(${item.id}, '${item.name}')" data-i18n="delete">Delete</button>` : ''}
+                            ${info ? `<button class="action-btn" style="background:#6c757d; color:white;" onclick="event.stopPropagation(); openEditTypeModal(${item.id}, '${item.filterKey}', '${item.name}')" data-i18n="edit_type">Edit Type</button>` : ''}
+                            ${!info ? `<span style="color:#999; font-size:0.75rem; text-align:center; width:100%;">${t('login_to_manage') || 'Login to manage'}</span>` : ''}
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -869,6 +1032,31 @@ async function deleteSubcategory(subId, subName) {
         console.error(error);
         showToast('Network error', 'error');
     }
+}
+
+// ==== VIEW TRANSACTION HISTORY =====
+function viewTransactionHistory(itemId) {
+    const item = items.find(i => i.id === itemId);
+    if (!item) return;
+    let url = '';
+    if (currentLevel === 'category') {
+        // Subcategory
+        const categoryId = parentId;
+        const categoryName = encodeURIComponent(parentName);
+        const subcategoryId = itemId;
+        const subcategoryName = encodeURIComponent(item.name);
+        url = `/nft/ti_log.html?level=subcategory&category_id=${categoryId}&category_name=${categoryName}&subcategory_id=${subcategoryId}&subcategory_name=${subcategoryName}`;
+    } else if (currentLevel === 'subcategory') {
+        // Item
+        const categoryId = item.category_id || parentId; // fallback
+        const categoryName = encodeURIComponent(item.parentName || parentName);
+        const subcategoryId = parentId; // the subcategory we are viewing items under
+        const subcategoryName = encodeURIComponent(parentName);
+        const itemNumber = itemId;
+        const itemName = encodeURIComponent(item.name);
+        url = `/nft/ti_log.html?level=item&category_id=${categoryId}&category_name=${categoryName}&subcategory_id=${subcategoryId}&subcategory_name=${subcategoryName}&item_number=${itemNumber}&item_name=${itemName}`;
+    }
+    if (url) window.location.href = url;
 }
 
 // ===== PAGINATION =====

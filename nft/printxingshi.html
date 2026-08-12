@@ -1,0 +1,2694 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>批量打印卡片 - 百姓道 (52mm卡片 | 4列×5行 | 边距1mm | 行间距2mm)</title>
+    <link rel="shortcut icon" type="image/x-icon" href="image/favicon.png">
+    <script src="js/qrcode.min.js"></script>
+    <style>
+        /* ============ 全局重置 ============ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #e2e6e9;
+            font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+            padding: 20px;
+            color: #333;
+        }
+
+        /* ============ 打印设置面板 ============ */
+        .print-panel {
+            max-width: 1200px;
+            margin: 0 auto 30px auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            padding: 24px 28px;
+        }
+
+        .print-panel h2 {
+            color: #910209;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-left: 6px solid #c00;
+            padding-left: 16px;
+        }
+
+        .panel-top-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 30px;
+            margin-bottom: 16px;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 16px;
+        }
+
+        .panel-top-row .hint-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .btn {
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            background: #e9ecef;
+            color: #2c3e50;
+        }
+
+        .btn-primary {
+            background: #4cb7db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #3a9bc7;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #565e64;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* ============ 卡位配置表格 ============ */
+        .slot-config {
+            margin: 16px 0 10px 0;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .slot-config-header {
+            background: #f8f9fa;
+            padding: 10px 14px;
+            display: grid;
+            grid-template-columns: 45px 90px 160px 1fr 80px 50px;
+            gap: 6px;
+            font-weight: bold;
+            font-size: 0.78rem;
+            color: #495057;
+            border-bottom: 1px solid #dee2e6;
+            align-items: center;
+        }
+
+        .slot-config-body {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .slot-row {
+            display: grid;
+            grid-template-columns: 45px 90px 160px 1fr 80px 50px;
+            gap: 6px;
+            padding: 5px 14px;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+            background: white;
+            transition: background 0.15s;
+        }
+
+        .slot-row:hover {
+            background: #f8f9fa;
+        }
+
+        .slot-row .slot-index {
+            font-weight: bold;
+            color: #6c757d;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .slot-row select {
+            padding: 4px 6px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            background: white;
+            width: 100%;
+            height: 30px;
+        }
+
+        .slot-row select:focus {
+            border-color: #4cb7db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(76,183,219,0.15);
+        }
+
+        .slot-row select:disabled {
+            background: #f0f0f0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .slot-row .slot-preview-text {
+            font-size: 0.72rem;
+            color: #495057;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 4px;
+        }
+        .slot-row .slot-preview-text .highlight-path {
+            color: #910209;
+            font-weight: bold;
+        }
+        .slot-row .slot-preview-text .empty-preview {
+            color: #adb5bd;
+        }
+
+        .slot-row .slot-status {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .slot-status.ready {
+            background: #d4edda;
+            color: #155724;
+        }
+        .slot-status.empty {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .slot-status.partial {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .slot-row .clear-slot-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 1.0rem;
+            padding: 4px 6px;
+            border-radius: 6px;
+            transition: 0.2s;
+            width: 100%;
+            text-align: center;
+        }
+        .slot-row .clear-slot-btn:hover {
+            background: #f8d7da;
+        }
+
+        /* 级联选择器容器 */
+        .cascade-container {
+            display: flex;
+            gap: 3px;
+            align-items: center;
+            width: 100%;
+        }
+        .cascade-container select {
+            flex: 1;
+            min-width: 0;
+            height: 30px;
+            padding: 3px 4px;
+            font-size: 0.7rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+        }
+        .cascade-container select:disabled {
+            background: #f0f0f0;
+            cursor: not-allowed;
+        }
+        .cascade-container .cascade-sep {
+            color: #adb5bd;
+            font-size: 0.6rem;
+            flex-shrink: 0;
+            padding: 0 1px;
+        }
+        .cascade-container .cascade-sep.active {
+            color: #910209;
+            font-weight: bold;
+        }
+
+        /* ============ 打印预览区域 ============ */
+        .print-preview {
+            background: #d9d9d9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        .a4-sheet {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            box-shadow: 0 0 0 2px #aaa, 0 8px 20px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            padding: 1mm;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ============ 卡片网格 - 4列 × 5行 = 20个卡位，行间距2mm ============ */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 52mm);
+            grid-template-rows: repeat(5, auto);
+            column-gap: 0;
+            row-gap: 2mm;  /* 行间距 2mm */
+            width: fit-content;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* ============ 卡片基础样式 - 固定52mm宽，带黑色边框 ============ */
+        .print-card {
+            background-color: #FFFDE7;
+            border-radius: 0;
+            padding: 0;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            break-inside: avoid;
+            page-break-inside: avoid;
+            box-shadow: none;
+            /* 固定宽度52mm，高度按比例 290/300 */
+            width: 52mm;
+            height: calc(52mm * 290 / 300);
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+            border: 2px solid #000000;
+        }
+
+        /* ===== 裁缝线（切割线）样式 ===== */
+        /* 每张卡片的右下角：裁切线标记 */
+        .print-card .cut-mark {
+            position: absolute;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        /* 右上角裁切线 */
+        .print-card .cut-mark-tr {
+            top: -2px;
+            right: -2px;
+            width: 6px;
+            height: 6px;
+            border-top: 1.5px dashed #888;
+            border-right: 1.5px dashed #888;
+        }
+
+        /* 左上角裁切线 */
+        .print-card .cut-mark-tl {
+            top: -2px;
+            left: -2px;
+            width: 6px;
+            height: 6px;
+            border-top: 1.5px dashed #888;
+            border-left: 1.5px dashed #888;
+        }
+
+        /* 右下角裁切线 */
+        .print-card .cut-mark-br {
+            bottom: -2px;
+            right: -2px;
+            width: 6px;
+            height: 6px;
+            border-bottom: 1.5px dashed #888;
+            border-right: 1.5px dashed #888;
+        }
+
+        /* 左下角裁切线 */
+        .print-card .cut-mark-bl {
+            bottom: -2px;
+            left: -2px;
+            width: 6px;
+            height: 6px;
+            border-bottom: 1.5px dashed #888;
+            border-left: 1.5px dashed #888;
+        }
+
+        /* 卡片之间的裁缝线（十字线） */
+        .print-card .cut-cross {
+            position: absolute;
+            z-index: 15;
+            pointer-events: none;
+        }
+
+        /* 右侧裁缝线（竖线） */
+        .print-card .cut-line-right {
+            top: 0;
+            right: -2px;
+            width: 2px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                #888 0px,
+                #888 2px,
+                transparent 2px,
+                transparent 6px
+            );
+        }
+
+        /* 底部裁缝线（横线） */
+        .print-card .cut-line-bottom {
+            left: 0;
+            bottom: -2px;
+            width: 100%;
+            height: 2px;
+            background: repeating-linear-gradient(
+                to right,
+                #888 0px,
+                #888 2px,
+                transparent 2px,
+                transparent 6px
+            );
+        }
+
+        /* 右下角十字交叉点标记 */
+        .print-card .cut-cross-br {
+            bottom: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+        }
+        .print-card .cut-cross-br::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1.5px;
+            background: #888;
+            transform: translateY(-50%);
+        }
+        .print-card .cut-cross-br::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            height: 100%;
+            width: 1.5px;
+            background: #888;
+            transform: translateX(-50%);
+        }
+
+        .print-card:hover {
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            z-index: 10;
+            position: relative;
+        }
+
+        .print-card.empty-card {
+            background-color: #f8f9fa;
+            border: 2px solid #000000;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-card-content {
+            text-align: center;
+            color: #adb5bd;
+            font-size: 0.8rem;
+        }
+        .empty-card-content .empty-icon {
+            font-size: 1.6rem;
+            margin-bottom: 4px;
+        }
+
+        /* ============ 卡片内容容器 ============ */
+        .print-card-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 6px 6px 4px 6px;
+            flex: 1;
+        }
+
+        /* ============ 双栏布局 ============ */
+        .print-card-inner {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            border-bottom: 2px solid #FFD700;
+            padding-bottom: 4px;
+            margin-bottom: 3px;
+        }
+
+        /* ============ 左侧姓名/信息区域 - 所有卡片统一左对齐 ============ */
+        .print-name-area {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0 2px;
+            overflow: hidden;
+        }
+
+        /* 姓氏卡片：名字左对齐 */
+        .print-name-area.surname-name {
+            justify-content: center;
+            align-items: flex-start;
+            padding-right: 8px;
+            padding-left: 6px;
+        }
+        .print-name-area.surname-name .print-main-name {
+            text-align: left;
+        }
+
+        /* 会堂卡片：左对齐 */
+        .print-name-area.citang-name {
+            justify-content: center;
+            align-items: flex-start;
+            padding-left: 6px;
+            padding-right: 4px;
+        }
+        .print-name-area.citang-name .print-citang-surname {
+            text-align: left;
+        }
+        .print-name-area.citang-name .print-citang-name {
+            text-align: left;
+        }
+
+        /* 成员卡片：左对齐 */
+        .print-name-area.member-name {
+            justify-content: center;
+            align-items: flex-start;
+            padding-left: 6px;
+            padding-right: 4px;
+        }
+        .print-name-area.member-name .print-member-surname {
+            text-align: left;
+        }
+        .print-name-area.member-name .print-member-citang {
+            text-align: left;
+        }
+        .print-name-area.member-name .print-member-name {
+            text-align: left;
+        }
+
+        /* ===== 通用名字样式 ===== */
+        /* 姓氏卡片名字 - 最大 */
+        .print-main-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #000000;
+            margin: 0;
+            line-height: 1.15;
+            word-break: break-word;
+        }
+
+        /* 会堂卡片 - 姓氏（小字） */
+        .print-citang-surname {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #000000;
+            line-height: 1.2;
+            margin-bottom: 0px;
+        }
+
+        /* 会堂卡片 - 会堂名（中等字体） */
+        .print-citang-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #000000;
+            line-height: 1.15;
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+
+        /* ===== 成员卡片样式 ===== */
+        /* 成员卡片 - 姓氏（小字） */
+        .print-member-surname {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #000000;
+            line-height: 1.2;
+            margin-bottom: 0px;
+        }
+
+        /* 成员卡片 - 会堂名（比成员姓名小） */
+        .print-member-citang {
+            font-size: 1.0rem;
+            font-weight: bold;
+            color: #000000;
+            line-height: 1.2;
+            margin-bottom: 1px;
+        }
+
+        /* 成员卡片 - 成员姓名（最大） */
+        .print-member-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #000000;
+            line-height: 1.15;
+            word-break: break-word;
+        }
+
+        /* 隐藏卡号显示 - 上下都不显示#卡号 */
+        .print-detail-line,
+        .print-card-number,
+        .print-gender-line,
+        .print-birth-line {
+            display: none !important;
+        }
+
+        /* ============ 右侧二维码区域 ============ */
+        .print-qr-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100%;
+            gap: 0px;
+            padding-top: 2px;
+        }
+
+        .print-qr-wrapper {
+            background: #fff;
+            padding: 2px;
+            border-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            display: inline-block;
+            line-height: 0;
+        }
+
+        .print-qrcode {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto;
+            border-radius: 3px;
+        }
+
+        /* NFT码 - 字体增大，与二维码对齐 */
+        .print-nft-text {
+            background: #fff;
+            padding: 2px 3px;
+            border-radius: 3px;
+            width: 100%;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: monospace;
+            font-size: 8px;
+            line-height: 1.25;
+            color: #000000;
+            word-break: break-all;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            box-sizing: border-box;
+            margin-top: 2px;
+            max-height: 65px;
+        }
+
+        /* ============ 底部标签 - "百姓DAO-NFT"字体加大一倍 ============ */
+        .print-card-footer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4px 2px 0 2px;
+            margin-top: 2px;
+            position: relative;
+        }
+
+        .print-dao-label {
+            background: linear-gradient(135deg, #FFB6C1, #FFB6C1);
+            color: #000000;
+            padding: 4px 12px;
+            font-size: 1.0rem;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+            text-align: center;
+            border: 1px solid #E6A800;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        /* ============ 范围选择模态框 ============ */
+        .range-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .range-modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 30px 35px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 520px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .range-modal-content h3 {
+            color: #910209;
+            margin-bottom: 8px;
+            font-size: 1.4rem;
+        }
+
+        .range-modal-content .modal-subtitle {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .range-modal-content .range-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 18px;
+            font-size: 0.85rem;
+            color: #495057;
+            max-height: 120px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+        }
+
+        .range-modal-content .range-info .item-tag {
+            display: inline-block;
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 2px 3px;
+            font-size: 0.75rem;
+        }
+
+        .range-modal-content .range-info .item-tag.highlight {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .range-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .range-row label {
+            font-weight: bold;
+            color: #333;
+            min-width: 60px;
+            font-size: 0.95rem;
+        }
+
+        .range-row select {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .range-row select:focus {
+            border-color: #4cb7db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 183, 219, 0.15);
+        }
+
+        .range-row .range-sep {
+            color: #6c757d;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .range-modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .range-modal-buttons .btn {
+            padding: 10px 28px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+        }
+
+        .range-modal-buttons .btn-cancel {
+            background: #e9ecef;
+            color: #495057;
+        }
+        .range-modal-buttons .btn-cancel:hover {
+            background: #dee2e6;
+        }
+
+        .range-modal-buttons .btn-confirm {
+            background: #28a745;
+            color: white;
+        }
+        .range-modal-buttons .btn-confirm:hover {
+            background: #218838;
+        }
+
+        .range-modal-buttons .btn-confirm:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        /* ============ 统计信息 ============ */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px 0 0 0;
+            border-top: 1px solid #eee;
+            margin-top: 12px;
+        }
+
+        .stats-bar .count-display {
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .stats-bar .count-display strong {
+            color: #910209;
+        }
+
+        /* ============ 打印样式 ============ */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .print-panel {
+                display: none !important;
+            }
+            .print-preview {
+                background: white;
+                padding: 0;
+                margin: 0;
+                box-shadow: none;
+                border-radius: 0;
+            }
+            .a4-sheet {
+                width: 100%;
+                min-height: 0;
+                margin: 0;
+                padding: 1mm;
+                box-shadow: none;
+                background: white;
+            }
+            
+            /* 卡片网格 - 打印时不显示虚线间隔 */
+            .cards-grid {
+                column-gap: 0;
+                row-gap: 2mm;
+                background-image: none;
+                background-size: auto;
+                background-position: initial;
+                background-repeat: initial;
+                padding: 0;
+                width: fit-content;
+                margin: 0 auto;
+            }
+            
+            .print-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                box-shadow: none !important;
+                width: 52mm;
+                height: calc(52mm * 290 / 300);
+                border-radius: 0;
+                /* 打印时移除边框 */
+                border: none !important;
+                position: relative;
+                /* 给卡片添加小内边距，让虚线间隔更明显 */
+                margin: 0;
+            }
+            
+            .print-card.empty-card {
+                background: #fafafa;
+                border-radius: 0;
+                border: none !important;
+            }
+
+            /* 打印时隐藏所有裁剪线和标记 */
+            .print-card .cut-mark,
+            .print-card .cut-cross,
+            .print-card .cut-line-right,
+            .print-card .cut-line-bottom,
+            .print-card .cut-cross-br,
+            .print-card .cut-cross-br::before,
+            .print-card .cut-cross-br::after {
+                display: none !important;
+            }
+
+            .print-qrcode {
+                width: 70px;
+                height: 70px;
+            }
+            .print-main-name {
+                font-size: 1.8rem;
+            }
+            .print-citang-name {
+                font-size: 1.5rem;
+            }
+            .print-citang-surname {
+                font-size: 1.1rem;
+            }
+            .print-member-name {
+                font-size: 1.5rem;
+            }
+            .print-member-citang {
+                font-size: 0.9rem;
+            }
+            .print-member-surname {
+                font-size: 0.8rem;
+            }
+            .print-nft-text {
+                font-size: 7.5px;
+                padding: 2px 2px;
+            }
+            .print-dao-label {
+                font-size: 0.95rem;
+                padding: 3px 10px;
+            }
+            .print-card-inner {
+                border-bottom: 2px solid #FFD700;
+                padding-bottom: 3px;
+                margin-bottom: 2px;
+            }
+            .print-name-area.surname-name,
+            .print-name-area.citang-name,
+            .print-name-area.member-name {
+                align-items: flex-start;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+        }
+
+        /* ============ 响应式适配 ============ */
+        @media screen and (max-width: 1024px) {
+            .slot-config-header,
+            .slot-row {
+                grid-template-columns: 35px 75px 130px 1fr 65px 40px;
+                gap: 4px;
+                font-size: 0.65rem;
+                padding: 4px 8px;
+            }
+            .slot-row select {
+                font-size: 0.65rem;
+                padding: 2px 4px;
+                height: 26px;
+            }
+            .cascade-container select {
+                height: 26px;
+                font-size: 0.6rem;
+            }
+            .slot-row .slot-status {
+                font-size: 0.55rem;
+                padding: 1px 4px;
+            }
+            .range-modal-content {
+                margin: 15% auto;
+                padding: 24px 20px;
+            }
+            .print-card {
+                width: 45mm;
+                height: calc(45mm * 290 / 300);
+            }
+            .cards-grid {
+                grid-template-columns: repeat(4, 45mm);
+                row-gap: 1.5mm;
+            }
+            .print-citang-name {
+                font-size: 1.5rem;
+            }
+            .print-member-name {
+                font-size: 1.5rem;
+            }
+            .print-member-citang {
+                font-size: 0.85rem;
+            }
+            .print-main-name {
+                font-size: 2.0rem;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .a4-sheet {
+                transform: scale(0.75);
+                transform-origin: top center;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            .print-panel {
+                padding: 14px 16px;
+            }
+            .print-panel h2 {
+                font-size: 1.3rem;
+            }
+            .slot-config-header,
+            .slot-row {
+                grid-template-columns: 30px 60px 100px 1fr 50px 35px;
+                gap: 3px;
+                font-size: 0.55rem;
+                padding: 3px 6px;
+            }
+            .slot-row select {
+                font-size: 0.55rem;
+                padding: 2px 3px;
+                height: 24px;
+            }
+            .cascade-container select {
+                height: 24px;
+                font-size: 0.5rem;
+            }
+            .slot-row .slot-status {
+                font-size: 0.5rem;
+                padding: 1px 3px;
+            }
+            .button-group .btn {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
+            .panel-top-row {
+                gap: 8px;
+                padding-bottom: 10px;
+            }
+            .range-modal-content {
+                margin: 20% auto;
+                padding: 20px 16px;
+            }
+            .range-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            .range-row label {
+                min-width: auto;
+            }
+            .range-modal-buttons {
+                flex-direction: column;
+            }
+            .range-modal-buttons .btn {
+                width: 100%;
+                text-align: center;
+            }
+            .print-card {
+                width: 38mm;
+                height: calc(38mm * 290 / 300);
+            }
+            .cards-grid {
+                grid-template-columns: repeat(4, 38mm);
+                row-gap: 1.5mm;
+            }
+            .print-citang-name {
+                font-size: 1.2rem;
+            }
+            .print-member-name {
+                font-size: 1.6rem;
+            }
+            .print-member-citang {
+                font-size: 0.75rem;
+            }
+            .print-main-name {
+                font-size: 1.6rem;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .a4-sheet {
+                transform: scale(0.5);
+                transform-origin: top center;
+            }
+            .print-panel h2 {
+                font-size: 1.0rem;
+            }
+            .slot-config-header,
+            .slot-row {
+                grid-template-columns: 25px 50px 80px 1fr 40px 30px;
+                gap: 2px;
+                font-size: 0.45rem;
+                padding: 2px 4px;
+            }
+            .slot-row select {
+                font-size: 0.45rem;
+                padding: 1px 2px;
+                height: 20px;
+            }
+            .cascade-container select {
+                height: 20px;
+                font-size: 0.4rem;
+            }
+            .slot-row .slot-status {
+                font-size: 0.4rem;
+                padding: 0 2px;
+            }
+            .button-group .btn {
+                padding: 4px 8px;
+                font-size: 0.65rem;
+            }
+            .cascade-container .cascade-sep {
+                font-size: 0.4rem;
+            }
+            .range-modal-content {
+                margin: 25% auto;
+                padding: 16px 12px;
+            }
+            .range-modal-content h3 {
+                font-size: 1.1rem;
+            }
+            .print-dao-label {
+                font-size: 0.8rem;
+                padding: 3px 8px;
+            }
+            .print-nft-text {
+                font-size: 6.5px;
+            }
+            .print-main-name {
+                font-size: 1.4rem;
+            }
+            .print-citang-name {
+                font-size: 1.0rem;
+            }
+            .print-member-name {
+                font-size: 1.4rem;
+            }
+            .print-member-citang {
+                font-size: 0.65rem;
+            }
+            .print-card {
+                width: 30mm;
+                height: calc(30mm * 290 / 300);
+            }
+            .cards-grid {
+                grid-template-columns: repeat(4, 30mm);
+                row-gap: 1mm;
+            }
+        }
+
+        /* ============ 加载状态 ============ */
+        .loading-overlay {
+            text-align: center;
+            padding: 40px;
+            color: #4cb7db;
+            grid-column: 1 / -1;
+        }
+        .error-message {
+            color: #c62828;
+            background: #ffebee;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            grid-column: 1 / -1;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .slot-config-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        .slot-config-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        .slot-config-body::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+        .slot-config-body::-webkit-scrollbar-thumb:hover {
+            background: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ==================== 设置面板 ==================== -->
+<div class="print-panel">
+    <h2>🖨️ 批量打印卡片 (52mm卡片 | 4列×5行 | 边距1mm | 行间距2mm)</h2>
+
+    <div class="panel-top-row">
+        <span class="hint-text">💡 每个卡位独立选择：<strong>姓氏</strong>直接选 / <strong>会堂</strong>先选姓氏再选会堂 / <strong>成员</strong>先选姓氏再选会堂最后选成员</span>
+        <div class="button-group">
+            <button class="btn btn-success" id="refresh-preview-btn">👁️ 刷新预览</button>
+            <button class="btn btn-success" id="print-btn">🖨️ 打印</button>
+            <button class="btn btn-secondary" id="back-btn">🔙 返回</button>
+            <button class="btn btn-danger" id="clear-all-btn">🗑️ 清空所有</button>
+        </div>
+    </div>
+
+    <div class="slot-config">
+        <div class="slot-config-header">
+            <span>卡位</span>
+            <span>卡片类型</span>
+            <span>选择内容 (级联选择)</span>
+            <span>预览 (完整编号)</span>
+            <span>状态</span>
+            <span>操作</span>
+        </div>
+        <div class="slot-config-body" id="slot-config-body"></div>
+    </div>
+
+    <div class="stats-bar">
+        <span class="count-display">📊 已选择 <strong id="filled-count">0</strong> / 20 张卡片</span>
+        <span class="count-display" style="color:#6c757d; font-size:0.8rem;">
+            <span style="display:inline-block; width:12px; height:12px; background:#28a745; border-radius:3px; vertical-align:middle;"></span> 已选
+            <span style="display:inline-block; width:12px; height:12px; background:#dc3545; border-radius:3px; vertical-align:middle; margin-left:12px;"></span> 空位
+            <span style="display:inline-block; width:12px; height:12px; background:#fff3cd; border-radius:3px; vertical-align:middle; margin-left:12px; border:1px solid #e0a800;"></span> 部分选择
+        </span>
+    </div>
+</div>
+
+<!-- ==================== 打印预览区域 ==================== -->
+<div class="print-preview">
+    <div class="a4-sheet" id="print-sheet">
+        <div class="cards-grid" id="cards-container">
+            <div class="loading-overlay">
+                <div class="loader"></div>
+                <p>正在加载数据...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 范围选择模态框 ==================== -->
+<div class="range-modal" id="rangeModal">
+    <div class="range-modal-content">
+        <h3 id="rangeModalTitle">选择填充范围</h3>
+        <div class="modal-subtitle" id="rangeModalSubtitle">请选择要填充的起始和结束位置</div>
+        <div class="range-info" id="rangeInfo"></div>
+        <div class="range-row">
+            <label>从：</label>
+            <select id="rangeStart"></select>
+            <span class="range-sep">→</span>
+            <label>到：</label>
+            <select id="rangeEnd"></select>
+        </div>
+        <div class="range-modal-buttons">
+            <button class="btn btn-cancel" onclick="closeRangeModal()">取消</button>
+            <button class="btn btn-confirm" id="rangeConfirmBtn" onclick="confirmRangeFill()">确认填充</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+//  全局数据
+// ============================================================
+const TOTAL_SLOTS = 20;  // 4列 × 5行
+
+let allSurnames = [];
+let citangMap = {};
+let memberMap = {};
+
+let slotData = [];
+let pendingFillType = '';
+let pendingFillData = [];
+
+// ============================================================
+//  工具函数
+// ============================================================
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function formatNftLines(nft) {
+    if (!nft) return '';
+    return nft.match(/.{1,16}/g).join('<br>');
+}
+
+function getSurnameKey(surname) { return surname; }
+function getCitangKey(surname, citangNumber, citangName) {
+    return `${surname}|${citangNumber}|${citangName}`;
+}
+
+function getCardNumberBySurname(surname) {
+    const found = allSurnames.find(s => s.name === surname);
+    return found ? found.card_number : null;
+}
+
+function getFullDisplayName(slot) {
+    if (!slot || !slot.type) return '—';
+    
+    if (slot.type === 'surname' && slot.data) {
+        return `#${slot.data.card_number} ${slot.data.name}`;
+    }
+    
+    if (slot.type === 'citang' && slot.data) {
+        const surname = slot.selectedSurname || slot.data._surname || '';
+        const cardNum = getCardNumberBySurname(surname);
+        return `#${cardNum || '?'}.${slot.data.citang_number} ${surname}.${slot.data.name}`;
+    }
+    
+    if (slot.type === 'member' && slot.data) {
+        const surname = slot.selectedSurname || slot.data._surname || '';
+        const citangName = slot.selectedCitang || slot.data._citangName || '';
+        const cardNum = getCardNumberBySurname(surname);
+        let citangNumber = '?';
+        const sKey = getSurnameKey(surname);
+        const citangList = citangMap[sKey] || [];
+        for (const c of citangList) {
+            if (c.name === citangName) {
+                citangNumber = c.citang_number;
+                break;
+            }
+        }
+        return `#${cardNum || '?'}.${citangNumber}.${slot.data.number} ${surname}.${citangName}.${slot.data.name}`;
+    }
+    
+    if (slot.type === 'surname' && !slot.data) return '⏳ 请选择姓氏';
+    if (slot.type === 'citang' && slot.selectedSurname && !slot.data) {
+        const cardNum = getCardNumberBySurname(slot.selectedSurname);
+        return `#${cardNum || '?'}.? ${slot.selectedSurname}.请选会堂`;
+    }
+    if (slot.type === 'citang' && !slot.selectedSurname) return '⏳ 请先选姓氏';
+    if (slot.type === 'member' && slot.selectedSurname && slot.selectedCitang && !slot.data) {
+        const cardNum = getCardNumberBySurname(slot.selectedSurname);
+        return `#${cardNum || '?'}.?.? ${slot.selectedSurname}.${slot.selectedCitang}.请选成员`;
+    }
+    if (slot.type === 'member' && slot.selectedSurname && !slot.selectedCitang) {
+        const cardNum = getCardNumberBySurname(slot.selectedSurname);
+        return `#${cardNum || '?'}.?.? ${slot.selectedSurname}.请选会堂`;
+    }
+    if (slot.type === 'member' && !slot.selectedSurname) return '⏳ 请先选姓氏';
+    
+    return '—';
+}
+
+// ============================================================
+//  数据加载
+// ============================================================
+async function loadAllSurnames() {
+    try {
+        const resp = await fetch('/api/surnames/list');
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const result = await resp.json();
+        if (!result.success) throw new Error(result.error || '获取姓氏失败');
+        allSurnames = result.data || [];
+        allSurnames.sort((a, b) => a.card_number - b.card_number);
+        return allSurnames;
+    } catch (err) {
+        console.error('加载姓氏失败:', err);
+        throw err;
+    }
+}
+
+async function loadCitangList(cardNumber, surname) {
+    try {
+        const resp = await fetch(`/citang/by-card/${cardNumber}`);
+        if (!resp.ok) return [];
+        const list = await resp.json();
+        list.sort((a, b) => parseInt(a.citang_number) - parseInt(b.citang_number));
+        citangMap[getSurnameKey(surname)] = list;
+        return list;
+    } catch (err) {
+        console.error('加载会堂失败:', err);
+        return [];
+    }
+}
+
+async function loadMemberList(cardNumber, surname, citangNumber, citangName) {
+    try {
+        const resp = await fetch(`/citang/${encodeURIComponent(surname)}/${citangNumber}/members?card_number=${cardNumber}&citangname=${encodeURIComponent(citangName)}`);
+        if (!resp.ok) return [];
+        const list = await resp.json();
+        list.sort((a, b) => parseInt(a.number) - parseInt(b.number));
+        memberMap[getCitangKey(surname, citangNumber, citangName)] = list;
+        return list;
+    } catch (err) {
+        console.error('加载成员失败:', err);
+        return [];
+    }
+}
+
+async function preloadAllData() {
+    for (const s of allSurnames) {
+        const key = getSurnameKey(s.name);
+        if (!citangMap[key]) {
+            await loadCitangList(s.card_number, s.name);
+        }
+    }
+    for (const s of allSurnames) {
+        const sKey = getSurnameKey(s.name);
+        const citangList = citangMap[sKey] || [];
+        for (const c of citangList) {
+            const mKey = getCitangKey(s.name, c.citang_number, c.name);
+            if (!memberMap[mKey]) {
+                await loadMemberList(s.card_number, s.name, c.citang_number, c.name);
+            }
+        }
+    }
+    console.log('✅ 所有数据预加载完成');
+}
+
+// ============================================================
+//  卡片渲染函数 - 添加裁缝线标记
+// ============================================================
+
+// ---- 添加裁缝线到卡片 ----
+function addCutMarks(cardDiv) {
+    // 四个角的裁切线
+    const corners = ['tl', 'tr', 'bl', 'br'];
+    corners.forEach(pos => {
+        const mark = document.createElement('div');
+        mark.className = `cut-mark cut-mark-${pos}`;
+        cardDiv.appendChild(mark);
+    });
+
+    // 右侧裁缝线（竖线）
+    const lineRight = document.createElement('div');
+    lineRight.className = 'cut-cross cut-line-right';
+    cardDiv.appendChild(lineRight);
+
+    // 底部裁缝线（横线）
+    const lineBottom = document.createElement('div');
+    lineBottom.className = 'cut-cross cut-line-bottom';
+    cardDiv.appendChild(lineBottom);
+
+    // 右下角十字交叉点
+    const crossBr = document.createElement('div');
+    crossBr.className = 'cut-cross cut-cross-br';
+    cardDiv.appendChild(crossBr);
+}
+
+// ---- 姓氏卡片 ----
+function renderSurnameCardHTML(data) {
+    const name = data.name || '未知';
+    const nftRaw = data.nft || '';
+    const shortlink = data.shortlink || '';
+    const nftDisplay = nftRaw ? formatNftLines(nftRaw) : '暂无数据';
+    let qrContent = shortlink || nftRaw || '';
+
+    return `
+        <div class="print-card-content">
+            <div class="print-card-inner">
+                <div class="print-name-area surname-name">
+                    <div class="print-main-name">${escapeHtml(name)}</div>
+                </div>
+                <div class="print-qr-area">
+                    <div class="print-qr-wrapper">
+                        <div class="print-qrcode qr-placeholder" data-qr="${escapeHtml(qrContent)}"></div>
+                    </div>
+                    <div class="print-nft-text">${nftDisplay}</div>
+                </div>
+            </div>
+            <div class="print-card-footer">
+                <span class="print-dao-label">百姓DAO-NFT</span>
+            </div>
+        </div>
+    `;
+}
+
+// ---- 会堂卡片 ----
+function renderCitangCardHTML(data, surname) {
+    const name = data.name || '未知';
+    const hash = data.hash || '';
+    const shortlink = data.shortlink || '';
+    const nftDisplay = hash ? formatNftLines(hash) : '暂无数据';
+    let qrContent = shortlink || hash || '';
+
+    return `
+        <div class="print-card-content">
+            <div class="print-card-inner">
+                <div class="print-name-area citang-name">
+                    <div class="print-citang-surname">${escapeHtml(surname)}</div>
+                    <div class="print-citang-name">${escapeHtml(name)}</div>
+                </div>
+                <div class="print-qr-area">
+                    <div class="print-qr-wrapper">
+                        <div class="print-qrcode qr-placeholder" data-qr="${escapeHtml(qrContent)}"></div>
+                    </div>
+                    <div class="print-nft-text">${nftDisplay}</div>
+                </div>
+            </div>
+            <div class="print-card-footer">
+                <span class="print-dao-label">百姓DAO-NFT</span>
+            </div>
+        </div>
+    `;
+}
+
+// ---- 成员卡片 ----
+function renderMemberCardHTML(data, surname, citangName) {
+    const name = data.name || '未知';
+    const hash = data.hash || '';
+    const shortlink = data.shortlink || '';
+    const nftDisplay = hash ? formatNftLines(hash) : '暂无数据';
+    let qrContent = shortlink || hash || '';
+
+    return `
+        <div class="print-card-content">
+            <div class="print-card-inner">
+                <div class="print-name-area member-name">
+                    <div class="print-member-surname">${escapeHtml(surname)}</div>
+                    <div class="print-member-citang">${escapeHtml(citangName)}</div>
+                    <div class="print-member-name">${escapeHtml(name)}</div>
+                </div>
+                <div class="print-qr-area">
+                    <div class="print-qr-wrapper">
+                        <div class="print-qrcode qr-placeholder" data-qr="${escapeHtml(qrContent)}"></div>
+                    </div>
+                    <div class="print-nft-text">${nftDisplay}</div>
+                </div>
+            </div>
+            <div class="print-card-footer">
+                <span class="print-dao-label">百姓DAO-NFT</span>
+            </div>
+        </div>
+    `;
+}
+
+// ---- 空卡片 ----
+function renderEmptyCardHTML() {
+    return `
+        <div class="empty-card-content">
+            <div class="empty-icon">🃟</div>
+            <div>空位</div>
+        </div>
+    `;
+}
+
+function renderCard(slotIdx) {
+    const slot = slotData[slotIdx] || { type: null, data: null, selectedSurname: '', selectedCitang: '' };
+    const cardDiv = document.createElement('div');
+    cardDiv.className = 'print-card';
+    cardDiv.dataset.slot = slotIdx;
+
+    if (!slot.type || !slot.data) {
+        cardDiv.classList.add('empty-card');
+        cardDiv.innerHTML = renderEmptyCardHTML();
+        addCutMarks(cardDiv);
+        return cardDiv;
+    }
+
+    let innerHtml = '';
+    const data = slot.data;
+    switch (slot.type) {
+        case 'surname':
+            innerHtml = renderSurnameCardHTML(data);
+            break;
+        case 'citang':
+            innerHtml = renderCitangCardHTML(data, slot.selectedSurname || data._surname || '');
+            break;
+        case 'member':
+            innerHtml = renderMemberCardHTML(data, slot.selectedSurname || data._surname || '', slot.selectedCitang || data._citangName || '');
+            break;
+        default:
+            cardDiv.classList.add('empty-card');
+            cardDiv.innerHTML = renderEmptyCardHTML();
+            addCutMarks(cardDiv);
+            return cardDiv;
+    }
+
+    cardDiv.innerHTML = innerHtml;
+    addCutMarks(cardDiv);
+    return cardDiv;
+}
+
+function refreshPreview() {
+    const container = document.getElementById('cards-container');
+    container.innerHTML = '';
+
+    for (let i = 0; i < TOTAL_SLOTS; i++) {
+        const card = renderCard(i);
+        container.appendChild(card);
+    }
+
+    setTimeout(() => {
+        const qrElements = document.querySelectorAll('.qr-placeholder');
+        qrElements.forEach(el => {
+            const qrText = el.dataset.qr || '';
+            if (qrText) {
+                try {
+                    el.innerHTML = '';
+                    new QRCode(el, {
+                        text: qrText,
+                        width: 70,
+                        height: 70,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+                } catch (err) {
+                    el.innerHTML = `<div style="width:70px;height:70px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;font-size:9px;color:#999;">无码</div>`;
+                }
+            } else {
+                el.innerHTML = `<div style="width:70px;height:70px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;font-size:9px;color:#999;">无二维码</div>`;
+            }
+        });
+    }, 150);
+
+    updateStats();
+}
+
+// ============================================================
+//  卡位配置UI（保持不变）
+// ============================================================
+
+function buildSlotConfigUI() {
+    const body = document.getElementById('slot-config-body');
+    body.innerHTML = '';
+
+    for (let i = 0; i < TOTAL_SLOTS; i++) {
+        const slot = slotData[i] || { type: null, data: null, selectedSurname: '', selectedCitang: '' };
+        const row = document.createElement('div');
+        row.className = 'slot-row';
+        row.dataset.slotIndex = i;
+
+        const idxSpan = document.createElement('span');
+        idxSpan.className = 'slot-index';
+        idxSpan.textContent = `#${i+1}`;
+
+        const typeSelect = document.createElement('select');
+        typeSelect.className = 'slot-type-select';
+        typeSelect.dataset.slot = i;
+        typeSelect.innerHTML = `
+            <option value="">-- 空 --</option>
+            <option value="surname" ${slot.type === 'surname' ? 'selected' : ''}>🏷️ 姓氏</option>
+            <option value="citang" ${slot.type === 'citang' ? 'selected' : ''}>🏛️ 会堂</option>
+            <option value="member" ${slot.type === 'member' ? 'selected' : ''}>👤 成员</option>
+        `;
+
+        const cascadeDiv = document.createElement('div');
+        cascadeDiv.className = 'cascade-container';
+
+        const surnameSelect = document.createElement('select');
+        surnameSelect.className = 'cascade-surname';
+        surnameSelect.dataset.slot = i;
+        surnameSelect.innerHTML = `<option value="">-- 姓氏 --</option>`;
+        allSurnames.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.name;
+            opt.textContent = `#${s.card_number} ${s.name}`;
+            if (slot.selectedSurname === s.name) opt.selected = true;
+            surnameSelect.appendChild(opt);
+        });
+
+        const sep1 = document.createElement('span');
+        sep1.className = 'cascade-sep';
+        sep1.textContent = '›';
+
+        const citangSelect = document.createElement('select');
+        citangSelect.className = 'cascade-citang';
+        citangSelect.dataset.slot = i;
+        citangSelect.innerHTML = `<option value="">-- 会堂 --</option>`;
+        citangSelect.disabled = true;
+
+        const sep2 = document.createElement('span');
+        sep2.className = 'cascade-sep';
+        sep2.textContent = '›';
+
+        const memberSelect = document.createElement('select');
+        memberSelect.className = 'cascade-member';
+        memberSelect.dataset.slot = i;
+        memberSelect.innerHTML = `<option value="">-- 成员 --</option>`;
+        memberSelect.disabled = true;
+
+        cascadeDiv.appendChild(surnameSelect);
+        cascadeDiv.appendChild(sep1);
+        cascadeDiv.appendChild(citangSelect);
+        cascadeDiv.appendChild(sep2);
+        cascadeDiv.appendChild(memberSelect);
+
+        updateCascadeVisibility(typeSelect.value, cascadeDiv);
+
+        const previewSpan = document.createElement('span');
+        previewSpan.className = 'slot-preview-text';
+        updatePreviewText(previewSpan, slot);
+
+        const statusSpan = document.createElement('span');
+        statusSpan.className = 'slot-status';
+        updateSlotStatusUI(statusSpan, slot);
+
+        const clearBtn = document.createElement('button');
+        clearBtn.className = 'clear-slot-btn';
+        clearBtn.textContent = '✕';
+        clearBtn.title = '清空此卡位';
+
+        row.appendChild(idxSpan);
+        row.appendChild(typeSelect);
+        row.appendChild(cascadeDiv);
+        row.appendChild(previewSpan);
+        row.appendChild(statusSpan);
+        row.appendChild(clearBtn);
+        body.appendChild(row);
+
+        if (slot.type === 'citang' && slot.selectedSurname) {
+            populateCitangSelect(citangSelect, slot.selectedSurname, slot.data);
+        }
+        if (slot.type === 'member' && slot.selectedSurname) {
+            populateCitangSelect(citangSelect, slot.selectedSurname, null);
+            if (slot.selectedCitang) {
+                populateMemberSelect(memberSelect, slot.selectedSurname, slot.selectedCitang, slot.data);
+            }
+        }
+
+        // ---- 事件绑定 ----
+        typeSelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const surnameSel = cascadeDivEl.querySelector('.cascade-surname');
+            const citangSel = cascadeDivEl.querySelector('.cascade-citang');
+            const memberSel = cascadeDivEl.querySelector('.cascade-member');
+
+            slotData[idx] = { type: val || null, data: null, selectedSurname: '', selectedCitang: '' };
+            citangSel.innerHTML = `<option value="">-- 会堂 --</option>`;
+            citangSel.disabled = true;
+            memberSel.innerHTML = `<option value="">-- 成员 --</option>`;
+            memberSel.disabled = true;
+            surnameSel.value = '';
+
+            updateCascadeVisibility(val, cascadeDivEl);
+            updateSlotStatusUI(statusSpan, slotData[idx]);
+            updatePreviewText(previewSpan, slotData[idx]);
+            refreshPreview();
+        });
+
+        surnameSelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const citangSel = cascadeDivEl.querySelector('.cascade-citang');
+            const memberSel = cascadeDivEl.querySelector('.cascade-member');
+            const typeSel = rowEl.querySelector('.slot-type-select');
+            const typeVal = typeSel.value;
+            const statusSpan = rowEl.querySelector('.slot-status');
+            const previewSpan = rowEl.querySelector('.slot-preview-text');
+
+            if (slotData[idx]) {
+                slotData[idx].selectedSurname = val;
+                if (typeVal === 'surname' && val) {
+                    const found = allSurnames.find(s => s.name === val);
+                    if (found) {
+                        slotData[idx].data = found;
+                    }
+                } else {
+                    slotData[idx].data = null;
+                    slotData[idx].selectedCitang = '';
+                }
+            }
+
+            citangSel.innerHTML = `<option value="">-- 会堂 --</option>`;
+            citangSel.disabled = true;
+            memberSel.innerHTML = `<option value="">-- 成员 --</option>`;
+            memberSel.disabled = true;
+
+            if (val && (typeVal === 'citang' || typeVal === 'member')) {
+                citangSel.disabled = false;
+                citangSel.innerHTML = `<option value="">-- 加载中... --</option>`;
+                const cardNum = getCardNumberBySurname(val);
+                if (cardNum) {
+                    loadCitangList(cardNum, val).then(list => {
+                        citangSel.innerHTML = `<option value="">-- 请选择会堂 --</option>`;
+                        list.forEach(c => {
+                            const opt = document.createElement('option');
+                            opt.value = JSON.stringify(c);
+                            opt.textContent = `#${c.citang_number} ${c.name}`;
+                            citangSel.appendChild(opt);
+                        });
+                        if (list.length === 0) {
+                            citangSel.innerHTML = `<option value="">-- 无会堂 --</option>`;
+                        }
+                        updatePreviewText(previewSpan, slotData[idx]);
+                        updateSlotStatusUI(statusSpan, slotData[idx]);
+                        refreshPreview();
+                    });
+                }
+            }
+
+            updateSlotStatusUI(statusSpan, slotData[idx]);
+            updatePreviewText(previewSpan, slotData[idx]);
+            refreshPreview();
+        });
+
+        citangSelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const surnameSel = cascadeDivEl.querySelector('.cascade-surname');
+            const memberSel = cascadeDivEl.querySelector('.cascade-member');
+            const typeSel = rowEl.querySelector('.slot-type-select');
+            const typeVal = typeSel.value;
+            const surname = surnameSel.value;
+            const statusSpan = rowEl.querySelector('.slot-status');
+            const previewSpan = rowEl.querySelector('.slot-preview-text');
+
+            if (!val) {
+                if (slotData[idx]) {
+                    slotData[idx].data = null;
+                    slotData[idx].selectedCitang = '';
+                }
+                memberSel.innerHTML = `<option value="">-- 成员 --</option>`;
+                memberSel.disabled = true;
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+                return;
+            }
+
+            try {
+                const citangData = JSON.parse(val);
+                if (slotData[idx]) {
+                    slotData[idx].data = citangData;
+                    slotData[idx].selectedCitang = citangData.name;
+                }
+
+                if (typeVal === 'member' && surname) {
+                    memberSel.disabled = false;
+                    memberSel.innerHTML = `<option value="">-- 加载中... --</option>`;
+                    const cardNum = getCardNumberBySurname(surname);
+                    if (cardNum) {
+                        loadMemberList(cardNum, surname, citangData.citang_number, citangData.name).then(list => {
+                            memberSel.innerHTML = `<option value="">-- 请选择成员 --</option>`;
+                            list.forEach(m => {
+                                const opt = document.createElement('option');
+                                const dataWithContext = { ...m, _surname: surname, _citangName: citangData.name };
+                                opt.value = JSON.stringify(dataWithContext);
+                                opt.textContent = `#${m.number} ${m.name}`;
+                                memberSel.appendChild(opt);
+                            });
+                            if (list.length === 0) {
+                                memberSel.innerHTML = `<option value="">-- 无成员 --</option>`;
+                            }
+                            updateSlotStatusUI(statusSpan, slotData[idx]);
+                            updatePreviewText(previewSpan, slotData[idx]);
+                            refreshPreview();
+                        });
+                    }
+                }
+
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+            } catch(e) {
+                console.warn('解析会堂数据失败:', e);
+            }
+        });
+
+        memberSelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const statusSpan = rowEl.querySelector('.slot-status');
+            const previewSpan = rowEl.querySelector('.slot-preview-text');
+
+            if (!val) {
+                if (slotData[idx]) slotData[idx].data = null;
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+                return;
+            }
+
+            try {
+                const memberData = JSON.parse(val);
+                if (slotData[idx]) {
+                    slotData[idx].data = memberData;
+                }
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+            } catch(e) {
+                console.warn('解析成员数据失败:', e);
+            }
+        });
+
+        clearBtn.addEventListener('click', function() {
+            const rowEl = this.closest('.slot-row');
+            const idx = parseInt(rowEl.dataset.slotIndex);
+            slotData[idx] = { type: null, data: null, selectedSurname: '', selectedCitang: '' };
+
+            const typeSel = rowEl.querySelector('.slot-type-select');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const surnameSel = cascadeDivEl.querySelector('.cascade-surname');
+            const citangSel = cascadeDivEl.querySelector('.cascade-citang');
+            const memberSel = cascadeDivEl.querySelector('.cascade-member');
+
+            typeSel.value = '';
+            surnameSel.value = '';
+            citangSel.innerHTML = `<option value="">-- 会堂 --</option>`;
+            citangSel.disabled = true;
+            memberSel.innerHTML = `<option value="">-- 成员 --</option>`;
+            memberSel.disabled = true;
+
+            updateCascadeVisibility('', cascadeDivEl);
+            updateSlotStatusUI(statusSpan, slotData[idx]);
+            updatePreviewText(previewSpan, slotData[idx]);
+            refreshPreview();
+        });
+    }
+}
+
+function updateCascadeVisibility(type, cascadeDiv) {
+    const surnameSel = cascadeDiv.querySelector('.cascade-surname');
+    const citangSel = cascadeDiv.querySelector('.cascade-citang');
+    const memberSel = cascadeDiv.querySelector('.cascade-member');
+    const sep1 = cascadeDiv.querySelector('.cascade-sep:first-of-type');
+    const sep2 = cascadeDiv.querySelector('.cascade-sep:last-of-type');
+
+    surnameSel.style.display = 'inline-block';
+
+    if (type === 'surname') {
+        citangSel.style.display = 'none';
+        memberSel.style.display = 'none';
+        if (sep1) { sep1.style.display = 'none'; sep1.className = 'cascade-sep'; }
+        if (sep2) { sep2.style.display = 'none'; sep2.className = 'cascade-sep'; }
+        citangSel.disabled = true;
+        memberSel.disabled = true;
+    } else if (type === 'citang') {
+        citangSel.style.display = 'inline-block';
+        memberSel.style.display = 'none';
+        if (sep1) { sep1.style.display = 'inline'; sep1.className = 'cascade-sep active'; }
+        if (sep2) { sep2.style.display = 'none'; sep2.className = 'cascade-sep'; }
+        memberSel.disabled = true;
+        if (!citangSel.value) citangSel.disabled = true;
+    } else if (type === 'member') {
+        citangSel.style.display = 'inline-block';
+        memberSel.style.display = 'inline-block';
+        if (sep1) { sep1.style.display = 'inline'; sep1.className = 'cascade-sep active'; }
+        if (sep2) { sep2.style.display = 'inline'; sep2.className = 'cascade-sep active'; }
+        if (!citangSel.value) citangSel.disabled = true;
+        if (!citangSel.value || !memberSel.value) memberSel.disabled = true;
+    } else {
+        surnameSel.style.display = 'inline-block';
+        citangSel.style.display = 'none';
+        memberSel.style.display = 'none';
+        if (sep1) { sep1.style.display = 'none'; sep1.className = 'cascade-sep'; }
+        if (sep2) { sep2.style.display = 'none'; sep2.className = 'cascade-sep'; }
+        citangSel.disabled = true;
+        memberSel.disabled = true;
+    }
+}
+
+function populateCitangSelect(selectEl, surname, selectedData) {
+    selectEl.innerHTML = `<option value="">-- 会堂 --</option>`;
+    selectEl.disabled = false;
+    const key = getSurnameKey(surname);
+    const list = citangMap[key] || [];
+    list.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = JSON.stringify(c);
+        opt.textContent = `#${c.citang_number} ${c.name}`;
+        if (selectedData && selectedData.citang_number === c.citang_number) {
+            opt.selected = true;
+        }
+        selectEl.appendChild(opt);
+    });
+    if (list.length === 0) {
+        selectEl.innerHTML = `<option value="">-- 无会堂 --</option>`;
+        selectEl.disabled = true;
+    }
+}
+
+function populateMemberSelect(selectEl, surname, citangName, selectedData) {
+    const sKey = getSurnameKey(surname);
+    const citangList = citangMap[sKey] || [];
+    let citangNumber = null;
+    for (const c of citangList) {
+        if (c.name === citangName) {
+            citangNumber = c.citang_number;
+            break;
+        }
+    }
+    if (!citangNumber) {
+        selectEl.innerHTML = `<option value="">-- 未找到会堂 --</option>`;
+        selectEl.disabled = true;
+        return;
+    }
+
+    const mKey = getCitangKey(surname, citangNumber, citangName);
+    const list = memberMap[mKey] || [];
+    selectEl.innerHTML = `<option value="">-- 请选择成员 --</option>`;
+    selectEl.disabled = false;
+    list.forEach(m => {
+        const opt = document.createElement('option');
+        const dataWithContext = { ...m, _surname: surname, _citangName: citangName };
+        opt.value = JSON.stringify(dataWithContext);
+        opt.textContent = `#${m.number} ${m.name}`;
+        if (selectedData && selectedData.number === m.number) {
+            opt.selected = true;
+        }
+        selectEl.appendChild(opt);
+    });
+    if (list.length === 0) {
+        selectEl.innerHTML = `<option value="">-- 无成员 --</option>`;
+        selectEl.disabled = true;
+    }
+}
+
+function updateSlotStatusUI(statusSpan, slot) {
+    if (slot && slot.type && slot.data) {
+        statusSpan.className = 'slot-status ready';
+        statusSpan.innerHTML = '✅ 已选';
+    } else if (slot && slot.type && (slot.selectedSurname || slot.selectedCitang)) {
+        statusSpan.className = 'slot-status partial';
+        statusSpan.innerHTML = '⏳ 选择中';
+    } else {
+        statusSpan.className = 'slot-status empty';
+        statusSpan.innerHTML = '⬜ 空';
+    }
+}
+
+function updatePreviewText(previewSpan, slot) {
+    if (!slot || !slot.type) {
+        previewSpan.innerHTML = '<span class="empty-preview">—</span>';
+        return;
+    }
+
+    let displayText = getFullDisplayName(slot);
+    if (slot.data) {
+        previewSpan.innerHTML = `<span class="highlight-path">${displayText}</span>`;
+    } else {
+        previewSpan.innerHTML = `<span style="color:#856404;">${displayText}</span>`;
+    }
+}
+
+function updateStats() {
+    let count = 0;
+    for (let i = 0; i < TOTAL_SLOTS; i++) {
+        if (slotData[i] && slotData[i].type && slotData[i].data) count++;
+    }
+    document.getElementById('filled-count').textContent = count;
+}
+
+function rebuildSlotUI() {
+    const body = document.getElementById('slot-config-body');
+    body.innerHTML = '';
+    for (let i = 0; i < TOTAL_SLOTS; i++) {
+        const slot = slotData[i] || { type: null, data: null, selectedSurname: '', selectedCitang: '' };
+        const row = document.createElement('div');
+        row.className = 'slot-row';
+        row.dataset.slotIndex = i;
+
+        const idxSpan = document.createElement('span');
+        idxSpan.className = 'slot-index';
+        idxSpan.textContent = `#${i+1}`;
+
+        const typeSelect = document.createElement('select');
+        typeSelect.className = 'slot-type-select';
+        typeSelect.dataset.slot = i;
+        typeSelect.innerHTML = `
+            <option value="">-- 空 --</option>
+            <option value="surname" ${slot.type === 'surname' ? 'selected' : ''}>🏷️ 姓氏</option>
+            <option value="citang" ${slot.type === 'citang' ? 'selected' : ''}>🏛️ 会堂</option>
+            <option value="member" ${slot.type === 'member' ? 'selected' : ''}>👤 成员</option>
+        `;
+
+        const cascadeDiv = document.createElement('div');
+        cascadeDiv.className = 'cascade-container';
+
+        const surnameSelect = document.createElement('select');
+        surnameSelect.className = 'cascade-surname';
+        surnameSelect.dataset.slot = i;
+        surnameSelect.innerHTML = `<option value="">-- 姓氏 --</option>`;
+        allSurnames.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.name;
+            opt.textContent = `#${s.card_number} ${s.name}`;
+            if (slot.selectedSurname === s.name) opt.selected = true;
+            surnameSelect.appendChild(opt);
+        });
+
+        const sep1 = document.createElement('span');
+        sep1.className = 'cascade-sep';
+        sep1.textContent = '›';
+
+        const citangSelect = document.createElement('select');
+        citangSelect.className = 'cascade-citang';
+        citangSelect.dataset.slot = i;
+        citangSelect.innerHTML = `<option value="">-- 会堂 --</option>`;
+        citangSelect.disabled = true;
+
+        const sep2 = document.createElement('span');
+        sep2.className = 'cascade-sep';
+        sep2.textContent = '›';
+
+        const memberSelect = document.createElement('select');
+        memberSelect.className = 'cascade-member';
+        memberSelect.dataset.slot = i;
+        memberSelect.innerHTML = `<option value="">-- 成员 --</option>`;
+        memberSelect.disabled = true;
+
+        cascadeDiv.appendChild(surnameSelect);
+        cascadeDiv.appendChild(sep1);
+        cascadeDiv.appendChild(citangSelect);
+        cascadeDiv.appendChild(sep2);
+        cascadeDiv.appendChild(memberSelect);
+
+        updateCascadeVisibility(typeSelect.value, cascadeDiv);
+
+        const previewSpan = document.createElement('span');
+        previewSpan.className = 'slot-preview-text';
+        updatePreviewText(previewSpan, slot);
+
+        const statusSpan = document.createElement('span');
+        statusSpan.className = 'slot-status';
+        updateSlotStatusUI(statusSpan, slot);
+
+        const clearBtn = document.createElement('button');
+        clearBtn.className = 'clear-slot-btn';
+        clearBtn.textContent = '✕';
+        clearBtn.title = '清空此卡位';
+
+        row.appendChild(idxSpan);
+        row.appendChild(typeSelect);
+        row.appendChild(cascadeDiv);
+        row.appendChild(previewSpan);
+        row.appendChild(statusSpan);
+        row.appendChild(clearBtn);
+        body.appendChild(row);
+
+        if (slot.type === 'citang' && slot.selectedSurname) {
+            populateCitangSelect(citangSelect, slot.selectedSurname, slot.data);
+        }
+        if (slot.type === 'member' && slot.selectedSurname) {
+            populateCitangSelect(citangSelect, slot.selectedSurname, null);
+            if (slot.selectedCitang) {
+                populateMemberSelect(memberSelect, slot.selectedSurname, slot.selectedCitang, slot.data);
+            }
+        }
+
+        // ---- 事件绑定（复用） ----
+        typeSelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const surnameSel = cascadeDivEl.querySelector('.cascade-surname');
+            const citangSel = cascadeDivEl.querySelector('.cascade-citang');
+            const memberSel = cascadeDivEl.querySelector('.cascade-member');
+
+            slotData[idx] = { type: val || null, data: null, selectedSurname: '', selectedCitang: '' };
+            citangSel.innerHTML = `<option value="">-- 会堂 --</option>`;
+            citangSel.disabled = true;
+            memberSel.innerHTML = `<option value="">-- 成员 --</option>`;
+            memberSel.disabled = true;
+            surnameSel.value = '';
+
+            updateCascadeVisibility(val, cascadeDivEl);
+            updateSlotStatusUI(statusSpan, slotData[idx]);
+            updatePreviewText(previewSpan, slotData[idx]);
+            refreshPreview();
+        });
+
+        surnameSelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const citangSel = cascadeDivEl.querySelector('.cascade-citang');
+            const memberSel = cascadeDivEl.querySelector('.cascade-member');
+            const typeSel = rowEl.querySelector('.slot-type-select');
+            const typeVal = typeSel.value;
+            const statusSpan = rowEl.querySelector('.slot-status');
+            const previewSpan = rowEl.querySelector('.slot-preview-text');
+
+            if (slotData[idx]) {
+                slotData[idx].selectedSurname = val;
+                if (typeVal === 'surname' && val) {
+                    const found = allSurnames.find(s => s.name === val);
+                    if (found) {
+                        slotData[idx].data = found;
+                    }
+                } else {
+                    slotData[idx].data = null;
+                    slotData[idx].selectedCitang = '';
+                }
+            }
+
+            citangSel.innerHTML = `<option value="">-- 会堂 --</option>`;
+            citangSel.disabled = true;
+            memberSel.innerHTML = `<option value="">-- 成员 --</option>`;
+            memberSel.disabled = true;
+
+            if (val && (typeVal === 'citang' || typeVal === 'member')) {
+                citangSel.disabled = false;
+                citangSel.innerHTML = `<option value="">-- 加载中... --</option>`;
+                const cardNum = getCardNumberBySurname(val);
+                if (cardNum) {
+                    loadCitangList(cardNum, val).then(list => {
+                        citangSel.innerHTML = `<option value="">-- 请选择会堂 --</option>`;
+                        list.forEach(c => {
+                            const opt = document.createElement('option');
+                            opt.value = JSON.stringify(c);
+                            opt.textContent = `#${c.citang_number} ${c.name}`;
+                            citangSel.appendChild(opt);
+                        });
+                        if (list.length === 0) {
+                            citangSel.innerHTML = `<option value="">-- 无会堂 --</option>`;
+                        }
+                        updatePreviewText(previewSpan, slotData[idx]);
+                        updateSlotStatusUI(statusSpan, slotData[idx]);
+                        refreshPreview();
+                    });
+                }
+            }
+
+            updateSlotStatusUI(statusSpan, slotData[idx]);
+            updatePreviewText(previewSpan, slotData[idx]);
+            refreshPreview();
+        });
+
+        citangSelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const surnameSel = cascadeDivEl.querySelector('.cascade-surname');
+            const memberSel = cascadeDivEl.querySelector('.cascade-member');
+            const typeSel = rowEl.querySelector('.slot-type-select');
+            const typeVal = typeSel.value;
+            const surname = surnameSel.value;
+            const statusSpan = rowEl.querySelector('.slot-status');
+            const previewSpan = rowEl.querySelector('.slot-preview-text');
+
+            if (!val) {
+                if (slotData[idx]) {
+                    slotData[idx].data = null;
+                    slotData[idx].selectedCitang = '';
+                }
+                memberSel.innerHTML = `<option value="">-- 成员 --</option>`;
+                memberSel.disabled = true;
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+                return;
+            }
+
+            try {
+                const citangData = JSON.parse(val);
+                if (slotData[idx]) {
+                    slotData[idx].data = citangData;
+                    slotData[idx].selectedCitang = citangData.name;
+                }
+
+                if (typeVal === 'member' && surname) {
+                    memberSel.disabled = false;
+                    memberSel.innerHTML = `<option value="">-- 加载中... --</option>`;
+                    const cardNum = getCardNumberBySurname(surname);
+                    if (cardNum) {
+                        loadMemberList(cardNum, surname, citangData.citang_number, citangData.name).then(list => {
+                            memberSel.innerHTML = `<option value="">-- 请选择成员 --</option>`;
+                            list.forEach(m => {
+                                const opt = document.createElement('option');
+                                const dataWithContext = { ...m, _surname: surname, _citangName: citangData.name };
+                                opt.value = JSON.stringify(dataWithContext);
+                                opt.textContent = `#${m.number} ${m.name}`;
+                                memberSel.appendChild(opt);
+                            });
+                            if (list.length === 0) {
+                                memberSel.innerHTML = `<option value="">-- 无成员 --</option>`;
+                            }
+                            updateSlotStatusUI(statusSpan, slotData[idx]);
+                            updatePreviewText(previewSpan, slotData[idx]);
+                            refreshPreview();
+                        });
+                    }
+                }
+
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+            } catch(e) {
+                console.warn('解析会堂数据失败:', e);
+            }
+        });
+
+        memberSelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const statusSpan = rowEl.querySelector('.slot-status');
+            const previewSpan = rowEl.querySelector('.slot-preview-text');
+
+            if (!val) {
+                if (slotData[idx]) slotData[idx].data = null;
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+                return;
+            }
+
+            try {
+                const memberData = JSON.parse(val);
+                if (slotData[idx]) {
+                    slotData[idx].data = memberData;
+                }
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+            } catch(e) {
+                console.warn('解析成员数据失败:', e);
+            }
+        });
+
+        clearBtn.addEventListener('click', function() {
+            const rowEl = this.closest('.slot-row');
+            const idx = parseInt(rowEl.dataset.slotIndex);
+            slotData[idx] = { type: null, data: null, selectedSurname: '', selectedCitang: '' };
+
+            const typeSel = rowEl.querySelector('.slot-type-select');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const surnameSel = cascadeDivEl.querySelector('.cascade-surname');
+            const citangSel = cascadeDivEl.querySelector('.cascade-citang');
+            const memberSel = cascadeDivEl.querySelector('.cascade-member');
+
+            typeSel.value = '';
+            surnameSel.value = '';
+            citangSel.innerHTML = `<option value="">-- 会堂 --</option>`;
+            citangSel.disabled = true;
+            memberSel.innerHTML = `<option value="">-- 成员 --</option>`;
+            memberSel.disabled = true;
+
+            updateCascadeVisibility('', cascadeDivEl);
+            updateSlotStatusUI(statusSpan, slotData[idx]);
+            updatePreviewText(previewSpan, slotData[idx]);
+            refreshPreview();
+        });
+    }
+}
+
+// ============================================================
+//  范围选择模态框
+// ============================================================
+
+function openRangeModal(type) {
+    pendingFillType = type;
+    
+    let dataList = [];
+    let title = '';
+    let subtitle = '';
+    
+    if (type === 'surname') {
+        dataList = allSurnames.map(s => ({ 
+            id: s.card_number, 
+            label: `#${s.card_number} ${s.name}`,
+            data: s,
+            type: 'surname'
+        }));
+        title = '选择要填充的姓氏范围';
+        subtitle = '请选择起始和结束的姓氏，将按顺序填充到空卡位中';
+    } else if (type === 'citang') {
+        for (const s of allSurnames) {
+            const key = getSurnameKey(s.name);
+            const list = citangMap[key] || [];
+            for (const c of list) {
+                dataList.push({
+                    id: `${s.name}|${c.citang_number}`,
+                    label: `#${s.card_number}.${c.citang_number} ${s.name}.${c.name}`,
+                    data: { ...c, _surname: s.name },
+                    type: 'citang'
+                });
+            }
+        }
+        title = '选择要填充的会堂范围';
+        subtitle = '请选择起始和结束的会堂，将按顺序填充到空卡位中';
+    } else if (type === 'member') {
+        for (const s of allSurnames) {
+            const sKey = getSurnameKey(s.name);
+            const citangList = citangMap[sKey] || [];
+            for (const c of citangList) {
+                const mKey = getCitangKey(s.name, c.citang_number, c.name);
+                const memberList = memberMap[mKey] || [];
+                for (const m of memberList) {
+                    dataList.push({
+                        id: `${s.name}|${c.name}|${m.number}`,
+                        label: `#${s.card_number}.${c.citang_number}.${m.number} ${s.name}.${c.name}.${m.name}`,
+                        data: { ...m, _surname: s.name, _citangName: c.name },
+                        type: 'member'
+                    });
+                }
+            }
+        }
+        title = '选择要填充的成员范围';
+        subtitle = '请选择起始和结束的成员，将按顺序填充到空卡位中';
+    }
+    
+    if (dataList.length === 0) {
+        alert('没有可用的数据！请确保数据已加载。');
+        return;
+    }
+    
+    pendingFillData = dataList;
+    
+    document.getElementById('rangeModalTitle').textContent = title;
+    document.getElementById('rangeModalSubtitle').textContent = subtitle;
+    
+    const infoDiv = document.getElementById('rangeInfo');
+    let previewHtml = `<strong>共 ${dataList.length} 个项目：</strong> `;
+    const displayItems = dataList.slice(0, 10);
+    displayItems.forEach(item => {
+        previewHtml += `<span class="item-tag">${escapeHtml(item.label)}</span>`;
+    });
+    if (dataList.length > 10) {
+        previewHtml += `<span class="item-tag" style="background:#e9ecef;">... 等 ${dataList.length} 个</span>`;
+    }
+    infoDiv.innerHTML = previewHtml;
+    
+    const startSelect = document.getElementById('rangeStart');
+    const endSelect = document.getElementById('rangeEnd');
+    startSelect.innerHTML = '';
+    endSelect.innerHTML = '';
+    
+    dataList.forEach((item, index) => {
+        const opt1 = document.createElement('option');
+        opt1.value = index;
+        opt1.textContent = item.label;
+        startSelect.appendChild(opt1);
+        
+        const opt2 = document.createElement('option');
+        opt2.value = index;
+        opt2.textContent = item.label;
+        endSelect.appendChild(opt2);
+    });
+    
+    startSelect.value = 0;
+    endSelect.value = dataList.length - 1;
+    
+    document.getElementById('rangeConfirmBtn').disabled = false;
+    document.getElementById('rangeModal').style.display = 'block';
+}
+
+function closeRangeModal() {
+    document.getElementById('rangeModal').style.display = 'none';
+    pendingFillType = '';
+    pendingFillData = [];
+}
+
+function confirmRangeFill() {
+    const startIdx = parseInt(document.getElementById('rangeStart').value);
+    const endIdx = parseInt(document.getElementById('rangeEnd').value);
+    
+    if (isNaN(startIdx) || isNaN(endIdx)) {
+        alert('请选择有效的起始和结束位置！');
+        return;
+    }
+    
+    if (startIdx > endIdx) {
+        alert('起始位置不能大于结束位置！');
+        return;
+    }
+    
+    const selectedItems = pendingFillData.slice(startIdx, endIdx + 1);
+    
+    if (selectedItems.length === 0) {
+        alert('没有选择任何项目！');
+        return;
+    }
+    
+    const confirmMsg = `将填充 ${selectedItems.length} 个${pendingFillType === 'surname' ? '姓氏' : pendingFillType === 'citang' ? '会堂' : '成员'}到空卡位中，是否继续？`;
+    if (!confirm(confirmMsg)) return;
+    
+    let idx = 0;
+    let filled = 0;
+    for (const item of selectedItems) {
+        while (idx < TOTAL_SLOTS && slotData[idx] && slotData[idx].type && slotData[idx].data) {
+            idx++;
+        }
+        if (idx >= TOTAL_SLOTS) {
+            alert(`所有卡位已满！已填充 ${filled} 个${pendingFillType === 'surname' ? '姓氏' : pendingFillType === 'citang' ? '会堂' : '成员'}`);
+            break;
+        }
+        
+        if (pendingFillType === 'surname') {
+            slotData[idx] = { type: 'surname', data: item.data, selectedSurname: item.data.name, selectedCitang: '' };
+        } else if (pendingFillType === 'citang') {
+            slotData[idx] = { type: 'citang', data: item.data, selectedSurname: item.data._surname, selectedCitang: item.data.name };
+        } else if (pendingFillType === 'member') {
+            slotData[idx] = { type: 'member', data: item.data, selectedSurname: item.data._surname, selectedCitang: item.data._citangName };
+        }
+        idx++;
+        filled++;
+    }
+    
+    closeRangeModal();
+    rebuildSlotUI();
+    refreshPreview();
+    alert(`✅ 成功填充 ${filled} 个${pendingFillType === 'surname' ? '姓氏' : pendingFillType === 'citang' ? '会堂' : '成员'}到卡位中！`);
+}
+
+document.getElementById('rangeModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeRangeModal();
+    }
+});
+
+// ============================================================
+//  快速填充功能
+// ============================================================
+
+function fillAllSurnames() {
+    if (allSurnames.length === 0) {
+        alert('没有可用的姓氏数据！请先加载数据。');
+        return;
+    }
+    openRangeModal('surname');
+}
+
+function fillAllCitang() {
+    let hasData = false;
+    for (const s of allSurnames) {
+        const key = getSurnameKey(s.name);
+        if (citangMap[key] && citangMap[key].length > 0) {
+            hasData = true;
+            break;
+        }
+    }
+    if (!hasData) {
+        alert('没有可用的会堂数据！请先确保数据已加载。');
+        return;
+    }
+    openRangeModal('citang');
+}
+
+function fillAllMembers() {
+    let hasData = false;
+    for (const s of allSurnames) {
+        const sKey = getSurnameKey(s.name);
+        const citangList = citangMap[sKey] || [];
+        for (const c of citangList) {
+            const mKey = getCitangKey(s.name, c.citang_number, c.name);
+            if (memberMap[mKey] && memberMap[mKey].length > 0) {
+                hasData = true;
+                break;
+            }
+        }
+        if (hasData) break;
+    }
+    if (!hasData) {
+        alert('没有可用的成员数据！请先确保数据已加载。');
+        return;
+    }
+    openRangeModal('member');
+}
+
+function clearAllSlots() {
+    if (!confirm('确定要清空所有卡位吗？')) return;
+    for (let i = 0; i < TOTAL_SLOTS; i++) {
+        slotData[i] = { type: null, data: null, selectedSurname: '', selectedCitang: '' };
+    }
+    rebuildSlotUI();
+    refreshPreview();
+}
+
+// ============================================================
+//  打印 & 返回
+// ============================================================
+
+function doPrint() {
+    refreshPreview();
+    setTimeout(() => window.print(), 500);
+}
+
+function goBack() {
+    if (document.referrer && (
+        document.referrer.includes('xingshi.html') ||
+        document.referrer.includes('index_bxt_group.html') ||
+        document.referrer.includes('citang.html') ||
+        document.referrer.includes('citang_member.html')
+    )) {
+        window.history.back();
+    } else {
+        window.location.href = 'xingshi.html';
+    }
+}
+
+// ============================================================
+//  初始化
+// ============================================================
+
+async function init() {
+    const container = document.getElementById('cards-container');
+    container.innerHTML = `<div class="loading-overlay"><div class="loader"></div><p>正在加载数据...</p></div>`;
+
+    try {
+        await loadAllSurnames();
+        await preloadAllData();
+
+        slotData = [];
+        for (let i = 0; i < TOTAL_SLOTS; i++) {
+            slotData.push({ type: null, data: null, selectedSurname: '', selectedCitang: '' });
+        }
+
+        buildSlotConfigUI();
+        refreshPreview();
+
+        document.getElementById('refresh-preview-btn').addEventListener('click', refreshPreview);
+        document.getElementById('print-btn').addEventListener('click', doPrint);
+        document.getElementById('back-btn').addEventListener('click', goBack);
+        document.getElementById('clear-all-btn').addEventListener('click', clearAllSlots);
+
+        const btnGroup = document.querySelector('.panel-top-row .button-group');
+        const oldBtns = btnGroup.querySelectorAll('.fill-btn');
+        oldBtns.forEach(b => b.remove());
+
+        const fillSurnameBtn = document.createElement('button');
+        fillSurnameBtn.className = 'btn btn-primary fill-btn';
+        fillSurnameBtn.textContent = '📋 填姓氏';
+        fillSurnameBtn.title = '选择要填充的姓氏范围';
+        fillSurnameBtn.addEventListener('click', fillAllSurnames);
+
+        const fillCitangBtn = document.createElement('button');
+        fillCitangBtn.className = 'btn btn-warning fill-btn';
+        fillCitangBtn.textContent = '📋 填会堂';
+        fillCitangBtn.title = '选择要填充的会堂范围';
+        fillCitangBtn.addEventListener('click', fillAllCitang);
+
+        const fillMemberBtn = document.createElement('button');
+        fillMemberBtn.className = 'btn btn-success fill-btn';
+        fillMemberBtn.textContent = '📋 填成员';
+        fillMemberBtn.title = '选择要填充的成员范围';
+        fillMemberBtn.addEventListener('click', fillAllMembers);
+
+        const refreshBtn = document.getElementById('refresh-preview-btn');
+        if (refreshBtn) {
+            refreshBtn.after(fillSurnameBtn);
+            fillSurnameBtn.after(fillCitangBtn);
+            fillCitangBtn.after(fillMemberBtn);
+        }
+
+        console.log('✅ 打印页面初始化完成');
+    } catch (err) {
+        console.error('初始化失败:', err);
+        container.innerHTML = `
+            <div class="error-message">
+                <strong>⚠️ 加载失败</strong><br>
+                ${escapeHtml(err.message)}<br><br>
+                <button class="btn btn-primary" onclick="location.reload()">重新加载</button>
+            </div>
+        `;
+    }
+}
+
+window.fillAllSurnames = fillAllSurnames;
+window.fillAllCitang = fillAllCitang;
+window.fillAllMembers = fillAllMembers;
+window.clearAllSlots = clearAllSlots;
+window.refreshPreview = refreshPreview;
+window.doPrint = doPrint;
+window.openRangeModal = openRangeModal;
+window.closeRangeModal = closeRangeModal;
+window.confirmRangeFill = confirmRangeFill;
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
+

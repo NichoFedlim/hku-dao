@@ -624,6 +624,41 @@
         </div>
     </div>
 
+    <!-- ===== EDIT TYPE MODAL ===== -->
+    <div class="modal-overlay" id="editTypeModal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="edit_type_title">Change Type</h2>
+                <button class="modal-close" onclick="closeModal('editTypeModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="editTypeForm">
+                    <div class="form-group" style="background:#f8f9fa; padding:10px 14px; border-radius:8px; margin-bottom:16px;">
+                        <small style="color:#666;">Editing: <strong id="editTypeItemName" style="color:var(--hku-green);">Loading...</strong></small>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="category_type_label">Type</label>
+                        <select id="editItemType">
+                            <option value="faculties">Faculty</option>
+                            <option value="main-campus">Main Campus</option>
+                            <option value="centennial-campus">Centennial Campus</option>
+                            <option value="halls">Hall</option>
+                            <option value="history">History</option>
+                            <option value="culture">Culture</option>
+                            <option value="sports">Sports</option>
+                            <option value="medical">Medical</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('editTypeModal')" data-i18n="cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary" data-i18n="save_type">Save Type</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== FOOTER ===== -->
     <footer class="footer">
         <p data-i18n="footer_text">© 2026 Gang Da Dao · Built on RBAS Blockchain</p>

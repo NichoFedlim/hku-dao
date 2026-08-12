@@ -94,10 +94,11 @@ function getImageUrls(type, name, id) {
     
     // Return array of possible extensions
     return [
-        `${basePath}${filename}.png`,
         `${basePath}${filename}.jpg`,
         `${basePath}${filename}.jpeg`,
-        `${basePath}${filename}.webp`
+        `${basePath}${filename}.png`,
+        `${basePath}${filename}.avif`,
+        // `${basePath}${filename}.webp`
     ];
 }
 

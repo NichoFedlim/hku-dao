@@ -381,19 +381,14 @@ function buildAllCategoriesFallback() {
     return all;
 }
 
-// ===== GET FILTER COUNTS =====
-function getFilterCounts() {
-    const counts = { all: 0 };
-    for (const [key, items] of Object.entries(CATEGORY_DATA)) {
-        counts[key] = items.length;
-        counts.all += items.length;
-    }
-    return counts;
-}
-
-// ===== UPDATE FILTER BADGES =====
-function updateFilterBadges() {
-    const counts = getFilterCounts();
+// ===== UPDATE FILTER BADGES FROM ACTUAL DATA =====
+function updateFilterBadgesFromData(categories) {
+    const counts = { all: categories.length };
+    categories.forEach(cat => {
+        const key = cat.filterKey || 'other';
+        counts[key] = (counts[key] || 0) + 1;
+    });
+    // Update each badge
     for (const [key, count] of Object.entries(counts)) {
         const badge = document.getElementById(`count-${key}`);
         if (badge) badge.textContent = count;
@@ -429,6 +424,85 @@ function applyFilter(filterKey) {
 
 function clearFilter() {
     applyFilter('all');
+}
+
+// ============================================================
+// EDIT TYPE MODAL FUNCTIONS
+// ============================================================
+let editTypeCategoryId = null;
+let editTypeCategoryName = '';
+
+function openEditTypeModal(categoryId, currentType, categoryName) {
+    const info = checkLoginStatus();
+    if (!info) {
+        showToast(t('login_to_edit'), 'warning');
+        handleLogin();
+        return;
+    }
+    if (!hasOwnership) {
+        showToast(t('add_category_owner_required'), 'warning');
+        return;
+    }
+
+    editTypeCategoryId = categoryId;
+    editTypeCategoryName = categoryName;
+
+    // Set the category name in the modal
+    document.getElementById('editTypeCategoryName').textContent = categoryName;
+
+    // Set the current type in the dropdown
+    const select = document.getElementById('editCatType');
+    // Find the option with matching value
+    for (let option of select.options) {
+        if (option.value === currentType) {
+            option.selected = true;
+            break;
+        }
+    }
+
+    // Show modal
+    const modal = document.getElementById('editTypeModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+    }
+}
+
+async function updateCategoryType(categoryId, newType, wallet) {
+    try {
+        // We need to update the type in the category's content.json
+        // Use the content/update endpoint with a 'type' field
+        const response = await fetch(`${API_BASE}/api/content/update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                level: 'category',
+                category_id: categoryId,
+                category_name: editTypeCategoryName,
+                type: newType,
+                wallet: wallet
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showToast('Category type updated successfully!', 'success');
+            // Reload categories
+            allCategories = await buildAllCategories();
+            filteredCategories = [...allCategories];
+            updateFilterBadgesFromData(allCategories);
+            renderCurrentView();
+            return true;
+        } else {
+            showToast(result.error || 'Failed to update category type.', 'error');
+            return false;
+        }
+    } catch (error) {
+        console.error('Error updating category type:', error);
+        showToast('Network error. Please try again.', 'error');
+        return false;
+    }
 }
 
 // ===== PAGINATION =====
@@ -639,9 +713,17 @@ function renderCategories(items) {
                 </div>
                 <div class="card-footer">
                     <span class="card-number">#${item.id}</span>
-                    <button class="action-btn" onclick="event.stopPropagation(); viewSubcategories(${item.id})" data-i18n="view_subcategories">View Sub-Items</button>
-                    <button class="action-btn" style="background:#f0f0f0; color:#555;" onclick="event.stopPropagation(); viewDetail(${item.id})" data-i18n="view_detail">Detail</button>
-                    ${info ? `<button class="action-btn" style="background:#dc3545; color:white;" onclick="event.stopPropagation(); deleteCategory(${item.id})" data-i18n="delete">Delete</button>` : ''}
+                    <div class="btn-group-vertical">
+                        <div class="btn-row">
+                            <button class="action-btn" onclick="event.stopPropagation(); viewSubcategories(${item.id})" data-i18n="view_subcategories">View Sub-Items</button>
+                            <button class="action-btn" style="background:#f0f0f0; color:#555;" onclick="event.stopPropagation(); viewDetail(${item.id})" data-i18n="view_detail">Detail</button>
+                        </div>
+                        <div class="btn-row">
+                            ${info ? `<button class="action-btn" style="background:#dc3545; color:white;" onclick="event.stopPropagation(); deleteCategory(${item.id})" data-i18n="delete">Delete</button>` : ''}
+                            ${info ? `<button class="action-btn" style="background:#6c757d; color:white;" onclick="event.stopPropagation(); openEditTypeModal(${item.id}, '${item.filterKey}', '${item.name}')" data-i18n="edit_type">Edit Type</button>` : ''}
+                            ${!info ? `<span style="color:#999; font-size:0.75rem; text-align:center; width:100%;">${t('login_to_manage') || 'Login to manage'}</span>` : ''}
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -717,7 +799,7 @@ async function deleteCategory(categoryId) {
             // Reload categories
             allCategories = await buildAllCategories();
             filteredCategories = [...allCategories];
-            updateFilterBadges();
+            updateFilterBadgesFromData(allCategories);
             renderCurrentView();
         } else {
             showToast(result.error || 'Deletion failed', 'error');
@@ -954,7 +1036,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Reload categories
                 allCategories = await buildAllCategories();
                 filteredCategories = [...allCategories];
-                updateFilterBadges();
+                updateFilterBadgesFromData(allCategories);
                 renderCurrentView();
                 // Reset form
                 form.reset();
@@ -974,6 +1056,42 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.textContent = t('create_category') || 'Create Category';
         }
     });
+
+    // Edit Type Form Handler
+    const editTypeForm = document.getElementById('editTypeForm');
+    if (editTypeForm) {
+        editTypeForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const info = checkLoginStatus();
+            if (!info) {
+                showToast(t('please_login'), 'warning');
+                return;
+            }
+
+            const newType = document.getElementById('editCatType').value;
+            const wallet = info.walletid;
+
+            if (!newType) {
+                showToast('Please select a type.', 'error');
+                return;
+            }
+
+            // Disable submit button
+            const submitBtn = editTypeForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+
+            const success = await updateCategoryType(editTypeCategoryId, newType, wallet);
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = t('save_type') || 'Save Type';
+
+            if (success) {
+                closeModal('editTypeModal');
+            }
+        });
+    }
 });
 
 // ===== WALLET LOGIN EVENTS =====
@@ -1010,7 +1128,7 @@ async function init() {
     await loadLanguage(currentLang);
     allCategories = await buildAllCategories();
     filteredCategories = [...allCategories];
-    updateFilterBadges();
+    updateFilterBadgesFromData(allCategories);    
     renderCurrentView();
 
     // Show mock indicator if using mock data

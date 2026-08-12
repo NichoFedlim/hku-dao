@@ -244,31 +244,58 @@
             overflow-y:auto;
             color:#555;
         }
+        /* ===== CARD FOOTER WITH TWO ROWS ===== */
         .nft-card .card-footer {
-            padding:10px 16px;
-            border-top:1px solid #f0f0f0;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            background:#fafafa;
+            padding: 10px 16px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #fafafa;
+            align-items: center;
         }
-        .nft-card .card-footer .action-btn {
-            background:linear-gradient(135deg, var(--hku-gold), #b8922a);
-            color:var(--primary);
-            border:none;
-            padding:6px 16px;
-            border-radius:20px;
-            font-size:0.8rem;
-            font-weight:600;
-            cursor:pointer;
-            transition:var(--transition);
-        }
-        .nft-card .card-footer .action-btn:hover {
-            transform:scale(1.02);
-        }
+
         .nft-card .card-footer .card-number {
-            font-size:0.75rem;
-            color:#999;
+            font-size: 0.75rem;
+            color: #999;
+            text-align: center;
+        }
+
+        .nft-card .card-footer .btn-group-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .nft-card .card-footer .btn-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .nft-card .card-footer .btn-row .action-btn {
+            flex: 1 1 0;          /* Equal width distribution */
+            min-width: 90px;       /* Minimum size for readability */
+            max-width: 160px;      /* Prevent buttons from becoming too wide */
+            padding: 6px 12px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            white-space: nowrap;
+            background: linear-gradient(135deg, var(--hku-gold), #b8922a);
+            color: var(--primary);
+        }
+
+        .nft-card .card-footer .btn-row .action-btn:hover {
+            transform: scale(1.02);
         }
 
         /* ===== PAGINATION ===== */
@@ -602,6 +629,15 @@
             .search-container { flex-direction:column; }
             #scan-btn { width:100%; }
             .filter-btn { font-size:0.75rem; padding:4px 12px; }
+            .nft-card .card-footer .btn-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nft-card .card-footer .btn-row .action-btn {
+                max-width: 100%;
+                flex: none;
+                padding: 8px 12px;
+            }
         }
     </style>
 </head>
@@ -749,9 +785,10 @@
                     <div class="form-group">
                         <label data-i18n="category_type_label">Category Type</label>
                         <select id="catType">
-                            <option value="faculty">Faculty</option>
-                            <option value="building">Building</option>
-                            <option value="hall">Hall</option>
+                            <option value="faculties">Faculty</option>
+                            <option value="main-campus">Main Campus</option>
+                            <option value="centennial-campus">Centennial Campus</option>
+                            <option value="halls">Hall</option>
                             <option value="history">History</option>
                             <option value="culture">Culture</option>
                             <option value="sports">Sports</option>
@@ -771,6 +808,41 @@
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeModal('addCategoryModal')" data-i18n="cancel">Cancel</button>
                         <button type="submit" class="btn btn-primary" data-i18n="create_category">Create Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== EDIT TYPE MODAL ===== -->
+    <div class="modal-overlay" id="editTypeModal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="edit_type_title">Change Category Type</h2>
+                <button class="modal-close" onclick="closeModal('editTypeModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="editTypeForm">
+                    <div class="form-group" style="background:#f8f9fa; padding:10px 14px; border-radius:8px; margin-bottom:16px;">
+                        <small style="color:#666;">Editing: <strong id="editTypeCategoryName" style="color:var(--hku-green);">Loading...</strong></small>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="category_type_label">Category Type</label>
+                        <select id="editCatType">
+                            <option value="faculties">Faculty</option>
+                            <option value="main-campus">Main Campus</option>
+                            <option value="centennial-campus">Centennial Campus</option>
+                            <option value="halls">Hall</option>
+                            <option value="history">History</option>
+                            <option value="culture">Culture</option>
+                            <option value="sports">Sports</option>
+                            <option value="medical">Medical</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('editTypeModal')" data-i18n="cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary" data-i18n="save_type">Save Type</button>
                     </div>
                 </form>
             </div>

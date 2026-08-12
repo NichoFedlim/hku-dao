@@ -2276,7 +2276,7 @@ app.get('/api/content/list', (req, res) => {
 
 // API: UPDATE CONTENT (description, details)
 app.post('/api/content/update', (req, res) => {
-    const { level, category_id, category_name, subcategory_id, subcategory_name, item_number, item_name, description, description_zh, details, details_zh, wallet } = req.body;
+    const { level, category_id, category_name, subcategory_id, subcategory_name, item_number, item_name, description, description_zh, details, details_zh, type, wallet } = req.body;
     if (!level || !category_id || !category_name) {
         return sendError(res, 400, 'Missing required parameters');
     }
@@ -2311,6 +2311,7 @@ app.post('/api/content/update', (req, res) => {
         if (description_zh !== undefined) data.description_zh = description_zh;
         if (details !== undefined) data.details = details;
         if (details_zh !== undefined) data.details_zh = details_zh;
+        if (type !== undefined) data.type = type;
         fs.writeFileSync(targetFile, JSON.stringify(data, null, 2));
         res.json({ success: true, message: 'Content updated successfully' });
     } catch (error) {

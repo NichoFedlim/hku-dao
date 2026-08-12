@@ -152,13 +152,19 @@ function showToast(message, type = 'info', duration = 3000) {
 // PORTFOLIO LOGIC
 // ============================================================
 let userNFTs = [];
+let filteredNFTs = [];  
 let onSaleNFTs = [];
 let pendingSellNFT = null;
 let pendingTransferNFT = null;
 let currentPriceInputId = '';
 let usingMockData = false;
 
-const itemsPerPage = 12;
+// ===== FILTER, SEARCH, PAGINATION STATE =====
+let currentFilter = 'all';
+let currentSearchQuery = '';
+let currentPage = 1;
+const ITEMS_PER_PAGE = 30; // Number of NFTs to load per batch
+let showAllMode = false;
 
 // ============================================================
 // MOCK DATA GENERATOR (fallback)
@@ -279,7 +285,8 @@ async function loadUserNFTs() {
     document.getElementById('displayNftCount').textContent = '0';
 
     try {
-        document.getElementById('nft-content').innerHTML = `<div class="loading">${t('loading_portfolio')}</div>`;
+        const container = document.getElementById('nft-content');
+        container.innerHTML = `<div class="loading">${t('loading_portfolio')}</div>`;
 
         let wallet = loginInfo.walletid || loginInfo.wallet;
         let userNfts = [];
@@ -301,7 +308,7 @@ async function loadUserNFTs() {
         usingMockData = usingMock;
         userNFTs = userNfts;
 
-        // Fetch on-sale NFTs (try real API, fallback to empty)
+        // Fetch on-sale NFTs
         try {
             const saleResponse = await fetch(`${API_BASE}/api/nfts/onsale`);
             if (saleResponse.ok) {
@@ -321,7 +328,21 @@ async function loadUserNFTs() {
         });
 
         document.getElementById('displayNftCount').textContent = userNFTs.length;
-        await renderNFTsAutoLoad();
+
+        // UPDATE FILTER BADGES AND RENDER
+        updatePortfolioFilterBadges();
+        
+        // Reset to first page and apply filter/search
+        currentPage = 1;
+        currentFilter = 'all';
+        currentSearchQuery = '';
+        document.querySelectorAll('#portfolio-filter-bar .filter-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.filter === 'all');
+        });
+        document.getElementById('portfolio-filter-clear').classList.add('hidden');
+        document.getElementById('portfolio-search').value = '';
+        
+        applyFilterAndSearch();
 
         // Show mock indicator if using mock data
         if (usingMockData) {
@@ -331,9 +352,9 @@ async function loadUserNFTs() {
                 ⚠️ Using mock data (backend API not available)
                 <button class="close-mock" onclick="this.parentElement.remove()">✕</button>
             `;
-            const container = document.getElementById('nft-content');
-            if (container && !document.getElementById('mock-indicator')) {
-                container.parentNode.insertBefore(indicator, container);
+            const controls = document.querySelector('.portfolio-controls');
+            if (controls && !document.getElementById('mock-indicator')) {
+                controls.parentNode.insertBefore(indicator, controls);
             }
         } else {
             const existing = document.getElementById('mock-indicator');
@@ -345,107 +366,6 @@ async function loadUserNFTs() {
         document.getElementById('nft-content').innerHTML =
             `<div class="loading">${t('load_error')}: ${error.message}</div>`;
     }
-}
-
-// ===== RENDER BATCH =====
-async function renderNFTsAutoLoad() {
-    const container = document.getElementById('nft-content');
-
-    if (!userNFTs || userNFTs.length === 0) {
-        container.innerHTML = `<div class="empty-state">
-            <div class="empty-icon">🖼️</div>
-            <h3>${t('no_nfts_portfolio')}</h3>
-            <p>${t('no_nfts_desc')}</p>
-        </div>`;
-        return;
-    }
-
-    let html = `<div class="category-section">
-        <div class="category-title">${t('my_nfts') || 'My NFTs'} (${userNFTs.length})</div>
-        <div class="member-grid" id="nft-grid"></div>`;
-
-    html += `<div id="loading-indicator" class="loading-indicator" style="display: none;">
-        <div class="spinner"></div>
-        <span>${t('loading_more')}</span>
-    </div>`;
-
-    html += `</div>`;
-    container.innerHTML = html;
-
-    await autoLoadMoreBatches();
-}
-
-async function autoLoadMoreBatches() {
-    let currentPage = 1;
-    let allLoaded = false;
-
-    const loadingIndicator = document.getElementById('loading-indicator');
-    if (loadingIndicator) loadingIndicator.style.display = 'block';
-
-    while (!allLoaded) {
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = Math.min(startIndex + itemsPerPage, userNFTs.length);
-
-        if (startIndex >= userNFTs.length) {
-            allLoaded = true;
-            break;
-        }
-
-        const batchNFTs = userNFTs.slice(startIndex, endIndex);
-        await renderBatch(batchNFTs);
-        currentPage++;
-
-        if (endIndex >= userNFTs.length) {
-            allLoaded = true;
-        } else {
-            await delay(300);
-        }
-    }
-
-    if (loadingIndicator) {
-        loadingIndicator.innerHTML = `<div style="text-align:center;padding:20px;color:#666;">✅ ${t('all_loaded')}</div>`;
-        setTimeout(() => {
-            loadingIndicator.style.display = 'none';
-        }, 2000);
-    }
-}
-
-function renderBatch(batchNFTs) {
-    return new Promise((resolve) => {
-        const gridContainer = document.getElementById('nft-grid');
-        if (!gridContainer) {
-            resolve();
-            return;
-        }
-
-        const newHTML = batchNFTs.map(nft => {
-            // Map backend level names to frontend display functions
-            switch (nft.level) {
-                case 'category':
-                case 'surname':
-                    return renderSurnameCard(nft);
-                case 'subcategory':
-                case 'citang':
-                    return renderCitangCard(nft);
-                case 'item':
-                case 'member':
-                    return renderMemberCard(nft);
-                default:
-                    console.warn('Unknown level:', nft.level);
-                    return '';
-            }
-        }).join('');
-
-        gridContainer.insertAdjacentHTML('beforeend', newHTML);
-
-        // Generate QR codes after DOM update
-        setTimeout(() => generateAllQRCodes(batchNFTs), 100);
-        setTimeout(() => resolve(), 50);
-    });
-}
-
-function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // ===== RENDER CARDS =====
@@ -717,6 +637,280 @@ function viewTransactionHistory(level, card_number, surname, citang_number, cita
 function getLevelName(level) {
     const names = { surname: 'Category', citang: 'Subcategory', member: 'Item' };
     return names[level] || level;
+}
+
+// ===== UPDATE FILTER BADGES =====
+function updatePortfolioFilterBadges() {
+    const counts = { all: userNFTs.length, category: 0, subcategory: 0, item: 0 };
+    
+    userNFTs.forEach(nft => {
+        if (nft.level === 'category' || nft.level === 'surname') {
+            counts.category++;
+        } else if (nft.level === 'subcategory' || nft.level === 'citang') {
+            counts.subcategory++;
+        } else if (nft.level === 'item' || nft.level === 'member') {
+            counts.item++;
+        }
+    });
+    
+    for (const [key, count] of Object.entries(counts)) {
+        const badge = document.getElementById(`pcount-${key}`);
+        if (badge) badge.textContent = count;
+    }
+}
+
+// ===== RENDER NFTs =====
+function renderNFTs(nftsToRender) {
+    const container = document.getElementById('nft-content');
+    
+    // Clear loading indicator
+    container.innerHTML = '';
+
+    if (!nftsToRender || nftsToRender.length === 0) {
+        container.innerHTML = `<div class="empty-state">
+            <div class="empty-icon">🖼️</div>
+            <h3>${t('no_nfts_portfolio')}</h3>
+            <p>${t('no_nfts_desc')}</p>
+            ${currentSearchQuery ? `<p style="color:#888;font-size:0.9rem;">Try adjusting your search or filters.</p>` : ''}
+        </div>`;
+        return;
+    }
+
+    // Render each NFT card
+    const gridHTML = nftsToRender.map(nft => {
+        switch (nft.level) {
+            case 'category':
+            case 'surname':
+                return renderSurnameCard(nft);
+            case 'subcategory':
+            case 'citang':
+                return renderCitangCard(nft);
+            case 'item':
+            case 'member':
+                return renderMemberCard(nft);
+            default:
+                console.warn('Unknown level:', nft.level);
+                return '';
+        }
+    }).join('');
+
+    container.innerHTML = `
+        <div class="category-section">
+            <div class="category-title">${t('my_nfts') || 'My NFTs'} (${filteredNFTs.length})</div>
+            <div class="member-grid" id="nft-grid">
+                ${gridHTML}
+            </div>
+        </div>
+    `;
+
+    // Generate QR codes after DOM update
+    setTimeout(() => generateAllQRCodes(nftsToRender), 100);
+}
+
+// ============================================================
+// FILTER, SEARCH, AND PAGINATION (matches categories page)
+// ============================================================
+
+function applyPortfolioFilter(filterKey) {
+    currentFilter = filterKey;
+    currentPage = 1;
+
+    // Update active state on buttons
+    document.querySelectorAll('#portfolio-filter-bar .filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filterKey);
+    });
+
+    // Show/hide clear button
+    const clearBtn = document.getElementById('portfolio-filter-clear');
+    if (filterKey === 'all') {
+        clearBtn.classList.add('hidden');
+    } else {
+        clearBtn.classList.remove('hidden');
+    }
+
+    applyFilterAndSearch();
+}
+
+function clearPortfolioFilter() {
+    applyPortfolioFilter('all');
+}
+
+function applyFilterAndSearch() {
+    // Start with all NFTs
+    let result = [...userNFTs];
+
+    // Apply filter by level
+    if (currentFilter !== 'all') {
+        const levelMap = {
+            'category': ['category', 'surname'],
+            'subcategory': ['subcategory', 'citang'],
+            'item': ['item', 'member']
+        };
+        const levels = levelMap[currentFilter] || [];
+        result = result.filter(nft => levels.includes(nft.level));
+    }
+
+    // Apply search by name
+    if (currentSearchQuery.trim() !== '') {
+        const query = currentSearchQuery.trim().toLowerCase();
+        result = result.filter(nft => {
+            const name = nft.surname || nft.citang_name || nft.member_name || '';
+            const nameZh = nft.surname_zh || nft.citang_name_zh || nft.member_name_zh || '';
+            return name.toLowerCase().includes(query) ||
+                   nameZh.toLowerCase().includes(query) ||
+                   (nft.member_name && nft.member_name.toLowerCase().includes(query));
+        });
+    }
+
+    filteredNFTs = result;
+    currentPage = 1; // Reset to first page when filtering
+    
+    // Update search status
+    const searchStatus = document.getElementById('portfolio-search-status');
+    if (searchStatus) {
+        if (currentSearchQuery.trim() !== '') {
+            searchStatus.textContent = filteredNFTs.length ?
+                `Search results: ${filteredNFTs.length}` :
+                'No results found.';
+        } else {
+            searchStatus.textContent = '';
+        }
+    }
+    
+    updateResultsInfo();
+    renderPagination();
+    renderCurrentPage();
+}
+
+function getCurrentPageItems() {
+    if (showAllMode) return filteredNFTs;
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = Math.min(start + ITEMS_PER_PAGE, filteredNFTs.length);
+    return filteredNFTs.slice(start, end);
+}
+
+function getTotalPages() {
+    if (showAllMode) return 1;
+    return Math.ceil(filteredNFTs.length / ITEMS_PER_PAGE) || 1;
+}
+
+function updateResultsInfo() {
+    const total = filteredNFTs.length;
+    const start = showAllMode ? 1 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+    const end = showAllMode ? total : Math.min(currentPage * ITEMS_PER_PAGE, total);
+
+    // Update all info elements
+    document.querySelectorAll('#results-start, #showing-start-portfolio, #showing-start-portfolio-bottom').forEach(el => {
+        if (el) el.textContent = total > 0 ? start : 0;
+    });
+    document.querySelectorAll('#results-end, #showing-end-portfolio, #showing-end-portfolio-bottom').forEach(el => {
+        if (el) el.textContent = total > 0 ? end : 0;
+    });
+    document.querySelectorAll('#results-total, #total-count-portfolio, #total-count-portfolio-bottom').forEach(el => {
+        if (el) el.textContent = total;
+    });
+}
+
+function renderPagination() {
+    const totalPages = getTotalPages();
+    const total = filteredNFTs.length;
+
+    // Update page info
+    const containers = document.querySelectorAll('#page-numbers-portfolio, #page-numbers-portfolio-bottom');
+    const prevBtns = document.querySelectorAll('#prev-page-portfolio, #prev-page-portfolio-bottom');
+    const nextBtns = document.querySelectorAll('#next-page-portfolio, #next-page-portfolio-bottom');
+
+    containers.forEach(container => {
+        if (!container) return;
+        container.innerHTML = '';
+        if (showAllMode || totalPages <= 1) {
+            const span = document.createElement('span');
+            span.textContent = '1';
+            span.className = 'page-btn active';
+            container.appendChild(span);
+            return;
+        }
+
+        const maxVisible = 7;
+        let startPage = Math.max(1, currentPage - 3);
+        let endPage = Math.min(totalPages, currentPage + 3);
+
+        if (startPage > 1) {
+            const firstBtn = document.createElement('button');
+            firstBtn.className = 'page-btn';
+            firstBtn.textContent = '1';
+            firstBtn.onclick = () => goToPage(1);
+            container.appendChild(firstBtn);
+            if (startPage > 2) {
+                const dots = document.createElement('span');
+                dots.textContent = '…';
+                dots.style.padding = '0 4px';
+                container.appendChild(dots);
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = document.createElement('button');
+            btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+            btn.textContent = i;
+            btn.onclick = () => goToPage(i);
+            container.appendChild(btn);
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const dots = document.createElement('span');
+                dots.textContent = '…';
+                dots.style.padding = '0 4px';
+                container.appendChild(dots);
+            }
+            const lastBtn = document.createElement('button');
+            lastBtn.className = 'page-btn';
+            lastBtn.textContent = totalPages;
+            lastBtn.onclick = () => goToPage(totalPages);
+            container.appendChild(lastBtn);
+        }
+    });
+
+    // Update prev/next buttons
+    prevBtns.forEach(btn => {
+        if (btn) btn.disabled = currentPage <= 1 || showAllMode;
+    });
+    nextBtns.forEach(btn => {
+        if (btn) btn.disabled = currentPage >= totalPages || showAllMode;
+    });
+
+    // Update Show All button
+    const showAllBtn = document.getElementById('show-all-portfolio');
+    if (showAllBtn) {
+        showAllBtn.classList.toggle('active', showAllMode);
+        showAllBtn.textContent = showAllMode ? 'Show Pages' : 'Show All';
+    }
+}
+
+function goToPage(page) {
+    if (showAllMode) return;
+    const totalPages = getTotalPages();
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    updateResultsInfo();
+    renderPagination();
+    renderCurrentPage();
+}
+
+function toggleShowAll() {
+    showAllMode = !showAllMode;
+    if (showAllMode) {
+        currentPage = 1;
+    }
+    updateResultsInfo();
+    renderPagination();
+    renderCurrentPage();
+}
+
+function renderCurrentPage() {
+    const pageItems = getCurrentPageItems();
+    renderNFTs(pageItems);
 }
 
 // ============================================================
@@ -1063,6 +1257,30 @@ async function init() {
         }
     });
     initBackToTop();
+
+    // ===== SEARCH =====
+    const searchInput = document.getElementById('portfolio-search');
+    if (searchInput) {
+        // Debounced search
+        let searchTimer;
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                currentSearchQuery = e.target.value;
+                applyFilterAndSearch();
+            }, 300);
+        });
+    }
+
+    // ===== SCAN BUTTON =====
+    const scanBtn = document.getElementById('portfolio-scan-btn');
+    if (scanBtn) {
+        scanBtn.addEventListener('click', () => {
+            // You can reuse the QR scan logic from categories.js
+            // or implement a simple placeholder
+            showToast('QR scan coming soon to portfolio!', 'info');
+        });
+    }
 
     // Make functions globally accessible
     window.performLogout = performLogout;

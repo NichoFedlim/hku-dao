@@ -39,6 +39,9 @@
     "add_category_limit": "您最多可以添加10个分类。",
     "add_category_owner_required": "您必须拥有DAO NFT才能添加分类。",
     "login_to_add": "请登录以添加类别或项目。",
+    "login_to_add_subcategory": "请登录以添加子类别。",
+    "login_to_add_item": "请登录才能添加项目。",
+    "login_to_manage": "登录以显示更多按钮。",
     "nextpage_to_add": "转到下一页添加类别",
     "no_categories_found": "未找到分类。",
     "load_more": "加载更多",
@@ -317,5 +320,11 @@
     "owner_title": "拥有者",
     "loading_owner": "加载拥有者信息...",
     "no_owner": "未找到拥有者（NFT可能尚未铸造）。",
-    "owner_error": "无法加载拥有者信息。"
+    "owner_error": "无法加载拥有者信息。",
+    "edit_type_title": "编辑类型",
+    "edit_type_label": "类型",
+    "edit_type_success": "类型更新成功！",
+    "edit_type_failed": "类型更新失败",
+    "save_type": "保存类型",
+    "type_placeholder": "请输入类型..."
 }

@@ -39,6 +39,9 @@
     "add_category_limit": "You can add up to 10 categories.",
     "add_category_owner_required": "You must own the DAO NFT to add a category.",
     "login_to_add": "Please login to add a category or item.",
+    "login_to_add_subcategory": "Please login to add a subcategory.",
+    "login_to_add_item": "Please login to add an item.",
+    "login_to_manage": "Login to show more buttons",
     "nextpage_to_add": "Go to the next page to add a category",
     "no_categories_found": "No categories found.",
     "load_more": "Load more",
@@ -318,5 +321,11 @@
     "owner_title": "Owner",
     "loading_owner": "Loading owner...",
     "no_owner": "No owner found (NFT may not be minted yet).",
-    "owner_error": "Could not load owner information."
+    "owner_error": "Could not load owner information.",
+    "edit_type_title": "Edit Type",
+    "edit_type_label": "Type",
+    "edit_type_success": "Type updated successfully!",
+    "edit_type_failed": "Failed to update type",
+    "save_type": "Save Type",
+    "type_placeholder": "Enter type..."
 }
