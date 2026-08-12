@@ -1449,6 +1449,19 @@ async function renameAttachment(timestamp) {
 }
 
 // ============================================================
+// GO TO PRINT PAGE
+// ============================================================
+function goToPrint() {
+    const type = detailData.type || 'item';
+    const id = detailData.id;
+    const name = encodeURIComponent(detailData.name || '');
+    
+    // Build the URL to the print page with the NFT pre-selected
+    const url = `/nft/print_nft.html?type=${type}&id=${id}&name=${name}`;
+    window.open(url, '_blank');
+}
+
+// ============================================================
 // NAVIGATION
 // ============================================================
 function goBack() {
@@ -1553,6 +1566,7 @@ async function init() {
     window.renameAttachment = renameAttachment;
     window.hideToast = hideToast;
     window.refreshAttachments = refreshAttachments;
+    window.goToPrint = goToPrint;
 }
 
 init();

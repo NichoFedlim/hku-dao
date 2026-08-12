@@ -169,7 +169,7 @@
             color: var(--hku-gold);
         }
 
-        /* ===== TRANSACTION BUTTON ===== */
+        /* ===== TRANSACTION & PRINT BUTTON ===== */
         .btn-transaction {
             background: linear-gradient(135deg, #4cb7db, #2c7da0);
             color: white;
@@ -187,6 +187,14 @@
         .btn-transaction:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(76, 183, 219, 0.4);
+        }
+        .btn-print {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-print:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
         }
 
         /* ===== CONTENT SECTIONS ===== */
@@ -538,6 +546,7 @@
                 </div>
                 <div class="action-buttons" id="action-buttons">
                     <button class="btn btn-back" onclick="goBack()" data-i18n="back">← Back</button>
+                    <button class="btn btn-print" id="print-btn" onclick="goToPrint()" data-i18n="print_nft">🖨️ Print NFT</button>
                     <button class="btn btn-edit" id="edit-btn" onclick="toggleEditMode()" data-i18n="edit">Edit</button>
                     <button class="btn btn-save" id="save-btn" style="display:none;" onclick="saveChanges()" data-i18n="save">Save</button>
                     <button class="btn btn-cancel" id="cancel-btn" style="display:none;" onclick="cancelEdit()" data-i18n="cancel">Cancel</button>

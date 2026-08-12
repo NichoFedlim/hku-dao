@@ -326,5 +326,6 @@
     "edit_type_success": "类型更新成功！",
     "edit_type_failed": "类型更新失败",
     "save_type": "保存类型",
-    "type_placeholder": "请输入类型..."
+    "type_placeholder": "请输入类型...",
+    "print_nft": "🖨️ 打印 NFT"
 }

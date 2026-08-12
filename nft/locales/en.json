@@ -327,5 +327,6 @@
     "edit_type_success": "Type updated successfully!",
     "edit_type_failed": "Failed to update type",
     "save_type": "Save Type",
-    "type_placeholder": "Enter type..."
+    "type_placeholder": "Enter type...",
+    "print_nft": "🖨️ Print NFT"
 }

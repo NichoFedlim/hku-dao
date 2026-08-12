@@ -1,0 +1,2667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Batch Print NFTs - HKU DAO (52mm Cards | 4 Columns × 5 Rows | Margin 1mm | Row Spacing 2mm)</title>
+    <link rel="shortcut icon" type="image/x-icon" href="image/favicon.png">
+    <script src="js/qrcode.min.js"></script>
+    <style>
+        /* ============ Global Reset ============ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #e2e6e9;
+            font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+            padding: 20px;
+            color: #333;
+        }
+
+        /* ============ Print Settings Panel ============ */
+        .print-panel {
+            max-width: 1200px;
+            margin: 0 auto 30px auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            padding: 24px 28px;
+        }
+
+        .print-panel h2 {
+            color: #003153;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-left: 6px solid #CC9F2E;
+            padding-left: 16px;
+        }
+
+        .panel-top-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 30px;
+            margin-bottom: 16px;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 16px;
+        }
+
+        .panel-top-row .hint-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .btn {
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            background: #e9ecef;
+            color: #2c3e50;
+        }
+
+        .btn-primary {
+            background: #4cb7db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #3a9bc7;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #565e64;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .btn-hku {
+            background: #003153;
+            color: white;
+        }
+        .btn-hku:hover {
+            background: #002244;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* ============ Slot Configuration Table ============ */
+        .slot-config {
+            margin: 16px 0 10px 0;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .slot-config-header {
+            background: #f8f9fa;
+            padding: 10px 14px;
+            display: grid;
+            grid-template-columns: 45px 90px 160px 1fr 80px 50px;
+            gap: 6px;
+            font-weight: bold;
+            font-size: 0.78rem;
+            color: #495057;
+            border-bottom: 1px solid #dee2e6;
+            align-items: center;
+        }
+
+        .slot-config-body {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .slot-row {
+            display: grid;
+            grid-template-columns: 45px 90px 160px 1fr 80px 50px;
+            gap: 6px;
+            padding: 5px 14px;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+            background: white;
+            transition: background 0.15s;
+        }
+
+        .slot-row:hover {
+            background: #f8f9fa;
+        }
+
+        .slot-row .slot-index {
+            font-weight: bold;
+            color: #6c757d;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .slot-row select {
+            padding: 4px 6px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            background: white;
+            width: 100%;
+            height: 30px;
+        }
+
+        .slot-row select:focus {
+            border-color: #4cb7db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(76,183,219,0.15);
+        }
+
+        .slot-row select:disabled {
+            background: #f0f0f0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .slot-row .slot-preview-text {
+            font-size: 0.72rem;
+            color: #495057;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 4px;
+        }
+        .slot-row .slot-preview-text .highlight-path {
+            color: #CC9F2E;
+            font-weight: bold;
+        }
+        .slot-row .slot-preview-text .empty-preview {
+            color: #adb5bd;
+        }
+
+        .slot-row .slot-status {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .slot-status.ready {
+            background: #d4edda;
+            color: #155724;
+        }
+        .slot-status.empty {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .slot-status.partial {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .slot-row .clear-slot-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 1.0rem;
+            padding: 4px 6px;
+            border-radius: 6px;
+            transition: 0.2s;
+            width: 100%;
+            text-align: center;
+        }
+        .slot-row .clear-slot-btn:hover {
+            background: #f8d7da;
+        }
+
+        /* Cascade selector container */
+        .cascade-container {
+            display: flex;
+            gap: 3px;
+            align-items: center;
+            width: 100%;
+        }
+        .cascade-container select {
+            flex: 1;
+            min-width: 0;
+            height: 30px;
+            padding: 3px 4px;
+            font-size: 0.7rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+        }
+        .cascade-container select:disabled {
+            background: #f0f0f0;
+            cursor: not-allowed;
+        }
+        .cascade-container .cascade-sep {
+            color: #adb5bd;
+            font-size: 0.6rem;
+            flex-shrink: 0;
+            padding: 0 1px;
+        }
+        .cascade-container .cascade-sep.active {
+            color: #CC9F2E;
+            font-weight: bold;
+        }
+
+        /* ============ Print Preview Area ============ */
+        .print-preview {
+            background: #d9d9d9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        .a4-sheet {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            box-shadow: 0 0 0 2px #aaa, 0 8px 20px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            padding: 1mm;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ============ Card Grid - 4 Columns × 5 Rows = 20 Slots ============ */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 52mm);
+            grid-template-rows: repeat(5, auto);
+            column-gap: 0;
+            row-gap: 2mm;
+            width: fit-content;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* ============ Card Base Style - Fixed 52mm Width ============ */
+        .print-card {
+            background-color: #FFFDE7;
+            border-radius: 0;
+            padding: 0;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            break-inside: avoid;
+            page-break-inside: avoid;
+            box-shadow: none;
+            width: 52mm;
+            height: calc(52mm * 290 / 300);
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+            border: 2px solid #000000;
+        }
+
+        /* ===== Cut Marks ===== */
+        .print-card .cut-mark {
+            position: absolute;
+            z-index: 20;
+            pointer-events: none;
+        }
+        .print-card .cut-mark-tr {
+            top: -2px;
+            right: -2px;
+            width: 6px;
+            height: 6px;
+            border-top: 1.5px dashed #888;
+            border-right: 1.5px dashed #888;
+        }
+        .print-card .cut-mark-tl {
+            top: -2px;
+            left: -2px;
+            width: 6px;
+            height: 6px;
+            border-top: 1.5px dashed #888;
+            border-left: 1.5px dashed #888;
+        }
+        .print-card .cut-mark-br {
+            bottom: -2px;
+            right: -2px;
+            width: 6px;
+            height: 6px;
+            border-bottom: 1.5px dashed #888;
+            border-right: 1.5px dashed #888;
+        }
+        .print-card .cut-mark-bl {
+            bottom: -2px;
+            left: -2px;
+            width: 6px;
+            height: 6px;
+            border-bottom: 1.5px dashed #888;
+            border-left: 1.5px dashed #888;
+        }
+
+        .print-card .cut-cross {
+            position: absolute;
+            z-index: 15;
+            pointer-events: none;
+        }
+        .print-card .cut-line-right {
+            top: 0;
+            right: -2px;
+            width: 2px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                #888 0px,
+                #888 2px,
+                transparent 2px,
+                transparent 6px
+            );
+        }
+        .print-card .cut-line-bottom {
+            left: 0;
+            bottom: -2px;
+            width: 100%;
+            height: 2px;
+            background: repeating-linear-gradient(
+                to right,
+                #888 0px,
+                #888 2px,
+                transparent 2px,
+                transparent 6px
+            );
+        }
+        .print-card .cut-cross-br {
+            bottom: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+        }
+        .print-card .cut-cross-br::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1.5px;
+            background: #888;
+            transform: translateY(-50%);
+        }
+        .print-card .cut-cross-br::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            height: 100%;
+            width: 1.5px;
+            background: #888;
+            transform: translateX(-50%);
+        }
+
+        .print-card:hover {
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            z-index: 10;
+            position: relative;
+        }
+
+        .print-card.empty-card {
+            background-color: #f8f9fa;
+            border: 2px solid #000000;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-card-content {
+            text-align: center;
+            color: #adb5bd;
+            font-size: 0.8rem;
+        }
+        .empty-card-content .empty-icon {
+            font-size: 1.6rem;
+            margin-bottom: 4px;
+        }
+
+        /* ============ Card Content Container ============ */
+        .print-card-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 6px 6px 4px 6px;
+            flex: 1;
+        }
+
+        /* ============ Two-Column Layout ============ */
+        .print-card-inner {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            border-bottom: 2px solid #CC9F2E;
+            padding-bottom: 4px;
+            margin-bottom: 3px;
+        }
+
+        /* ============ Left Side - Name/Info Area (Left Aligned) ============ */
+        .print-name-area {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0 2px;
+            overflow: hidden;
+        }
+
+        /* Category Card */
+        .print-name-area.category-name {
+            justify-content: center;
+            align-items: flex-start;
+            padding-right: 8px;
+            padding-left: 6px;
+        }
+        .print-name-area.category-name .print-main-name {
+            text-align: left;
+        }
+
+        /* Subcategory Card */
+        .print-name-area.subcategory-name {
+            justify-content: center;
+            align-items: flex-start;
+            padding-left: 6px;
+            padding-right: 4px;
+        }
+        .print-name-area.subcategory-name .print-subcategory-category {
+            text-align: left;
+        }
+        .print-name-area.subcategory-name .print-subcategory-name {
+            text-align: left;
+        }
+
+        /* Item Card */
+        .print-name-area.item-name {
+            justify-content: center;
+            align-items: flex-start;
+            padding-left: 6px;
+            padding-right: 4px;
+        }
+        .print-name-area.item-name .print-item-category {
+            text-align: left;
+        }
+        .print-name-area.item-name .print-item-subcategory {
+            text-align: left;
+        }
+        .print-name-area.item-name .print-item-name {
+            text-align: left;
+        }
+
+        /* ===== Name Styles ===== */
+        .print-main-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #000000;
+            margin: 0;
+            line-height: 1.15;
+            word-break: break-word;
+        }
+
+        .print-subcategory-category {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #000000;
+            line-height: 1.2;
+            margin-bottom: 0px;
+        }
+        .print-subcategory-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #000000;
+            line-height: 1.15;
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+
+        .print-item-category {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #000000;
+            line-height: 1.2;
+            margin-bottom: 0px;
+        }
+        .print-item-subcategory {
+            font-size: 1.0rem;
+            font-weight: bold;
+            color: #000000;
+            line-height: 1.2;
+            margin-bottom: 1px;
+        }
+        .print-item-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #000000;
+            line-height: 1.15;
+            word-break: break-word;
+        }
+
+        /* Hide card number display */
+        .print-detail-line,
+        .print-card-number,
+        .print-gender-line,
+        .print-birth-line {
+            display: none !important;
+        }
+
+        /* ============ Right Side - QR Code Area ============ */
+        .print-qr-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100%;
+            gap: 0px;
+            padding-top: 2px;
+        }
+
+        .print-qr-wrapper {
+            background: #fff;
+            padding: 2px;
+            border-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            display: inline-block;
+            line-height: 0;
+        }
+
+        .print-qrcode {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto;
+            border-radius: 3px;
+        }
+
+        .print-nft-text {
+            background: #fff;
+            padding: 2px 3px;
+            border-radius: 3px;
+            width: 100%;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: monospace;
+            font-size: 8px;
+            line-height: 1.25;
+            color: #000000;
+            word-break: break-all;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            box-sizing: border-box;
+            margin-top: 2px;
+            max-height: 65px;
+        }
+
+        /* ============ Bottom Label ============ */
+        .print-card-footer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4px 2px 0 2px;
+            margin-top: 2px;
+            position: relative;
+        }
+
+        .print-dao-label {
+            background: linear-gradient(135deg, #CC9F2E, #CC9F2E);
+            color: #003153;
+            padding: 4px 12px;
+            font-size: 1.0rem;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+            text-align: center;
+            border: 1px solid #B8922A;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        /* ============ Range Selection Modal ============ */
+        .range-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .range-modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 30px 35px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 520px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .range-modal-content h3 {
+            color: #003153;
+            margin-bottom: 8px;
+            font-size: 1.4rem;
+        }
+
+        .range-modal-content .modal-subtitle {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .range-modal-content .range-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 18px;
+            font-size: 0.85rem;
+            color: #495057;
+            max-height: 120px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+        }
+
+        .range-modal-content .range-info .item-tag {
+            display: inline-block;
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 2px 3px;
+            font-size: 0.75rem;
+        }
+
+        .range-modal-content .range-info .item-tag.highlight {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .range-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .range-row label {
+            font-weight: bold;
+            color: #333;
+            min-width: 60px;
+            font-size: 0.95rem;
+        }
+
+        .range-row select {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .range-row select:focus {
+            border-color: #4cb7db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 183, 219, 0.15);
+        }
+
+        .range-row .range-sep {
+            color: #6c757d;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .range-modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .range-modal-buttons .btn {
+            padding: 10px 28px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+        }
+
+        .range-modal-buttons .btn-cancel {
+            background: #e9ecef;
+            color: #495057;
+        }
+        .range-modal-buttons .btn-cancel:hover {
+            background: #dee2e6;
+        }
+
+        .range-modal-buttons .btn-confirm {
+            background: #28a745;
+            color: white;
+        }
+        .range-modal-buttons .btn-confirm:hover {
+            background: #218838;
+        }
+
+        .range-modal-buttons .btn-confirm:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        /* ============ Stats Bar ============ */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px 0 0 0;
+            border-top: 1px solid #eee;
+            margin-top: 12px;
+        }
+
+        .stats-bar .count-display {
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .stats-bar .count-display strong {
+            color: #003153;
+        }
+
+        /* ============ Print Styles ============ */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .print-panel {
+                display: none !important;
+            }
+            .print-preview {
+                background: white;
+                padding: 0;
+                margin: 0;
+                box-shadow: none;
+                border-radius: 0;
+            }
+            .a4-sheet {
+                width: 100%;
+                min-height: 0;
+                margin: 0;
+                padding: 1mm;
+                box-shadow: none;
+                background: white;
+            }
+            .cards-grid {
+                column-gap: 0;
+                row-gap: 2mm;
+                background-image: none;
+                background-size: auto;
+                background-position: initial;
+                background-repeat: initial;
+                padding: 0;
+                width: fit-content;
+                margin: 0 auto;
+            }
+            .print-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                box-shadow: none !important;
+                width: 52mm;
+                height: calc(52mm * 290 / 300);
+                border-radius: 0;
+                border: none !important;
+                position: relative;
+                margin: 0;
+            }
+            .print-card.empty-card {
+                background: #fafafa;
+                border-radius: 0;
+                border: none !important;
+            }
+            .print-card .cut-mark,
+            .print-card .cut-cross,
+            .print-card .cut-line-right,
+            .print-card .cut-line-bottom,
+            .print-card .cut-cross-br,
+            .print-card .cut-cross-br::before,
+            .print-card .cut-cross-br::after {
+                display: none !important;
+            }
+            .print-qrcode {
+                width: 70px;
+                height: 70px;
+            }
+            .print-main-name {
+                font-size: 1.8rem;
+            }
+            .print-subcategory-name {
+                font-size: 1.5rem;
+            }
+            .print-subcategory-category {
+                font-size: 1.1rem;
+            }
+            .print-item-name {
+                font-size: 1.5rem;
+            }
+            .print-item-subcategory {
+                font-size: 0.9rem;
+            }
+            .print-item-category {
+                font-size: 0.8rem;
+            }
+            .print-nft-text {
+                font-size: 7.5px;
+                padding: 2px 2px;
+            }
+            .print-dao-label {
+                font-size: 0.95rem;
+                padding: 3px 10px;
+            }
+            .print-card-inner {
+                border-bottom: 2px solid #CC9F2E;
+                padding-bottom: 3px;
+                margin-bottom: 2px;
+            }
+            .print-name-area.category-name,
+            .print-name-area.subcategory-name,
+            .print-name-area.item-name {
+                align-items: flex-start;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+        }
+
+        /* ============ Responsive ============ */
+        @media screen and (max-width: 1024px) {
+            .slot-config-header,
+            .slot-row {
+                grid-template-columns: 35px 75px 130px 1fr 65px 40px;
+                gap: 4px;
+                font-size: 0.65rem;
+                padding: 4px 8px;
+            }
+            .slot-row select {
+                font-size: 0.65rem;
+                padding: 2px 4px;
+                height: 26px;
+            }
+            .cascade-container select {
+                height: 26px;
+                font-size: 0.6rem;
+            }
+            .slot-row .slot-status {
+                font-size: 0.55rem;
+                padding: 1px 4px;
+            }
+            .range-modal-content {
+                margin: 15% auto;
+                padding: 24px 20px;
+            }
+            .print-card {
+                width: 45mm;
+                height: calc(45mm * 290 / 300);
+            }
+            .cards-grid {
+                grid-template-columns: repeat(4, 45mm);
+                row-gap: 1.5mm;
+            }
+            .print-subcategory-name {
+                font-size: 1.5rem;
+            }
+            .print-item-name {
+                font-size: 1.5rem;
+            }
+            .print-item-subcategory {
+                font-size: 0.85rem;
+            }
+            .print-main-name {
+                font-size: 2.0rem;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .a4-sheet {
+                transform: scale(0.75);
+                transform-origin: top center;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            .print-panel {
+                padding: 14px 16px;
+            }
+            .print-panel h2 {
+                font-size: 1.3rem;
+            }
+            .slot-config-header,
+            .slot-row {
+                grid-template-columns: 30px 60px 100px 1fr 50px 35px;
+                gap: 3px;
+                font-size: 0.55rem;
+                padding: 3px 6px;
+            }
+            .slot-row select {
+                font-size: 0.55rem;
+                padding: 2px 3px;
+                height: 24px;
+            }
+            .cascade-container select {
+                height: 24px;
+                font-size: 0.5rem;
+            }
+            .slot-row .slot-status {
+                font-size: 0.5rem;
+                padding: 1px 3px;
+            }
+            .button-group .btn {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
+            .panel-top-row {
+                gap: 8px;
+                padding-bottom: 10px;
+            }
+            .range-modal-content {
+                margin: 20% auto;
+                padding: 20px 16px;
+            }
+            .range-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            .range-row label {
+                min-width: auto;
+            }
+            .range-modal-buttons {
+                flex-direction: column;
+            }
+            .range-modal-buttons .btn {
+                width: 100%;
+                text-align: center;
+            }
+            .print-card {
+                width: 38mm;
+                height: calc(38mm * 290 / 300);
+            }
+            .cards-grid {
+                grid-template-columns: repeat(4, 38mm);
+                row-gap: 1.5mm;
+            }
+            .print-subcategory-name {
+                font-size: 1.2rem;
+            }
+            .print-item-name {
+                font-size: 1.6rem;
+            }
+            .print-item-subcategory {
+                font-size: 0.75rem;
+            }
+            .print-main-name {
+                font-size: 1.6rem;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .a4-sheet {
+                transform: scale(0.5);
+                transform-origin: top center;
+            }
+            .print-panel h2 {
+                font-size: 1.0rem;
+            }
+            .slot-config-header,
+            .slot-row {
+                grid-template-columns: 25px 50px 80px 1fr 40px 30px;
+                gap: 2px;
+                font-size: 0.45rem;
+                padding: 2px 4px;
+            }
+            .slot-row select {
+                font-size: 0.45rem;
+                padding: 1px 2px;
+                height: 20px;
+            }
+            .cascade-container select {
+                height: 20px;
+                font-size: 0.4rem;
+            }
+            .slot-row .slot-status {
+                font-size: 0.4rem;
+                padding: 0 2px;
+            }
+            .button-group .btn {
+                padding: 4px 8px;
+                font-size: 0.65rem;
+            }
+            .cascade-container .cascade-sep {
+                font-size: 0.4rem;
+            }
+            .range-modal-content {
+                margin: 25% auto;
+                padding: 16px 12px;
+            }
+            .range-modal-content h3 {
+                font-size: 1.1rem;
+            }
+            .print-dao-label {
+                font-size: 0.8rem;
+                padding: 3px 8px;
+            }
+            .print-nft-text {
+                font-size: 6.5px;
+            }
+            .print-main-name {
+                font-size: 1.4rem;
+            }
+            .print-subcategory-name {
+                font-size: 1.0rem;
+            }
+            .print-item-name {
+                font-size: 1.4rem;
+            }
+            .print-item-subcategory {
+                font-size: 0.65rem;
+            }
+            .print-card {
+                width: 30mm;
+                height: calc(30mm * 290 / 300);
+            }
+            .cards-grid {
+                grid-template-columns: repeat(4, 30mm);
+                row-gap: 1mm;
+            }
+        }
+
+        /* ============ Loading States ============ */
+        .loading-overlay {
+            text-align: center;
+            padding: 40px;
+            color: #4cb7db;
+            grid-column: 1 / -1;
+        }
+        .error-message {
+            color: #c62828;
+            background: #ffebee;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            grid-column: 1 / -1;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #CC9F2E;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .slot-config-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        .slot-config-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        .slot-config-body::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+        .slot-config-body::-webkit-scrollbar-thumb:hover {
+            background: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ==================== Settings Panel ==================== -->
+<div class="print-panel">
+    <h2>🖨️ Batch Print NFTs (52mm Cards | 4 Columns × 5 Rows | Margin 1mm | Row Spacing 2mm)</h2>
+
+    <div class="panel-top-row">
+        <span class="hint-text">💡 Each slot independently: <strong>Category</strong> select directly / <strong>Subcategory</strong> select category then subcategory / <strong>Item</strong> select category then subcategory then item</span>
+        <div class="button-group">
+            <button class="btn btn-success" id="refresh-preview-btn">👁️ Refresh Preview</button>
+            <button class="btn btn-success" id="print-btn">🖨️ Print</button>
+            <button class="btn btn-secondary" id="back-btn">🔙 Back</button>
+            <button class="btn btn-danger" id="clear-all-btn">🗑️ Clear All</button>
+        </div>
+    </div>
+
+    <div class="slot-config">
+        <div class="slot-config-header">
+            <span>Slot</span>
+            <span>Card Type</span>
+            <span>Selection (Cascade)</span>
+            <span>Preview (Full ID)</span>
+            <span>Status</span>
+            <span>Action</span>
+        </div>
+        <div class="slot-config-body" id="slot-config-body"></div>
+    </div>
+
+    <div class="stats-bar">
+        <span class="count-display">📊 Selected <strong id="filled-count">0</strong> / 20 cards</span>
+        <span class="count-display" style="color:#6c757d; font-size:0.8rem;">
+            <span style="display:inline-block; width:12px; height:12px; background:#28a745; border-radius:3px; vertical-align:middle;"></span> Selected
+            <span style="display:inline-block; width:12px; height:12px; background:#dc3545; border-radius:3px; vertical-align:middle; margin-left:12px;"></span> Empty
+            <span style="display:inline-block; width:12px; height:12px; background:#fff3cd; border-radius:3px; vertical-align:middle; margin-left:12px; border:1px solid #e0a800;"></span> Partial
+        </span>
+    </div>
+</div>
+
+<!-- ==================== Print Preview Area ==================== -->
+<div class="print-preview">
+    <div class="a4-sheet" id="print-sheet">
+        <div class="cards-grid" id="cards-container">
+            <div class="loading-overlay">
+                <div class="loader"></div>
+                <p>Loading data...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== Range Selection Modal ==================== -->
+<div class="range-modal" id="rangeModal">
+    <div class="range-modal-content">
+        <h3 id="rangeModalTitle">Select Fill Range</h3>
+        <div class="modal-subtitle" id="rangeModalSubtitle">Select the start and end positions to fill</div>
+        <div class="range-info" id="rangeInfo"></div>
+        <div class="range-row">
+            <label>From:</label>
+            <select id="rangeStart"></select>
+            <span class="range-sep">→</span>
+            <label>To:</label>
+            <select id="rangeEnd"></select>
+        </div>
+        <div class="range-modal-buttons">
+            <button class="btn btn-cancel" onclick="closeRangeModal()">Cancel</button>
+            <button class="btn btn-confirm" id="rangeConfirmBtn" onclick="confirmRangeFill()">Confirm Fill</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+//  HKU DAO Batch Print - Global Data
+// ============================================================
+const TOTAL_SLOTS = 20;  // 4 columns × 5 rows
+const API_BASE = (window.location.port === '5504' || window.location.port === '5500') ? 'http://127.0.0.1:5012' : window.location.origin;
+
+let allCategories = [];
+let subcategoryMap = {};
+let itemMap = {};
+
+let slotData = [];
+let pendingFillType = '';
+let pendingFillData = [];
+
+// ============================================================
+//  Utility Functions
+// ============================================================
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function formatNftLines(nft) {
+    if (!nft) return '';
+    return nft.match(/.{1,16}/g).join('<br>');
+}
+
+function getCategoryKey(category) { return category; }
+function getSubcategoryKey(category, subcategoryId, subcategoryName) {
+    return `${category}|${subcategoryId}|${subcategoryName}`;
+}
+
+function getCardNumberByCategory(categoryName) {
+    const found = allCategories.find(c => c.name === categoryName);
+    return found ? found.id : null;
+}
+
+function getFullDisplayName(slot) {
+    if (!slot || !slot.type) return '—';
+    
+    if (slot.type === 'category' && slot.data) {
+        return `#${slot.data.id} ${slot.data.name}`;
+    }
+    
+    if (slot.type === 'subcategory' && slot.data) {
+        const category = slot.selectedCategory || slot.data._category || '';
+        const cardNum = getCardNumberByCategory(category);
+        return `#${cardNum || '?'}.${slot.data.id} ${category}.${slot.data.name}`;
+    }
+    
+    if (slot.type === 'item' && slot.data) {
+        const category = slot.selectedCategory || slot.data._category || '';
+        const subcategoryName = slot.selectedSubcategory || slot.data._subcategoryName || '';
+        const cardNum = getCardNumberByCategory(category);
+        let subcategoryId = '?';
+        const cKey = getCategoryKey(category);
+        const subcategoryList = subcategoryMap[cKey] || [];
+        for (const s of subcategoryList) {
+            if (s.name === subcategoryName) {
+                subcategoryId = s.id;
+                break;
+            }
+        }
+        return `#${cardNum || '?'}.${subcategoryId}.${slot.data.id} ${category}.${subcategoryName}.${slot.data.name}`;
+    }
+    
+    if (slot.type === 'category' && !slot.data) return '⏳ Please select category';
+    if (slot.type === 'subcategory' && slot.selectedCategory && !slot.data) {
+        const cardNum = getCardNumberByCategory(slot.selectedCategory);
+        return `#${cardNum || '?'}.? ${slot.selectedCategory}.Please select subcategory`;
+    }
+    if (slot.type === 'subcategory' && !slot.selectedCategory) return '⏳ Please select category first';
+    if (slot.type === 'item' && slot.selectedCategory && slot.selectedSubcategory && !slot.data) {
+        const cardNum = getCardNumberByCategory(slot.selectedCategory);
+        return `#${cardNum || '?'}.?.? ${slot.selectedCategory}.${slot.selectedSubcategory}.Please select item`;
+    }
+    if (slot.type === 'item' && slot.selectedCategory && !slot.selectedSubcategory) {
+        const cardNum = getCardNumberByCategory(slot.selectedCategory);
+        return `#${cardNum || '?'}.?.? ${slot.selectedCategory}.Please select subcategory`;
+    }
+    if (slot.type === 'item' && !slot.selectedCategory) return '⏳ Please select category first';
+    
+    return '—';
+}
+
+// ============================================================
+//  Data Loading - HKU DAO API
+// ============================================================
+
+// Load all categories (Level 1)
+async function loadAllCategories() {
+    try {
+        const resp = await fetch(`${API_BASE}/api/categories/list`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const result = await resp.json();
+        if (!result.success) throw new Error(result.error || 'Failed to fetch categories');
+        allCategories = result.data || [];
+        allCategories.sort((a, b) => a.id - b.id);
+        return allCategories;
+    } catch (err) {
+        console.error('Failed to load categories:', err);
+        throw err;
+    }
+}
+
+// Load subcategories (Level 2)
+async function loadSubcategories(categoryId, categoryName) {
+    try {
+        const resp = await fetch(`${API_BASE}/api/subcategories/list/${categoryId}`);
+        if (!resp.ok) return [];
+        const list = await resp.json();
+        const data = list.data || [];
+        data.sort((a, b) => a.id - b.id);
+        subcategoryMap[getCategoryKey(categoryName)] = data;
+        return data;
+    } catch (err) {
+        console.error('Failed to load subcategories:', err);
+        return [];
+    }
+}
+
+// Load items (Level 3)
+async function loadItems(categoryId, categoryName, subcategoryId, subcategoryName) {
+    try {
+        const url = `${API_BASE}/api/items/list?category_id=${categoryId}&category_name=${encodeURIComponent(categoryName)}&subcategory_id=${subcategoryId}&subcategory_name=${encodeURIComponent(subcategoryName)}`;
+        const resp = await fetch(url);
+        if (!resp.ok) return [];
+        const list = await resp.json();
+        const data = list.data || [];
+        data.sort((a, b) => parseInt(a.number || a.id) - parseInt(b.number || b.id));
+        itemMap[getSubcategoryKey(categoryName, subcategoryId, subcategoryName)] = data;
+        return data;
+    } catch (err) {
+        console.error('Failed to load items:', err);
+        return [];
+    }
+}
+
+async function preloadAllData() {
+    for (const c of allCategories) {
+        const key = getCategoryKey(c.name);
+        if (!subcategoryMap[key]) {
+            await loadSubcategories(c.id, c.name);
+        }
+    }
+    for (const c of allCategories) {
+        const cKey = getCategoryKey(c.name);
+        const subcategoryList = subcategoryMap[cKey] || [];
+        for (const s of subcategoryList) {
+            const mKey = getSubcategoryKey(c.name, s.id, s.name);
+            if (!itemMap[mKey]) {
+                await loadItems(c.id, c.name, s.id, s.name);
+            }
+        }
+    }
+    console.log('✅ All data preloaded');
+}
+
+// ============================================================
+//  Card Rendering Functions - HKU DAO Version
+// ============================================================
+
+// ---- Add cut marks to card ----
+function addCutMarks(cardDiv) {
+    const corners = ['tl', 'tr', 'bl', 'br'];
+    corners.forEach(pos => {
+        const mark = document.createElement('div');
+        mark.className = `cut-mark cut-mark-${pos}`;
+        cardDiv.appendChild(mark);
+    });
+
+    const lineRight = document.createElement('div');
+    lineRight.className = 'cut-cross cut-line-right';
+    cardDiv.appendChild(lineRight);
+
+    const lineBottom = document.createElement('div');
+    lineBottom.className = 'cut-cross cut-line-bottom';
+    cardDiv.appendChild(lineBottom);
+
+    const crossBr = document.createElement('div');
+    crossBr.className = 'cut-cross cut-cross-br';
+    cardDiv.appendChild(crossBr);
+}
+
+// ---- Category Card (Level 1) ----
+function renderCategoryCardHTML(data) {
+    const name = data.name || 'Unknown';
+    const nftRaw = data.hash || '';
+    const shortlink = data.shortlink || '';
+    const nftDisplay = nftRaw ? formatNftLines(nftRaw) : 'No data';
+    let qrContent = shortlink || nftRaw || '';
+
+    return `
+        <div class="print-card-content">
+            <div class="print-card-inner">
+                <div class="print-name-area category-name">
+                    <div class="print-main-name">${escapeHtml(name)}</div>
+                </div>
+                <div class="print-qr-area">
+                    <div class="print-qr-wrapper">
+                        <div class="print-qrcode qr-placeholder" data-qr="${escapeHtml(qrContent)}"></div>
+                    </div>
+                    <div class="print-nft-text">${nftDisplay}</div>
+                </div>
+            </div>
+            <div class="print-card-footer">
+                <span class="print-dao-label">港大道-NFT</span>
+            </div>
+        </div>
+    `;
+}
+
+// ---- Subcategory Card (Level 2) ----
+function renderSubcategoryCardHTML(data, categoryName) {
+    const name = data.name || 'Unknown';
+    const hash = data.hash || '';
+    const shortlink = data.shortlink || '';
+    const nftDisplay = hash ? formatNftLines(hash) : 'No data';
+    let qrContent = shortlink || hash || '';
+
+    return `
+        <div class="print-card-content">
+            <div class="print-card-inner">
+                <div class="print-name-area subcategory-name">
+                    <div class="print-subcategory-category">${escapeHtml(categoryName)}</div>
+                    <div class="print-subcategory-name">${escapeHtml(name)}</div>
+                </div>
+                <div class="print-qr-area">
+                    <div class="print-qr-wrapper">
+                        <div class="print-qrcode qr-placeholder" data-qr="${escapeHtml(qrContent)}"></div>
+                    </div>
+                    <div class="print-nft-text">${nftDisplay}</div>
+                </div>
+            </div>
+            <div class="print-card-footer">
+                <span class="print-dao-label">港大道-NFT</span>
+            </div>
+        </div>
+    `;
+}
+
+// ---- Item Card (Level 3) ----
+function renderItemCardHTML(data, categoryName, subcategoryName) {
+    const name = data.name || 'Unknown';
+    const hash = data.hash || '';
+    const shortlink = data.shortlink || '';
+    const nftDisplay = hash ? formatNftLines(hash) : 'No data';
+    let qrContent = shortlink || hash || '';
+
+    return `
+        <div class="print-card-content">
+            <div class="print-card-inner">
+                <div class="print-name-area item-name">
+                    <div class="print-item-category">${escapeHtml(categoryName)}</div>
+                    <div class="print-item-subcategory">${escapeHtml(subcategoryName)}</div>
+                    <div class="print-item-name">${escapeHtml(name)}</div>
+                </div>
+                <div class="print-qr-area">
+                    <div class="print-qr-wrapper">
+                        <div class="print-qrcode qr-placeholder" data-qr="${escapeHtml(qrContent)}"></div>
+                    </div>
+                    <div class="print-nft-text">${nftDisplay}</div>
+                </div>
+            </div>
+            <div class="print-card-footer">
+                <span class="print-dao-label">港大道-NFT</span>
+            </div>
+        </div>
+    `;
+}
+
+// ---- Empty Card ----
+function renderEmptyCardHTML() {
+    return `
+        <div class="empty-card-content">
+            <div class="empty-icon">🃟</div>
+            <div>Empty</div>
+        </div>
+    `;
+}
+
+function renderCard(slotIdx) {
+    const slot = slotData[slotIdx] || { type: null, data: null, selectedCategory: '', selectedSubcategory: '' };
+    const cardDiv = document.createElement('div');
+    cardDiv.className = 'print-card';
+    cardDiv.dataset.slot = slotIdx;
+
+    if (!slot.type || !slot.data) {
+        cardDiv.classList.add('empty-card');
+        cardDiv.innerHTML = renderEmptyCardHTML();
+        addCutMarks(cardDiv);
+        return cardDiv;
+    }
+
+    let innerHtml = '';
+    const data = slot.data;
+    switch (slot.type) {
+        case 'category':
+            innerHtml = renderCategoryCardHTML(data);
+            break;
+        case 'subcategory':
+            innerHtml = renderSubcategoryCardHTML(data, slot.selectedCategory || data._category || '');
+            break;
+        case 'item':
+            innerHtml = renderItemCardHTML(data, slot.selectedCategory || data._category || '', slot.selectedSubcategory || data._subcategoryName || '');
+            break;
+        default:
+            cardDiv.classList.add('empty-card');
+            cardDiv.innerHTML = renderEmptyCardHTML();
+            addCutMarks(cardDiv);
+            return cardDiv;
+    }
+
+    cardDiv.innerHTML = innerHtml;
+    addCutMarks(cardDiv);
+    return cardDiv;
+}
+
+function refreshPreview() {
+    const container = document.getElementById('cards-container');
+    container.innerHTML = '';
+
+    for (let i = 0; i < TOTAL_SLOTS; i++) {
+        const card = renderCard(i);
+        container.appendChild(card);
+    }
+
+    setTimeout(() => {
+        const qrElements = document.querySelectorAll('.qr-placeholder');
+        qrElements.forEach(el => {
+            const qrText = el.dataset.qr || '';
+            if (qrText) {
+                try {
+                    el.innerHTML = '';
+                    new QRCode(el, {
+                        text: qrText,
+                        width: 70,
+                        height: 70,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+                } catch (err) {
+                    el.innerHTML = `<div style="width:70px;height:70px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;font-size:9px;color:#999;">No QR</div>`;
+                }
+            } else {
+                el.innerHTML = `<div style="width:70px;height:70px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;font-size:9px;color:#999;">No QR</div>`;
+            }
+        });
+    }, 150);
+
+    updateStats();
+}
+
+// ============================================================
+//  Slot Configuration UI (HKU DAO Version)
+// ============================================================
+
+function buildSlotConfigUI() {
+    const body = document.getElementById('slot-config-body');
+    body.innerHTML = '';
+
+    for (let i = 0; i < TOTAL_SLOTS; i++) {
+        const slot = slotData[i] || { type: null, data: null, selectedCategory: '', selectedSubcategory: '' };
+        const row = document.createElement('div');
+        row.className = 'slot-row';
+        row.dataset.slotIndex = i;
+
+        const idxSpan = document.createElement('span');
+        idxSpan.className = 'slot-index';
+        idxSpan.textContent = `#${i+1}`;
+
+        const typeSelect = document.createElement('select');
+        typeSelect.className = 'slot-type-select';
+        typeSelect.dataset.slot = i;
+        typeSelect.innerHTML = `
+            <option value="">-- Empty --</option>
+            <option value="category" ${slot.type === 'category' ? 'selected' : ''}>🏷️ Category</option>
+            <option value="subcategory" ${slot.type === 'subcategory' ? 'selected' : ''}>🏛️ Subcategory</option>
+            <option value="item" ${slot.type === 'item' ? 'selected' : ''}>👤 Item</option>
+        `;
+
+        const cascadeDiv = document.createElement('div');
+        cascadeDiv.className = 'cascade-container';
+
+        const categorySelect = document.createElement('select');
+        categorySelect.className = 'cascade-category';
+        categorySelect.dataset.slot = i;
+        categorySelect.innerHTML = `<option value="">-- Category --</option>`;
+        allCategories.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.name;
+            opt.textContent = `#${c.id} ${c.name}`;
+            if (slot.selectedCategory === c.name) opt.selected = true;
+            categorySelect.appendChild(opt);
+        });
+
+        const sep1 = document.createElement('span');
+        sep1.className = 'cascade-sep';
+        sep1.textContent = '›';
+
+        const subcategorySelect = document.createElement('select');
+        subcategorySelect.className = 'cascade-subcategory';
+        subcategorySelect.dataset.slot = i;
+        subcategorySelect.innerHTML = `<option value="">-- Subcategory --</option>`;
+        subcategorySelect.disabled = true;
+
+        const sep2 = document.createElement('span');
+        sep2.className = 'cascade-sep';
+        sep2.textContent = '›';
+
+        const itemSelect = document.createElement('select');
+        itemSelect.className = 'cascade-item';
+        itemSelect.dataset.slot = i;
+        itemSelect.innerHTML = `<option value="">-- Item --</option>`;
+        itemSelect.disabled = true;
+
+        cascadeDiv.appendChild(categorySelect);
+        cascadeDiv.appendChild(sep1);
+        cascadeDiv.appendChild(subcategorySelect);
+        cascadeDiv.appendChild(sep2);
+        cascadeDiv.appendChild(itemSelect);
+
+        updateCascadeVisibility(typeSelect.value, cascadeDiv);
+
+        const previewSpan = document.createElement('span');
+        previewSpan.className = 'slot-preview-text';
+        updatePreviewText(previewSpan, slot);
+
+        const statusSpan = document.createElement('span');
+        statusSpan.className = 'slot-status';
+        updateSlotStatusUI(statusSpan, slot);
+
+        const clearBtn = document.createElement('button');
+        clearBtn.className = 'clear-slot-btn';
+        clearBtn.textContent = '✕';
+        clearBtn.title = 'Clear this slot';
+
+        row.appendChild(idxSpan);
+        row.appendChild(typeSelect);
+        row.appendChild(cascadeDiv);
+        row.appendChild(previewSpan);
+        row.appendChild(statusSpan);
+        row.appendChild(clearBtn);
+        body.appendChild(row);
+
+        if (slot.type === 'subcategory' && slot.selectedCategory) {
+            populateSubcategorySelect(subcategorySelect, slot.selectedCategory, slot.data);
+        }
+        if (slot.type === 'item' && slot.selectedCategory) {
+            populateSubcategorySelect(subcategorySelect, slot.selectedCategory, null);
+            if (slot.selectedSubcategory) {
+                populateItemSelect(itemSelect, slot.selectedCategory, slot.selectedSubcategory, slot.data);
+            }
+        }
+
+        // ---- Event Bindings ----
+        typeSelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const categorySel = cascadeDivEl.querySelector('.cascade-category');
+            const subcategorySel = cascadeDivEl.querySelector('.cascade-subcategory');
+            const itemSel = cascadeDivEl.querySelector('.cascade-item');
+
+            slotData[idx] = { type: val || null, data: null, selectedCategory: '', selectedSubcategory: '' };
+            subcategorySel.innerHTML = `<option value="">-- Subcategory --</option>`;
+            subcategorySel.disabled = true;
+            itemSel.innerHTML = `<option value="">-- Item --</option>`;
+            itemSel.disabled = true;
+            categorySel.value = '';
+
+            updateCascadeVisibility(val, cascadeDivEl);
+            updateSlotStatusUI(statusSpan, slotData[idx]);
+            updatePreviewText(previewSpan, slotData[idx]);
+            refreshPreview();
+        });
+
+        categorySelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const subcategorySel = cascadeDivEl.querySelector('.cascade-subcategory');
+            const itemSel = cascadeDivEl.querySelector('.cascade-item');
+            const typeSel = rowEl.querySelector('.slot-type-select');
+            const typeVal = typeSel.value;
+            const statusSpan = rowEl.querySelector('.slot-status');
+            const previewSpan = rowEl.querySelector('.slot-preview-text');
+
+            if (slotData[idx]) {
+                slotData[idx].selectedCategory = val;
+                if (typeVal === 'category' && val) {
+                    const found = allCategories.find(c => c.name === val);
+                    if (found) {
+                        slotData[idx].data = found;
+                    }
+                } else {
+                    slotData[idx].data = null;
+                    slotData[idx].selectedSubcategory = '';
+                }
+            }
+
+            subcategorySel.innerHTML = `<option value="">-- Subcategory --</option>`;
+            subcategorySel.disabled = true;
+            itemSel.innerHTML = `<option value="">-- Item --</option>`;
+            itemSel.disabled = true;
+
+            if (val && (typeVal === 'subcategory' || typeVal === 'item')) {
+                subcategorySel.disabled = false;
+                subcategorySel.innerHTML = `<option value="">-- Loading... --</option>`;
+                const cardId = getCardNumberByCategory(val);
+                if (cardId) {
+                    loadSubcategories(cardId, val).then(list => {
+                        subcategorySel.innerHTML = `<option value="">-- Select Subcategory --</option>`;
+                        list.forEach(s => {
+                            const opt = document.createElement('option');
+                            opt.value = JSON.stringify(s);
+                            opt.textContent = `#${s.id} ${s.name}`;
+                            subcategorySel.appendChild(opt);
+                        });
+                        if (list.length === 0) {
+                            subcategorySel.innerHTML = `<option value="">-- No subcategories --</option>`;
+                        }
+                        updatePreviewText(previewSpan, slotData[idx]);
+                        updateSlotStatusUI(statusSpan, slotData[idx]);
+                        refreshPreview();
+                    });
+                }
+            }
+
+            updateSlotStatusUI(statusSpan, slotData[idx]);
+            updatePreviewText(previewSpan, slotData[idx]);
+            refreshPreview();
+        });
+
+        subcategorySelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const categorySel = cascadeDivEl.querySelector('.cascade-category');
+            const itemSel = cascadeDivEl.querySelector('.cascade-item');
+            const typeSel = rowEl.querySelector('.slot-type-select');
+            const typeVal = typeSel.value;
+            const category = categorySel.value;
+            const statusSpan = rowEl.querySelector('.slot-status');
+            const previewSpan = rowEl.querySelector('.slot-preview-text');
+
+            if (!val) {
+                if (slotData[idx]) {
+                    slotData[idx].data = null;
+                    slotData[idx].selectedSubcategory = '';
+                }
+                itemSel.innerHTML = `<option value="">-- Item --</option>`;
+                itemSel.disabled = true;
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+                return;
+            }
+
+            try {
+                const subcategoryData = JSON.parse(val);
+                if (slotData[idx]) {
+                    slotData[idx].data = subcategoryData;
+                    slotData[idx].selectedSubcategory = subcategoryData.name;
+                }
+
+                if (typeVal === 'item' && category) {
+                    itemSel.disabled = false;
+                    itemSel.innerHTML = `<option value="">-- Loading... --</option>`;
+                    const cardId = getCardNumberByCategory(category);
+                    if (cardId) {
+                        loadItems(cardId, category, subcategoryData.id, subcategoryData.name).then(list => {
+                            itemSel.innerHTML = `<option value="">-- Select Item --</option>`;
+                            list.forEach(m => {
+                                const opt = document.createElement('option');
+                                const dataWithContext = { ...m, _category: category, _subcategoryName: subcategoryData.name };
+                                opt.value = JSON.stringify(dataWithContext);
+                                opt.textContent = `#${m.number || m.id} ${m.name}`;
+                                itemSel.appendChild(opt);
+                            });
+                            if (list.length === 0) {
+                                itemSel.innerHTML = `<option value="">-- No items --</option>`;
+                            }
+                            updateSlotStatusUI(statusSpan, slotData[idx]);
+                            updatePreviewText(previewSpan, slotData[idx]);
+                            refreshPreview();
+                        });
+                    }
+                }
+
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+            } catch(e) {
+                console.warn('Failed to parse subcategory data:', e);
+            }
+        });
+
+        itemSelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const statusSpan = rowEl.querySelector('.slot-status');
+            const previewSpan = rowEl.querySelector('.slot-preview-text');
+
+            if (!val) {
+                if (slotData[idx]) slotData[idx].data = null;
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+                return;
+            }
+
+            try {
+                const itemData = JSON.parse(val);
+                if (slotData[idx]) {
+                    slotData[idx].data = itemData;
+                }
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+            } catch(e) {
+                console.warn('Failed to parse item data:', e);
+            }
+        });
+
+        clearBtn.addEventListener('click', function() {
+            const rowEl = this.closest('.slot-row');
+            const idx = parseInt(rowEl.dataset.slotIndex);
+            slotData[idx] = { type: null, data: null, selectedCategory: '', selectedSubcategory: '' };
+
+            const typeSel = rowEl.querySelector('.slot-type-select');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const categorySel = cascadeDivEl.querySelector('.cascade-category');
+            const subcategorySel = cascadeDivEl.querySelector('.cascade-subcategory');
+            const itemSel = cascadeDivEl.querySelector('.cascade-item');
+
+            typeSel.value = '';
+            categorySel.value = '';
+            subcategorySel.innerHTML = `<option value="">-- Subcategory --</option>`;
+            subcategorySel.disabled = true;
+            itemSel.innerHTML = `<option value="">-- Item --</option>`;
+            itemSel.disabled = true;
+
+            updateCascadeVisibility('', cascadeDivEl);
+            updateSlotStatusUI(statusSpan, slotData[idx]);
+            updatePreviewText(previewSpan, slotData[idx]);
+            refreshPreview();
+        });
+    }
+}
+
+function updateCascadeVisibility(type, cascadeDiv) {
+    const categorySel = cascadeDiv.querySelector('.cascade-category');
+    const subcategorySel = cascadeDiv.querySelector('.cascade-subcategory');
+    const itemSel = cascadeDiv.querySelector('.cascade-item');
+    const sep1 = cascadeDiv.querySelector('.cascade-sep:first-of-type');
+    const sep2 = cascadeDiv.querySelector('.cascade-sep:last-of-type');
+
+    categorySel.style.display = 'inline-block';
+
+    if (type === 'category') {
+        subcategorySel.style.display = 'none';
+        itemSel.style.display = 'none';
+        if (sep1) { sep1.style.display = 'none'; sep1.className = 'cascade-sep'; }
+        if (sep2) { sep2.style.display = 'none'; sep2.className = 'cascade-sep'; }
+        subcategorySel.disabled = true;
+        itemSel.disabled = true;
+    } else if (type === 'subcategory') {
+        subcategorySel.style.display = 'inline-block';
+        itemSel.style.display = 'none';
+        if (sep1) { sep1.style.display = 'inline'; sep1.className = 'cascade-sep active'; }
+        if (sep2) { sep2.style.display = 'none'; sep2.className = 'cascade-sep'; }
+        itemSel.disabled = true;
+        if (!subcategorySel.value) subcategorySel.disabled = true;
+    } else if (type === 'item') {
+        subcategorySel.style.display = 'inline-block';
+        itemSel.style.display = 'inline-block';
+        if (sep1) { sep1.style.display = 'inline'; sep1.className = 'cascade-sep active'; }
+        if (sep2) { sep2.style.display = 'inline'; sep2.className = 'cascade-sep active'; }
+        if (!subcategorySel.value) subcategorySel.disabled = true;
+        if (!subcategorySel.value || !itemSel.value) itemSel.disabled = true;
+    } else {
+        categorySel.style.display = 'inline-block';
+        subcategorySel.style.display = 'none';
+        itemSel.style.display = 'none';
+        if (sep1) { sep1.style.display = 'none'; sep1.className = 'cascade-sep'; }
+        if (sep2) { sep2.style.display = 'none'; sep2.className = 'cascade-sep'; }
+        subcategorySel.disabled = true;
+        itemSel.disabled = true;
+    }
+}
+
+function populateSubcategorySelect(selectEl, category, selectedData) {
+    selectEl.innerHTML = `<option value="">-- Subcategory --</option>`;
+    selectEl.disabled = false;
+    const key = getCategoryKey(category);
+    const list = subcategoryMap[key] || [];
+    list.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = JSON.stringify(s);
+        opt.textContent = `#${s.id} ${s.name}`;
+        if (selectedData && selectedData.id === s.id) {
+            opt.selected = true;
+        }
+        selectEl.appendChild(opt);
+    });
+    if (list.length === 0) {
+        selectEl.innerHTML = `<option value="">-- No subcategories --</option>`;
+        selectEl.disabled = true;
+    }
+}
+
+function populateItemSelect(selectEl, category, subcategoryName, selectedData) {
+    const cKey = getCategoryKey(category);
+    const subcategoryList = subcategoryMap[cKey] || [];
+    let subcategoryId = null;
+    for (const s of subcategoryList) {
+        if (s.name === subcategoryName) {
+            subcategoryId = s.id;
+            break;
+        }
+    }
+    if (!subcategoryId) {
+        selectEl.innerHTML = `<option value="">-- Subcategory not found --</option>`;
+        selectEl.disabled = true;
+        return;
+    }
+
+    const mKey = getSubcategoryKey(category, subcategoryId, subcategoryName);
+    const list = itemMap[mKey] || [];
+    selectEl.innerHTML = `<option value="">-- Select Item --</option>`;
+    selectEl.disabled = false;
+    list.forEach(m => {
+        const opt = document.createElement('option');
+        const dataWithContext = { ...m, _category: category, _subcategoryName: subcategoryName };
+        opt.value = JSON.stringify(dataWithContext);
+        opt.textContent = `#${m.number || m.id} ${m.name}`;
+        if (selectedData && (selectedData.id === m.id || selectedData.number === m.number)) {
+            opt.selected = true;
+        }
+        selectEl.appendChild(opt);
+    });
+    if (list.length === 0) {
+        selectEl.innerHTML = `<option value="">-- No items --</option>`;
+        selectEl.disabled = true;
+    }
+}
+
+function updateSlotStatusUI(statusSpan, slot) {
+    if (slot && slot.type && slot.data) {
+        statusSpan.className = 'slot-status ready';
+        statusSpan.innerHTML = '✅ Selected';
+    } else if (slot && slot.type && (slot.selectedCategory || slot.selectedSubcategory)) {
+        statusSpan.className = 'slot-status partial';
+        statusSpan.innerHTML = '⏳ Selecting';
+    } else {
+        statusSpan.className = 'slot-status empty';
+        statusSpan.innerHTML = '⬜ Empty';
+    }
+}
+
+function updatePreviewText(previewSpan, slot) {
+    if (!slot || !slot.type) {
+        previewSpan.innerHTML = '<span class="empty-preview">—</span>';
+        return;
+    }
+
+    let displayText = getFullDisplayName(slot);
+    if (slot.data) {
+        previewSpan.innerHTML = `<span class="highlight-path">${displayText}</span>`;
+    } else {
+        previewSpan.innerHTML = `<span style="color:#856404;">${displayText}</span>`;
+    }
+}
+
+function updateStats() {
+    let count = 0;
+    for (let i = 0; i < TOTAL_SLOTS; i++) {
+        if (slotData[i] && slotData[i].type && slotData[i].data) count++;
+    }
+    document.getElementById('filled-count').textContent = count;
+}
+
+function rebuildSlotUI() {
+    const body = document.getElementById('slot-config-body');
+    body.innerHTML = '';
+    for (let i = 0; i < TOTAL_SLOTS; i++) {
+        const slot = slotData[i] || { type: null, data: null, selectedCategory: '', selectedSubcategory: '' };
+        const row = document.createElement('div');
+        row.className = 'slot-row';
+        row.dataset.slotIndex = i;
+
+        const idxSpan = document.createElement('span');
+        idxSpan.className = 'slot-index';
+        idxSpan.textContent = `#${i+1}`;
+
+        const typeSelect = document.createElement('select');
+        typeSelect.className = 'slot-type-select';
+        typeSelect.dataset.slot = i;
+        typeSelect.innerHTML = `
+            <option value="">-- Empty --</option>
+            <option value="category" ${slot.type === 'category' ? 'selected' : ''}>🏷️ Category</option>
+            <option value="subcategory" ${slot.type === 'subcategory' ? 'selected' : ''}>🏛️ Subcategory</option>
+            <option value="item" ${slot.type === 'item' ? 'selected' : ''}>👤 Item</option>
+        `;
+
+        const cascadeDiv = document.createElement('div');
+        cascadeDiv.className = 'cascade-container';
+
+        const categorySelect = document.createElement('select');
+        categorySelect.className = 'cascade-category';
+        categorySelect.dataset.slot = i;
+        categorySelect.innerHTML = `<option value="">-- Category --</option>`;
+        allCategories.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.name;
+            opt.textContent = `#${c.id} ${c.name}`;
+            if (slot.selectedCategory === c.name) opt.selected = true;
+            categorySelect.appendChild(opt);
+        });
+
+        const sep1 = document.createElement('span');
+        sep1.className = 'cascade-sep';
+        sep1.textContent = '›';
+
+        const subcategorySelect = document.createElement('select');
+        subcategorySelect.className = 'cascade-subcategory';
+        subcategorySelect.dataset.slot = i;
+        subcategorySelect.innerHTML = `<option value="">-- Subcategory --</option>`;
+        subcategorySelect.disabled = true;
+
+        const sep2 = document.createElement('span');
+        sep2.className = 'cascade-sep';
+        sep2.textContent = '›';
+
+        const itemSelect = document.createElement('select');
+        itemSelect.className = 'cascade-item';
+        itemSelect.dataset.slot = i;
+        itemSelect.innerHTML = `<option value="">-- Item --</option>`;
+        itemSelect.disabled = true;
+
+        cascadeDiv.appendChild(categorySelect);
+        cascadeDiv.appendChild(sep1);
+        cascadeDiv.appendChild(subcategorySelect);
+        cascadeDiv.appendChild(sep2);
+        cascadeDiv.appendChild(itemSelect);
+
+        updateCascadeVisibility(typeSelect.value, cascadeDiv);
+
+        const previewSpan = document.createElement('span');
+        previewSpan.className = 'slot-preview-text';
+        updatePreviewText(previewSpan, slot);
+
+        const statusSpan = document.createElement('span');
+        statusSpan.className = 'slot-status';
+        updateSlotStatusUI(statusSpan, slot);
+
+        const clearBtn = document.createElement('button');
+        clearBtn.className = 'clear-slot-btn';
+        clearBtn.textContent = '✕';
+        clearBtn.title = 'Clear this slot';
+
+        row.appendChild(idxSpan);
+        row.appendChild(typeSelect);
+        row.appendChild(cascadeDiv);
+        row.appendChild(previewSpan);
+        row.appendChild(statusSpan);
+        row.appendChild(clearBtn);
+        body.appendChild(row);
+
+        if (slot.type === 'subcategory' && slot.selectedCategory) {
+            populateSubcategorySelect(subcategorySelect, slot.selectedCategory, slot.data);
+        }
+        if (slot.type === 'item' && slot.selectedCategory) {
+            populateSubcategorySelect(subcategorySelect, slot.selectedCategory, null);
+            if (slot.selectedSubcategory) {
+                populateItemSelect(itemSelect, slot.selectedCategory, slot.selectedSubcategory, slot.data);
+            }
+        }
+
+        // ---- Event Bindings (reused) ----
+        typeSelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const categorySel = cascadeDivEl.querySelector('.cascade-category');
+            const subcategorySel = cascadeDivEl.querySelector('.cascade-subcategory');
+            const itemSel = cascadeDivEl.querySelector('.cascade-item');
+
+            slotData[idx] = { type: val || null, data: null, selectedCategory: '', selectedSubcategory: '' };
+            subcategorySel.innerHTML = `<option value="">-- Subcategory --</option>`;
+            subcategorySel.disabled = true;
+            itemSel.innerHTML = `<option value="">-- Item --</option>`;
+            itemSel.disabled = true;
+            categorySel.value = '';
+
+            updateCascadeVisibility(val, cascadeDivEl);
+            updateSlotStatusUI(statusSpan, slotData[idx]);
+            updatePreviewText(previewSpan, slotData[idx]);
+            refreshPreview();
+        });
+
+        categorySelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const subcategorySel = cascadeDivEl.querySelector('.cascade-subcategory');
+            const itemSel = cascadeDivEl.querySelector('.cascade-item');
+            const typeSel = rowEl.querySelector('.slot-type-select');
+            const typeVal = typeSel.value;
+            const statusSpan = rowEl.querySelector('.slot-status');
+            const previewSpan = rowEl.querySelector('.slot-preview-text');
+
+            if (slotData[idx]) {
+                slotData[idx].selectedCategory = val;
+                if (typeVal === 'category' && val) {
+                    const found = allCategories.find(c => c.name === val);
+                    if (found) {
+                        slotData[idx].data = found;
+                    }
+                } else {
+                    slotData[idx].data = null;
+                    slotData[idx].selectedSubcategory = '';
+                }
+            }
+
+            subcategorySel.innerHTML = `<option value="">-- Subcategory --</option>`;
+            subcategorySel.disabled = true;
+            itemSel.innerHTML = `<option value="">-- Item --</option>`;
+            itemSel.disabled = true;
+
+            if (val && (typeVal === 'subcategory' || typeVal === 'item')) {
+                subcategorySel.disabled = false;
+                subcategorySel.innerHTML = `<option value="">-- Loading... --</option>`;
+                const cardId = getCardNumberByCategory(val);
+                if (cardId) {
+                    loadSubcategories(cardId, val).then(list => {
+                        subcategorySel.innerHTML = `<option value="">-- Select Subcategory --</option>`;
+                        list.forEach(s => {
+                            const opt = document.createElement('option');
+                            opt.value = JSON.stringify(s);
+                            opt.textContent = `#${s.id} ${s.name}`;
+                            subcategorySel.appendChild(opt);
+                        });
+                        if (list.length === 0) {
+                            subcategorySel.innerHTML = `<option value="">-- No subcategories --</option>`;
+                        }
+                        updatePreviewText(previewSpan, slotData[idx]);
+                        updateSlotStatusUI(statusSpan, slotData[idx]);
+                        refreshPreview();
+                    });
+                }
+            }
+
+            updateSlotStatusUI(statusSpan, slotData[idx]);
+            updatePreviewText(previewSpan, slotData[idx]);
+            refreshPreview();
+        });
+
+        subcategorySelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const categorySel = cascadeDivEl.querySelector('.cascade-category');
+            const itemSel = cascadeDivEl.querySelector('.cascade-item');
+            const typeSel = rowEl.querySelector('.slot-type-select');
+            const typeVal = typeSel.value;
+            const category = categorySel.value;
+            const statusSpan = rowEl.querySelector('.slot-status');
+            const previewSpan = rowEl.querySelector('.slot-preview-text');
+
+            if (!val) {
+                if (slotData[idx]) {
+                    slotData[idx].data = null;
+                    slotData[idx].selectedSubcategory = '';
+                }
+                itemSel.innerHTML = `<option value="">-- Item --</option>`;
+                itemSel.disabled = true;
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+                return;
+            }
+
+            try {
+                const subcategoryData = JSON.parse(val);
+                if (slotData[idx]) {
+                    slotData[idx].data = subcategoryData;
+                    slotData[idx].selectedSubcategory = subcategoryData.name;
+                }
+
+                if (typeVal === 'item' && category) {
+                    itemSel.disabled = false;
+                    itemSel.innerHTML = `<option value="">-- Loading... --</option>`;
+                    const cardId = getCardNumberByCategory(category);
+                    if (cardId) {
+                        loadItems(cardId, category, subcategoryData.id, subcategoryData.name).then(list => {
+                            itemSel.innerHTML = `<option value="">-- Select Item --</option>`;
+                            list.forEach(m => {
+                                const opt = document.createElement('option');
+                                const dataWithContext = { ...m, _category: category, _subcategoryName: subcategoryData.name };
+                                opt.value = JSON.stringify(dataWithContext);
+                                opt.textContent = `#${m.number || m.id} ${m.name}`;
+                                itemSel.appendChild(opt);
+                            });
+                            if (list.length === 0) {
+                                itemSel.innerHTML = `<option value="">-- No items --</option>`;
+                            }
+                            updateSlotStatusUI(statusSpan, slotData[idx]);
+                            updatePreviewText(previewSpan, slotData[idx]);
+                            refreshPreview();
+                        });
+                    }
+                }
+
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+            } catch(e) {
+                console.warn('Failed to parse subcategory data:', e);
+            }
+        });
+
+        itemSelect.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.slot);
+            const val = this.value;
+            const rowEl = this.closest('.slot-row');
+            const statusSpan = rowEl.querySelector('.slot-status');
+            const previewSpan = rowEl.querySelector('.slot-preview-text');
+
+            if (!val) {
+                if (slotData[idx]) slotData[idx].data = null;
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+                return;
+            }
+
+            try {
+                const itemData = JSON.parse(val);
+                if (slotData[idx]) {
+                    slotData[idx].data = itemData;
+                }
+                updateSlotStatusUI(statusSpan, slotData[idx]);
+                updatePreviewText(previewSpan, slotData[idx]);
+                refreshPreview();
+            } catch(e) {
+                console.warn('Failed to parse item data:', e);
+            }
+        });
+
+        clearBtn.addEventListener('click', function() {
+            const rowEl = this.closest('.slot-row');
+            const idx = parseInt(rowEl.dataset.slotIndex);
+            slotData[idx] = { type: null, data: null, selectedCategory: '', selectedSubcategory: '' };
+
+            const typeSel = rowEl.querySelector('.slot-type-select');
+            const cascadeDivEl = rowEl.querySelector('.cascade-container');
+            const categorySel = cascadeDivEl.querySelector('.cascade-category');
+            const subcategorySel = cascadeDivEl.querySelector('.cascade-subcategory');
+            const itemSel = cascadeDivEl.querySelector('.cascade-item');
+
+            typeSel.value = '';
+            categorySel.value = '';
+            subcategorySel.innerHTML = `<option value="">-- Subcategory --</option>`;
+            subcategorySel.disabled = true;
+            itemSel.innerHTML = `<option value="">-- Item --</option>`;
+            itemSel.disabled = true;
+
+            updateCascadeVisibility('', cascadeDivEl);
+            updateSlotStatusUI(statusSpan, slotData[idx]);
+            updatePreviewText(previewSpan, slotData[idx]);
+            refreshPreview();
+        });
+    }
+}
+
+// ============================================================
+//  Range Selection Modal (HKU DAO Version)
+// ============================================================
+
+function openRangeModal(type) {
+    pendingFillType = type;
+    
+    let dataList = [];
+    let title = '';
+    let subtitle = '';
+    
+    if (type === 'category') {
+        dataList = allCategories.map(c => ({ 
+            id: c.id, 
+            label: `#${c.id} ${c.name}`,
+            data: c,
+            type: 'category'
+        }));
+        title = 'Select Category Range to Fill';
+        subtitle = 'Select the start and end categories to fill into empty slots in order';
+    } else if (type === 'subcategory') {
+        for (const c of allCategories) {
+            const key = getCategoryKey(c.name);
+            const list = subcategoryMap[key] || [];
+            for (const s of list) {
+                dataList.push({
+                    id: `${c.name}|${s.id}`,
+                    label: `#${c.id}.${s.id} ${c.name}.${s.name}`,
+                    data: { ...s, _category: c.name },
+                    type: 'subcategory'
+                });
+            }
+        }
+        title = 'Select Subcategory Range to Fill';
+        subtitle = 'Select the start and end subcategories to fill into empty slots in order';
+    } else if (type === 'item') {
+        for (const c of allCategories) {
+            const cKey = getCategoryKey(c.name);
+            const subcategoryList = subcategoryMap[cKey] || [];
+            for (const s of subcategoryList) {
+                const mKey = getSubcategoryKey(c.name, s.id, s.name);
+                const itemList = itemMap[mKey] || [];
+                for (const m of itemList) {
+                    dataList.push({
+                        id: `${c.name}|${s.name}|${m.id}`,
+                        label: `#${c.id}.${s.id}.${m.id} ${c.name}.${s.name}.${m.name}`,
+                        data: { ...m, _category: c.name, _subcategoryName: s.name },
+                        type: 'item'
+                    });
+                }
+            }
+        }
+        title = 'Select Item Range to Fill';
+        subtitle = 'Select the start and end items to fill into empty slots in order';
+    }
+    
+    if (dataList.length === 0) {
+        alert('No data available! Please ensure data is loaded.');
+        return;
+    }
+    
+    pendingFillData = dataList;
+    
+    document.getElementById('rangeModalTitle').textContent = title;
+    document.getElementById('rangeModalSubtitle').textContent = subtitle;
+    
+    const infoDiv = document.getElementById('rangeInfo');
+    let previewHtml = `<strong>Total ${dataList.length} items:</strong> `;
+    const displayItems = dataList.slice(0, 10);
+    displayItems.forEach(item => {
+        previewHtml += `<span class="item-tag">${escapeHtml(item.label)}</span>`;
+    });
+    if (dataList.length > 10) {
+        previewHtml += `<span class="item-tag" style="background:#e9ecef;">... and ${dataList.length - 10} more</span>`;
+    }
+    infoDiv.innerHTML = previewHtml;
+    
+    const startSelect = document.getElementById('rangeStart');
+    const endSelect = document.getElementById('rangeEnd');
+    startSelect.innerHTML = '';
+    endSelect.innerHTML = '';
+    
+    dataList.forEach((item, index) => {
+        const opt1 = document.createElement('option');
+        opt1.value = index;
+        opt1.textContent = item.label;
+        startSelect.appendChild(opt1);
+        
+        const opt2 = document.createElement('option');
+        opt2.value = index;
+        opt2.textContent = item.label;
+        endSelect.appendChild(opt2);
+    });
+    
+    startSelect.value = 0;
+    endSelect.value = dataList.length - 1;
+    
+    document.getElementById('rangeConfirmBtn').disabled = false;
+    document.getElementById('rangeModal').style.display = 'block';
+}
+
+function closeRangeModal() {
+    document.getElementById('rangeModal').style.display = 'none';
+    pendingFillType = '';
+    pendingFillData = [];
+}
+
+function confirmRangeFill() {
+    const startIdx = parseInt(document.getElementById('rangeStart').value);
+    const endIdx = parseInt(document.getElementById('rangeEnd').value);
+    
+    if (isNaN(startIdx) || isNaN(endIdx)) {
+        alert('Please select valid start and end positions!');
+        return;
+    }
+    
+    if (startIdx > endIdx) {
+        alert('Start position cannot be greater than end position!');
+        return;
+    }
+    
+    const selectedItems = pendingFillData.slice(startIdx, endIdx + 1);
+    
+    if (selectedItems.length === 0) {
+        alert('No items selected!');
+        return;
+    }
+    
+    const confirmMsg = `Will fill ${selectedItems.length} ${pendingFillType === 'category' ? 'categories' : pendingFillType === 'subcategory' ? 'subcategories' : 'items'} into empty slots. Continue?`;
+    if (!confirm(confirmMsg)) return;
+    
+    let idx = 0;
+    let filled = 0;
+    for (const item of selectedItems) {
+        while (idx < TOTAL_SLOTS && slotData[idx] && slotData[idx].type && slotData[idx].data) {
+            idx++;
+        }
+        if (idx >= TOTAL_SLOTS) {
+            alert(`All slots filled! Filled ${filled} ${pendingFillType === 'category' ? 'categories' : pendingFillType === 'subcategory' ? 'subcategories' : 'items'}`);
+            break;
+        }
+        
+        if (pendingFillType === 'category') {
+            slotData[idx] = { type: 'category', data: item.data, selectedCategory: item.data.name, selectedSubcategory: '' };
+        } else if (pendingFillType === 'subcategory') {
+            slotData[idx] = { type: 'subcategory', data: item.data, selectedCategory: item.data._category, selectedSubcategory: item.data.name };
+        } else if (pendingFillType === 'item') {
+            slotData[idx] = { type: 'item', data: item.data, selectedCategory: item.data._category, selectedSubcategory: item.data._subcategoryName };
+        }
+        idx++;
+        filled++;
+    }
+    
+    closeRangeModal();
+    rebuildSlotUI();
+    refreshPreview();
+    alert(`✅ Successfully filled ${filled} ${pendingFillType === 'category' ? 'categories' : pendingFillType === 'subcategory' ? 'subcategories' : 'items'} into slots!`);
+}
+
+document.getElementById('rangeModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeRangeModal();
+    }
+});
+
+// ============================================================
+//  Quick Fill Functions (HKU DAO Version)
+// ============================================================
+
+function fillAllCategories() {
+    if (allCategories.length === 0) {
+        alert('No categories available! Please load data first.');
+        return;
+    }
+    openRangeModal('category');
+}
+
+function fillAllSubcategories() {
+    let hasData = false;
+    for (const c of allCategories) {
+        const key = getCategoryKey(c.name);
+        if (subcategoryMap[key] && subcategoryMap[key].length > 0) {
+            hasData = true;
+            break;
+        }
+    }
+    if (!hasData) {
+        alert('No subcategories available! Please ensure data is loaded.');
+        return;
+    }
+    openRangeModal('subcategory');
+}
+
+function fillAllItems() {
+    let hasData = false;
+    for (const c of allCategories) {
+        const cKey = getCategoryKey(c.name);
+        const subcategoryList = subcategoryMap[cKey] || [];
+        for (const s of subcategoryList) {
+            const mKey = getSubcategoryKey(c.name, s.id, s.name);
+            if (itemMap[mKey] && itemMap[mKey].length > 0) {
+                hasData = true;
+                break;
+            }
+        }
+        if (hasData) break;
+    }
+    if (!hasData) {
+        alert('No items available! Please ensure data is loaded.');
+        return;
+    }
+    openRangeModal('item');
+}
+
+function clearAllSlots() {
+    if (!confirm('Are you sure you want to clear all slots?')) return;
+    for (let i = 0; i < TOTAL_SLOTS; i++) {
+        slotData[i] = { type: null, data: null, selectedCategory: '', selectedSubcategory: '' };
+    }
+    rebuildSlotUI();
+    refreshPreview();
+}
+
+// ============================================================
+//  Print & Back
+// ============================================================
+
+function doPrint() {
+    refreshPreview();
+    setTimeout(() => window.print(), 500);
+}
+
+function goBack() {
+    if (document.referrer && (
+        document.referrer.includes('categories.html') ||
+        document.referrer.includes('index_main.html') ||
+        document.referrer.includes('items.html')
+    )) {
+        window.history.back();
+    } else {
+        window.location.href = '/nft/categories.html';
+    }
+}
+
+// ============================================================
+//  Initialization
+// ============================================================
+
+async function init() {
+    const container = document.getElementById('cards-container');
+    container.innerHTML = `<div class="loading-overlay"><div class="loader"></div><p>Loading data...</p></div>`;
+
+    try {
+        await loadAllCategories();
+        await preloadAllData();
+
+        slotData = [];
+        for (let i = 0; i < TOTAL_SLOTS; i++) {
+            slotData.push({ type: null, data: null, selectedCategory: '', selectedSubcategory: '' });
+        }
+
+        buildSlotConfigUI();
+        refreshPreview();
+
+        document.getElementById('refresh-preview-btn').addEventListener('click', refreshPreview);
+        document.getElementById('print-btn').addEventListener('click', doPrint);
+        document.getElementById('back-btn').addEventListener('click', goBack);
+        document.getElementById('clear-all-btn').addEventListener('click', clearAllSlots);
+
+        const btnGroup = document.querySelector('.panel-top-row .button-group');
+        const oldBtns = btnGroup.querySelectorAll('.fill-btn');
+        oldBtns.forEach(b => b.remove());
+
+        const fillCategoryBtn = document.createElement('button');
+        fillCategoryBtn.className = 'btn btn-primary fill-btn';
+        fillCategoryBtn.textContent = '📋 Fill Categories';
+        fillCategoryBtn.title = 'Select category range to fill';
+        fillCategoryBtn.addEventListener('click', fillAllCategories);
+
+        const fillSubcategoryBtn = document.createElement('button');
+        fillSubcategoryBtn.className = 'btn btn-warning fill-btn';
+        fillSubcategoryBtn.textContent = '📋 Fill Subcategories';
+        fillSubcategoryBtn.title = 'Select subcategory range to fill';
+        fillSubcategoryBtn.addEventListener('click', fillAllSubcategories);
+
+        const fillItemBtn = document.createElement('button');
+        fillItemBtn.className = 'btn btn-success fill-btn';
+        fillItemBtn.textContent = '📋 Fill Items';
+        fillItemBtn.title = 'Select item range to fill';
+        fillItemBtn.addEventListener('click', fillAllItems);
+
+        const refreshBtn = document.getElementById('refresh-preview-btn');
+        if (refreshBtn) {
+            refreshBtn.after(fillCategoryBtn);
+            fillCategoryBtn.after(fillSubcategoryBtn);
+            fillSubcategoryBtn.after(fillItemBtn);
+        }
+
+        console.log('✅ HKU DAO Print Page initialized');
+    } catch (err) {
+        console.error('Initialization failed:', err);
+        container.innerHTML = `
+            <div class="error-message">
+                <strong>⚠️ Load Failed</strong><br>
+                ${escapeHtml(err.message)}<br><br>
+                <button class="btn btn-primary" onclick="location.reload()">Reload</button>
+            </div>
+        `;
+    }
+}
+
+// Make the functions accessible globally for button event handlers
+window.fillAllCategories = fillAllCategories;
+window.fillAllSubcategories = fillAllSubcategories;
+window.fillAllItems = fillAllItems;
+window.clearAllSlots = clearAllSlots;
+window.refreshPreview = refreshPreview;
+window.doPrint = doPrint;
+window.openRangeModal = openRangeModal;
+window.closeRangeModal = closeRangeModal;
+window.confirmRangeFill = confirmRangeFill;
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
